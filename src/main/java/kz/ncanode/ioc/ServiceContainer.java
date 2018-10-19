@@ -76,7 +76,7 @@ public class ServiceContainer {
         if (providers.get(className) != null) return;
 
         if (dependenciesStack.contains(className)) {
-            throw new CircularDependencyException("Cross dependencies detected. Duplicating \"" + className + "\". Dependencies stack: " + dependenciesStack.toString());
+            throw new CircularDependencyException("Circular dependencies detected. Duplicating \"" + className + "\". Dependencies stack: " + dependenciesStack.toString());
         }
 
         dependenciesStack.add(className);
