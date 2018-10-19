@@ -6,6 +6,7 @@ import kz.ncanode.ioc.ServiceContainer;
 import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 import kz.ncanode.log.RequestLogServiceProvider;
+import kz.ncanode.security.KalkanServiceProvider;
 
 /**
  * Hello world!
@@ -33,6 +34,9 @@ public class Launcher
 
             // Регистрация обработчика конфигурации
             sc.register(ConfigServiceProvider.class.getName());
+
+            // Регистрация провайдера калкан
+            sc.register(KalkanServiceProvider.class.getName());
 
             // Загрузка всех сервис-провайдеров
             sc.boot();
