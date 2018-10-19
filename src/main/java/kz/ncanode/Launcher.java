@@ -8,10 +8,6 @@ import kz.ncanode.log.OutLogServiceProvider;
 import kz.ncanode.log.RequestLogServiceProvider;
 import kz.ncanode.security.KalkanServiceProvider;
 
-/**
- * Hello world!
- *
- */
 public class Launcher
 {
     public static String[] arguments = null;
