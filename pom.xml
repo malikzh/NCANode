@@ -9,8 +9,20 @@
   <version>0.1</version>
 
   <name>ncanode</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+  <url>http://ncanode.kz</url>
+  <developers>
+    <developer>
+      <id>malikzh</id>
+      <name>Malik Zharykov</name>
+      <email>cmalikz.h@gmail.com</email>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>MIT</name>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
