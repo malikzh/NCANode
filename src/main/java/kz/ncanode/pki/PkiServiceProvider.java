@@ -37,12 +37,14 @@ public class PkiServiceProvider implements ServiceProvider {
     private OutLogServiceProvider   out    = null;
     private ErrorLogServiceProvider err    = null;
     private KalkanServiceProvider   kalkan = null;
+    private CrlServiceProvider   crl    = null;
 
-    public PkiServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ErrorLogServiceProvider err, KalkanServiceProvider kalkan) {
+    public PkiServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ErrorLogServiceProvider err, KalkanServiceProvider kalkan, CrlServiceProvider crl) {
         this.config = config;
         this.out    = out;
         this.err    = err;
         this.kalkan = kalkan;
+        this.crl    = crl;
     }
 
     public KeyStore loadKey(String file, String password) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
@@ -100,7 +102,7 @@ public class PkiServiceProvider implements ServiceProvider {
         return null;
     }
 
-    public JSONObject certInfo(X509Certificate cert) throws CertificateParsingException {
+    public JSONObject certInfo(X509Certificate cert, boolean verifyOcsp, boolean verifyCrl, X509Certificate issuerCert) throws CertificateParsingException, IOException {
         JSONObject response = new JSONObject();
 
         ArrayList<?> userType = keyUser(cert);
@@ -130,6 +132,29 @@ public class PkiServiceProvider implements ServiceProvider {
         response.put("sign", new String(Base64.getEncoder().encode(cert.getSignature())));
         response.put("serialNumber", String.valueOf(cert.getSerialNumber()));
 
+        if (verifyOcsp) {
+            OCSPStatus ocspStatus = verifyOcsp(cert, issuerCert);
+
+            JSONObject ocspvJson = new JSONObject();
+            ocspvJson.put("status", ocspStatus.getStatus().toString());
+            ocspvJson.put("revokationReason", ocspStatus.getRevokationReason());
+            ocspvJson.put("revokationTime", ocspStatus.getRevokationTime() != null ? Helper.dateTime(ocspStatus.getRevokationTime()) : null);
+            response.put("ocsp", ocspvJson);
+        }
+
+        if (verifyCrl) {
+            crl.updateCache(false);
+            CrlStatus crlStatus = crl.verify(cert);
+
+            JSONObject crlJson = new JSONObject();
+
+            if (crlStatus != null) {
+                crlJson.put("status", crlStatus.getStatus().toString());
+                crlJson.put("revokedBy", crlStatus.getRevokedBy());
+            }
+
+            response.put("crl", crlJson);
+        }
 
         return response;
     }
@@ -178,7 +203,7 @@ public class PkiServiceProvider implements ServiceProvider {
 
         // add iin info
         iin = (String) subject.get("iin");
-        if (iin.length() == 12) {
+        if (iin != null && iin.length() == 12) {
             String birthYear  = iin.substring(0, 2);
             String birthMonth = iin.substring(2, 4);
             String birthDay   = iin.substring(4, 6);
@@ -233,6 +258,10 @@ public class PkiServiceProvider implements ServiceProvider {
 
     public static ArrayList<String> keyUser(X509Certificate cert) throws CertificateParsingException {
         ArrayList<String> result = new ArrayList<>();
+
+        if (cert.getExtendedKeyUsage() == null) {
+            return result;
+        }
 
         for (String item : cert.getExtendedKeyUsage()) {
             if (item.equals("1.2.398.3.3.4.1.1")) {

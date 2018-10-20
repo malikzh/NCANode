@@ -46,20 +46,21 @@ public class CrlServiceProvider implements ServiceProvider {
 
                 if (crl.isRevoked(cert)) {
                     return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()));
-                } else {
-                    return new CrlStatus(CrlStatus.CrlResult.ACTIVE, "");
                 }
             }
 
         } catch (CertificateException e) {
             e.printStackTrace();
+            return null;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return null;
         } catch (CRLException e) {
             e.printStackTrace();
+            return null;
         }
 
-        return null;
+        return new CrlStatus(CrlStatus.CrlResult.ACTIVE, "");
     }
 
     public void updateCache(boolean forceUpdate) throws IOException {

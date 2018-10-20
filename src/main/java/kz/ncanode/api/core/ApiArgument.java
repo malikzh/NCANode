@@ -8,7 +8,6 @@ public abstract class ApiArgument {
     public JSONObject params = null;
 
     public abstract void validate() throws InvalidArgumentException;
-    public abstract boolean required();
     public abstract Object get();
     public abstract String name();
 }
