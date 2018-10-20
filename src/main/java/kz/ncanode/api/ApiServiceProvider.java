@@ -1,0 +1,76 @@
+package kz.ncanode.api;
+
+import kz.ncanode.api.core.ApiStatus;
+import kz.ncanode.api.core.ApiVersion;
+import kz.ncanode.api.version.v10.ApiVersion10;
+import kz.ncanode.config.ConfigServiceProvider;
+import kz.ncanode.ioc.ServiceProvider;
+import kz.ncanode.log.ErrorLogServiceProvider;
+import kz.ncanode.log.RequestLogServiceProvider;
+import kz.ncanode.pki.CrlServiceProvider;
+import kz.ncanode.pki.PkiServiceProvider;
+import org.json.simple.JSONObject;
+
+import java.util.Hashtable;
+
+public class ApiServiceProvider implements ServiceProvider {
+
+    ConfigServiceProvider config;
+    RequestLogServiceProvider req;
+    ErrorLogServiceProvider err;
+    PkiServiceProvider pki;
+    CrlServiceProvider crl;
+
+    public Hashtable<String, ApiVersion> supportedVersions = null;
+
+    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl) {
+        this.config = config;
+        this.req    = req;
+        this.err    = err;
+        this.pki    = pki;
+        this.crl    = crl;
+
+
+        // Роутинг версий
+        supportedVersions = new Hashtable<>();
+
+        supportedVersions.put("1.0", new ApiVersion10());
+    }
+
+    public JSONObject process(JSONObject request) {
+
+        String apiVer;
+
+        try {
+            apiVer = (String)request.get("version");
+        } catch (ClassCastException e) {
+            JSONObject resp = new JSONObject();
+            resp.put("status", ApiStatus.STATUS_INVALID_PARAMETER);
+            resp.put("message", "Invalid parameter \"version\"");
+            return resp;
+        }
+
+        // Требуем указывать версию
+        if (apiVer == null || apiVer.isEmpty()) {
+            JSONObject resp = new JSONObject();
+            resp.put("status", ApiStatus.STATUS_VERSION_NOT_SPECIFIED);
+            resp.put("message", "API version not specified");
+            return resp;
+        }
+
+        // Получаем нужную версию API
+        if (!supportedVersions.containsKey(apiVer)) {
+            JSONObject resp = new JSONObject();
+            resp.put("status", ApiStatus.STATUS_VERSION_NOT_SUPPORTED);
+            resp.put("message", "API version not supported");
+            return resp;
+        }
+
+        ApiVersion ver = supportedVersions.get(apiVer);
+
+        ver.setApiManager(this);
+        return ver.process(request);
+    }
+
+
+}
