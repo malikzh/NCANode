@@ -93,14 +93,6 @@ public class PkiServiceProvider implements ServiceProvider {
         return null;
     }
 
-/*    public CRLResult verifyCrl(X509Certificate cert) {
-        return null; //todo
-    }
-
-    public CRLResult verifyCrlDelta(X509Certificate cert) {
-        return null; //todo
-    }*/
-
     public JSONObject certInfo(X509Certificate cert) {
         return null; // todo
     }
