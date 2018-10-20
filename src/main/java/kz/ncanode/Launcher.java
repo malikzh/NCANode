@@ -8,6 +8,7 @@ import kz.ncanode.log.OutLogServiceProvider;
 import kz.ncanode.log.RequestLogServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
 import kz.ncanode.pki.*;
+import org.json.simple.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -89,6 +90,11 @@ public class Launcher
             CrlStatus crlst = crl.verify(cert2);
 
             crlst.getRevokedBy();
+
+
+            // certInfo
+            JSONObject ci = pki.certInfo((X509Certificate)ks.getCertificate(alias));
+            System.out.println(ci.toJSONString());
 
         } catch (CertificateException e) {
             e.printStackTrace();
