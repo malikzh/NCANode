@@ -63,5 +63,9 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
         defaultIni.put("ca", "root_dir", "ca/root");
         defaultIni.put("ca", "trusted_dir", "ca/trusted");
 
+        // [pki]
+        defaultIni.put("pki", "ocsp_url", "http://ocsp.pki.gov.kz");
+
+
     }
 }
