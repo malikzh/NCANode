@@ -27,6 +27,13 @@ public class Launcher
 
     public static void main( String[] args )
     {
+        // Intro
+        System.out.printf("NCANode v%s\n", InfoServiceProvider.VERSION);
+        System.out.printf("Official project page: %s\n", InfoServiceProvider.PROJECT_PAGE);
+        System.out.println("Copyright (c) 2018 Zharykov Malik.");
+        System.out.println("------------------------------------");
+        System.out.print("\n");
+
         arguments = args;
 
         ServiceContainer sc = new ServiceContainer();
