@@ -90,7 +90,7 @@ public class CAStoreServiceProvider implements ServiceProvider {
         // Проверяем все доверенные (промежуточные) сертификаты
         X509Certificate c = null;
 
-        while ((c = chainTrusted(cert)) != null) {
+        while ((c = chainTrusted(result.get(result.size() - 1))) != null) {
             if (!result.contains(c)) {
                 result.add(c);
             }

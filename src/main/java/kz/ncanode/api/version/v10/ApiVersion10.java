@@ -19,8 +19,9 @@ public class ApiVersion10 implements ApiVersion {
 
     private Hashtable<String, ApiMethod> methods = null;
 
-    public ApiVersion10() {
+    public ApiVersion10(ApiServiceProvider man) {
         methods = new Hashtable<>();
+        this.man = man;
 
         methods.put("PKCS12.info", new PKCS12Info(this, man));
     }
@@ -97,7 +98,7 @@ public class ApiVersion10 implements ApiVersion {
                 } catch (InvalidArgumentException e) {
                     JSONObject resp = new JSONObject();
                     resp.put("status", ApiStatus.STATUS_INVALID_PARAMETER);
-                    resp.put("message", "Invalid parameter \"" + arg.name() + "\"");
+                    resp.put("message", "Invalid parameter \"" + arg.name() + "\". Error: " + e.getMessage());
                     return resp;
                 }
             }

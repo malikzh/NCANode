@@ -18,4 +18,16 @@ public class OCSPStatus {
         this.revokationTime   = revokationTime;
         this.revokationReason = revokationReason;
     }
+
+    public Date getRevokationTime() {
+        return revokationTime;
+    }
+
+    public OCSPResult getStatus() {
+        return status;
+    }
+
+    public int getRevokationReason() {
+        return revokationReason;
+    }
 }
