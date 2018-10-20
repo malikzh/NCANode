@@ -1,5 +1,6 @@
 package kz.ncanode;
 
+import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.cmd.CmdServiceProvider;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceContainer;
@@ -53,6 +54,9 @@ public class Launcher
             // Регистрация CRL провайдера
             sc.register(CrlServiceProvider.class.getName());
 
+            // Регистрация подсистемы API
+            sc.register(ApiServiceProvider.class.getName());
+
 
             // Загрузка всех сервис-провайдеров
             sc.boot();
@@ -62,6 +66,7 @@ public class Launcher
         }
 
 
+        // todo remove test code
         try {
             PkiServiceProvider pki = ((PkiServiceProvider)sc.instance(PkiServiceProvider.class.getName()));
             X509Certificate cert = X509Manager.load("ca/trusted/nca_rsa.crt");
@@ -96,6 +101,16 @@ public class Launcher
             JSONObject ci = pki.certInfo((X509Certificate)ks.getCertificate(alias));
             System.out.println(ci.toJSONString());
 
+
+            // test api
+            JSONObject apiReq = new JSONObject();
+            apiReq.put("version", "1.0");
+            apiReq.put("method", "PKCS12.info");
+
+            ApiServiceProvider api = ((ApiServiceProvider)sc.instance(ApiServiceProvider.class.getName()));
+            JSONObject apires = api.process(apiReq);
+
+            System.out.println(apires.toJSONString());
         } catch (CertificateException e) {
             e.printStackTrace();
         } catch (NoSuchProviderException e) {
