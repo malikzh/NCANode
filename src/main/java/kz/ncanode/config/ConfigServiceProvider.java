@@ -55,6 +55,9 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
      * Встроенная конфигурация
      */
     private void setDefaultConfig() {
+        // [main]
+        defaultIni.put("main", "mode", "http");
+
         // [log]
         defaultIni.put("log", "error_log", "logs/error.log");
         defaultIni.put("log", "request_log", "logs/request.log");
@@ -69,5 +72,8 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
         defaultIni.put("pki", "crl_cache_dir", "cache/crl");
         defaultIni.put("pki", "crl_cache_lifetime", "60");
 
+        // [http]
+        defaultIni.put("http", "ip", "127.0.0.1");
+        defaultIni.put("http", "port", "14579");
     }
 }
