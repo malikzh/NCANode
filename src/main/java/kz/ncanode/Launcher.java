@@ -7,10 +7,7 @@ import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 import kz.ncanode.log.RequestLogServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
-import kz.ncanode.pki.CAStoreServiceProvider;
-import kz.ncanode.pki.OCSPStatus;
-import kz.ncanode.pki.PkiServiceProvider;
-import kz.ncanode.pki.X509Manager;
+import kz.ncanode.pki.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -52,6 +49,9 @@ public class Launcher
             // Регистрация провайдера для работы с PKI
             sc.register(PkiServiceProvider.class.getName());
 
+            // Регистрация CRL провайдера
+            sc.register(CrlServiceProvider.class.getName());
+
 
             // Загрузка всех сервис-провайдеров
             sc.boot();
@@ -82,6 +82,13 @@ public class Launcher
 
             OCSPStatus st = pki.verifyOcsp((X509Certificate)ks.getCertificate(alias), cert);
             System.out.println(st);
+
+
+            // test crl
+            CrlServiceProvider crl = (CrlServiceProvider)sc.instance(CrlServiceProvider.class.getName());
+            CrlStatus crlst = crl.verify(cert2);
+
+            crlst.getRevokedBy();
 
         } catch (CertificateException e) {
             e.printStackTrace();

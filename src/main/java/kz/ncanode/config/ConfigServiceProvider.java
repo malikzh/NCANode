@@ -65,7 +65,9 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
 
         // [pki]
         defaultIni.put("pki", "ocsp_url", "http://ocsp.pki.gov.kz");
-
+        defaultIni.put("pki", "crl_urls", "http://crl.pki.gov.kz/nca_rsa.crl http://crl.pki.gov.kz/nca_gost.crl http://crl.pki.gov.kz/nca_d_rsa.crl  http://crl.pki.gov.kz/nca_d_gost.crl http://crl.pki.gov.kz/rsa.crl http://crl.pki.gov.kz/gost.crl http://crl.pki.gov.kz/d_rsa.crl http://crl.pki.gov.kz/d_gost.crl");
+        defaultIni.put("pki", "crl_cache_dir", "cache/crl");
+        defaultIni.put("pki", "crl_cache_lifetime", "60");
 
     }
 }
