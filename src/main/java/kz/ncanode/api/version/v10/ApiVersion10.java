@@ -50,6 +50,13 @@ public class ApiVersion10 implements ApiVersion {
             return resp;
         }
 
+        if (method == null || method.isEmpty()) {
+            JSONObject resp = new JSONObject();
+            resp.put("status", ApiStatus.STATUS_METHOD_NOT_SPECIFIED);
+            resp.put("message", "\"method\" not specified");
+            return resp;
+        }
+
         if (!methods.containsKey(method)) {
             JSONObject resp = new JSONObject();
             resp.put("status", ApiStatus.STATUS_METHOD_NOT_FOUND);
@@ -109,9 +116,12 @@ public class ApiVersion10 implements ApiVersion {
             return resp;
         }
 
-        response.put("status", m.status);
-        response.put("message", m.message);
+        JSONObject rr = new JSONObject();
 
-        return response;
+        rr.put("status", m.status);
+        rr.put("message", m.message);
+        rr.put("result", response);
+
+        return rr;
     }
 }

@@ -3,6 +3,8 @@ package kz.ncanode;
 import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.cmd.CmdServiceProvider;
 import kz.ncanode.config.ConfigServiceProvider;
+import kz.ncanode.info.InfoServiceProvider;
+import kz.ncanode.interaction.InteractionServiceProvider;
 import kz.ncanode.ioc.ServiceContainer;
 import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
@@ -57,6 +59,11 @@ public class Launcher
             // Регистрация подсистемы API
             sc.register(ApiServiceProvider.class.getName());
 
+            // Регистрация класса информации о приложении
+            sc.register(InfoServiceProvider.class.getName());
+
+            // Регистрация interactor'а
+            sc.register(InteractionServiceProvider.class.getName());
 
             // Загрузка всех сервис-провайдеров
             sc.boot();
@@ -65,7 +72,10 @@ public class Launcher
             System.exit(-1);
         }
 
+        // Поехали... :)
+        ((InteractionServiceProvider)sc.instance(InteractionServiceProvider.class.getName())).start();
 
+/*
         // todo remove test code
         try {
             PkiServiceProvider pki = ((PkiServiceProvider)sc.instance(PkiServiceProvider.class.getName()));
@@ -127,6 +137,6 @@ public class Launcher
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 }

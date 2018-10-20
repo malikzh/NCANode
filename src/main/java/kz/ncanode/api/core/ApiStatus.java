@@ -9,5 +9,6 @@ public class ApiStatus {
     public final static int STATUS_METHOD_NOT_FOUND      = 4;
     public final static int STATUS_API_ERROR             = 5;
     public final static int STATUS_PARAMS_NOT_FOUND      = 6;
+    public final static int STATUS_METHOD_NOT_SPECIFIED  = 7;
 
 }
