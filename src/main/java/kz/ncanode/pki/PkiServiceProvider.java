@@ -7,6 +7,7 @@ import kz.gov.pki.kalkan.asn1.ocsp.OCSPObjectIdentifiers;
 import kz.gov.pki.kalkan.asn1.x509.X509Extension;
 import kz.gov.pki.kalkan.asn1.x509.X509Extensions;
 import kz.gov.pki.kalkan.ocsp.*;
+import kz.ncanode.Helper;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
@@ -14,6 +15,9 @@ import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 import org.json.simple.JSONObject;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
@@ -21,8 +25,11 @@ import java.net.URL;
 import java.security.*;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Hashtable;
 
 public class PkiServiceProvider implements ServiceProvider {
@@ -93,8 +100,177 @@ public class PkiServiceProvider implements ServiceProvider {
         return null;
     }
 
-    public JSONObject certInfo(X509Certificate cert) {
-        return null; // todo
+    public JSONObject certInfo(X509Certificate cert) throws CertificateParsingException {
+        JSONObject response = new JSONObject();
+
+        ArrayList<?> userType = keyUser(cert);
+
+
+        // subject: commonName, country, orgName, province, locality, iin, bin, email, birthDate, gender
+        // keyUsage: для подписи или авторизации
+        // keyUser: [] // Физ лицо или юр лицо
+        // issuer: commonName, country, orgName, province, locality
+        // signAlg
+        // notBefore (DateTime)
+        // notAfter (DateTime)
+        // valid:
+        // trusted:
+        // ocsp: (option for ocsp)
+        // crl: (option for crl)
+        // Public key
+        // Sign
+        response.put("subject", subjectInfo(cert));
+        response.put("issuer", issuerInfo(cert));
+        response.put("keyUser", userType);
+        response.put("keyUsage", keyUsage(cert));
+        response.put("signAlg", cert.getSigAlgName());
+        response.put("notBefore", Helper.dateTime(cert.getNotBefore()));
+        response.put("notAfter", Helper.dateTime(cert.getNotAfter()));
+        response.put("publicKey", new String(Base64.getEncoder().encode(cert.getPublicKey().getEncoded())));
+        response.put("sign", new String(Base64.getEncoder().encode(cert.getSignature())));
+        response.put("serialNumber", String.valueOf(cert.getSerialNumber()));
+
+
+        return response;
+    }
+
+    public static JSONObject issuerInfo(java.security.cert.X509Certificate cert) {
+        JSONObject issuer = new JSONObject();
+
+        String dn = cert.getIssuerDN().toString();
+        issuer.put("dn", dn);
+
+        LdapName ldapName = null;
+
+        try {
+            ldapName = new LdapName(dn);
+
+            for (Rdn rdn : ldapName.getRdns()) {
+                parseRdn(rdn, issuer);
+            }
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+
+        return issuer;
+    }
+
+    public static JSONObject subjectInfo(java.security.cert.X509Certificate cert) {
+        JSONObject subject = new JSONObject();
+
+        String dn = cert.getSubjectDN().toString();
+
+        subject.put("dn", dn);
+
+        LdapName ldapName = null;
+        String iin = "";
+
+        try {
+            ldapName = new LdapName(dn);
+
+            for (Rdn rdn : ldapName.getRdns()) {
+                parseRdn(rdn, subject);
+            }
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
+
+
+        // add iin info
+        iin = (String) subject.get("iin");
+        if (iin.length() == 12) {
+            String birthYear  = iin.substring(0, 2);
+            String birthMonth = iin.substring(2, 4);
+            String birthDay   = iin.substring(4, 6);
+            String birthAge   = iin.substring(6, 7);
+            String gender     = "";
+
+            if (birthAge.equals("1")) {
+                birthYear = "18" + birthYear;
+                gender = "MALE";
+            }
+            else if (birthAge.equals("2")) {
+                birthYear = "18" + birthYear;
+                gender = "FEMALE";
+            }
+            else if (birthAge.equals("3")) {
+                birthYear = "19" + birthYear;
+                gender = "MALE";
+            }
+            else if (birthAge.equals("4")) {
+                birthYear = "19" + birthYear;
+                gender = "FEMALE";
+            }
+            else if (birthAge.equals("5")) {
+                birthYear = "20" + birthYear;
+                gender = "MALE";
+            }
+            else if (birthAge.equals("6")) {
+                birthYear = "20" + birthYear;
+                gender = "FEMALE";
+            }
+
+            subject.put("birthDate", birthYear + "-" + birthMonth + "-" + birthDay);
+            subject.put("gender", gender);
+
+        }
+
+
+        return subject;
+    }
+
+    public static String keyUsage(X509Certificate cert) {
+        boolean[] ku = cert.getKeyUsage();
+
+        if (ku[0] && ku[1]) {
+            return "SIGN";
+        } else if (ku[0] && ku[2]) {
+            return "AUTH";
+        } else {
+            return "UNKNOWN";
+        }
+    }
+
+    public static ArrayList<String> keyUser(X509Certificate cert) throws CertificateParsingException {
+        ArrayList<String> result = new ArrayList<>();
+
+        for (String item : cert.getExtendedKeyUsage()) {
+            if (item.equals("1.2.398.3.3.4.1.1")) {
+                result.add("INDIVIDUAL");
+            }
+            else if (item.equals("1.2.398.3.3.4.1.2")) {
+                result.add("ORGANIZATION");
+            }
+            else if (item.equals("1.2.398.3.3.4.1.2.1")) {
+                result.add("CEO");
+            }
+            else if (item.equals("1.2.398.3.3.4.1.2.2")) {
+                result.add("CAN_SIGN");
+            }
+            else if (item.equals("1.2.398.3.3.4.1.2.3")) {
+                result.add("CAN_SIGN_FINANCIAL");
+            }
+            else if (item.equals("1.2.398.3.3.4.1.2.4")) {
+                result.add("HR");
+            }
+            else if (item.equals("1.2.398.3.3.4.1.2.5")) {
+                result.add("EMPLOYEE");
+            }
+            else if (item.equals("1.2.398.3.3.4.2")) {
+                result.add("NCA_PRIVILEGES");
+            }
+            else if (item.equals("1.2.398.3.3.4.2.1")) {
+                result.add("NCA_ADMIN");
+            }
+            else if (item.equals("1.2.398.3.3.4.2.2")) {
+                result.add("NCA_MANAGER");
+            }
+            else if (item.equals("1.2.398.3.3.4.2.3")) {
+                result.add("NCA_OPERATOR");
+            }
+        }
+
+        return result;
     }
 
 
@@ -113,6 +289,37 @@ public class PkiServiceProvider implements ServiceProvider {
         ocspReqGenerator.setRequestExtensions(new X509Extensions(x509Extensions));
 
         return ocspReqGenerator.generate();
+    }
+
+    private static void parseRdn(Rdn rdn, JSONObject subject) {
+        if (rdn.getType().equalsIgnoreCase("CN")) {
+            subject.put("commonName", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("SURNAME")) {
+            subject.put("surname", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("SERIALNUMBER")) {
+
+            String sn = ((String)rdn.getValue());
+
+            if (sn.startsWith("BIN")) {
+                subject.put("bin", ((String)rdn.getValue()).replaceAll("^BIN", ""));
+            } else {
+                subject.put("iin", ((String)rdn.getValue()).replaceAll("^IIN", ""));
+            }
+        } else if (rdn.getType().equalsIgnoreCase("C")) {
+            subject.put("country", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("L")) {
+            subject.put("locality", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("S")) {
+            subject.put("state", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("E")) {
+            subject.put("email", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("O")) {
+            subject.put("organization", rdn.getValue());
+        } else if (rdn.getType().equalsIgnoreCase("OU")) {
+            subject.put("bin", ((String)rdn.getValue()).replaceAll("^BIN", ""));
+        } else if (rdn.getType().equalsIgnoreCase("G")) {
+            subject.put("lastName", rdn.getValue());
+        }
     }
 
     private byte[] generateOcspNonce() {

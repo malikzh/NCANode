@@ -5,6 +5,9 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Helper {
     public static String absolutePath(String path) {
@@ -24,6 +27,10 @@ public class Helper {
         return ext;
     }
 
+    public static String dateTime(Date date) {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return df.format(date);
+    }
 
     public static String sha1(String data)
     {
