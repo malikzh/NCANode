@@ -60,6 +60,8 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
         defaultIni.put("log", "request_log", "logs/request.log");
 
         // [ca]
+        defaultIni.put("ca", "root_dir", "ca/root");
+        defaultIni.put("ca", "trusted_dir", "ca/trusted");
 
     }
 }

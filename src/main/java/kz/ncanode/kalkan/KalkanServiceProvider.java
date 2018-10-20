@@ -1,4 +1,4 @@
-package kz.ncanode.security;
+package kz.ncanode.kalkan;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.xmldsig.KncaXS;
