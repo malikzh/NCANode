@@ -7,10 +7,7 @@ import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
-import kz.ncanode.api.version.v10.methods.PKCS12Info;
-import kz.ncanode.api.version.v10.methods.X509Info;
-import kz.ncanode.api.version.v10.methods.XMLSign;
-import kz.ncanode.api.version.v10.methods.XMLVerify;
+import kz.ncanode.api.version.v10.methods.*;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -35,6 +32,9 @@ public class ApiVersion10 implements ApiVersion {
 
         // X509
         methods.put("X509.info", new X509Info(this, man));
+
+        // NODE
+        methods.put("NODE.info", new NODEInfo(this, man));
 
     }
 
