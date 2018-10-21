@@ -8,6 +8,7 @@ import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.api.version.v10.methods.PKCS12Info;
+import kz.ncanode.api.version.v10.methods.X509Info;
 import kz.ncanode.api.version.v10.methods.XMLSign;
 import kz.ncanode.api.version.v10.methods.XMLVerify;
 import org.json.simple.JSONObject;
@@ -31,6 +32,10 @@ public class ApiVersion10 implements ApiVersion {
         // XML
         methods.put("XML.sign", new XMLSign(this, man));
         methods.put("XML.verify", new XMLVerify(this, man));
+
+        // X509
+        methods.put("X509.info", new X509Info(this, man));
+
     }
 
     @Override
