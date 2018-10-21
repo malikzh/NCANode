@@ -43,6 +43,7 @@ public class XmlArgument extends ApiArgument {
         }
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
 
         try {
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();

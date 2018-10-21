@@ -9,6 +9,7 @@ import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.api.version.v10.methods.PKCS12Info;
 import kz.ncanode.api.version.v10.methods.XMLSign;
+import kz.ncanode.api.version.v10.methods.XMLVerify;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class ApiVersion10 implements ApiVersion {
 
         // XML
         methods.put("XML.sign", new XMLSign(this, man));
+        methods.put("XML.verify", new XMLVerify(this, man));
     }
 
     @Override
