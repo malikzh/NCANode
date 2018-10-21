@@ -8,6 +8,7 @@ import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.api.version.v10.methods.PKCS12Info;
+import kz.ncanode.api.version.v10.methods.XMLSign;
 import org.json.simple.JSONObject;
 
 import java.util.ArrayList;
@@ -23,7 +24,11 @@ public class ApiVersion10 implements ApiVersion {
         methods = new Hashtable<>();
         this.man = man;
 
+        // PKCS12
         methods.put("PKCS12.info", new PKCS12Info(this, man));
+
+        // XML
+        methods.put("XML.sign", new XMLSign(this, man));
     }
 
     @Override
