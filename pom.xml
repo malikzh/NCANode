@@ -18,6 +18,13 @@
     </developer>
   </developers>
 
+  <repositories>
+    <repository>
+      <id>kalkan</id>
+      <url>file://${basedir}/lib</url>
+    </repository>
+  </repositories>
+
   <licenses>
     <license>
       <name>MIT</name>
@@ -66,6 +73,22 @@
       <artifactId>amqp-client</artifactId>
       <version>5.4.3</version>
     </dependency>
+    <dependency>
+      <groupId>pki.gov.kz</groupId>
+      <artifactId>kalkancrypt</artifactId>
+      <version>0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>pki.gov.kz</groupId>
+      <artifactId>kalkancryptxmldsig</artifactId>
+      <version>0.3</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.santuario/xmlsec -->
+    <dependency>
+      <groupId>org.apache.santuario</groupId>
+      <artifactId>xmlsec</artifactId>
+      <version>1.5.8</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -91,10 +114,53 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <addClasspath>true</addClasspath>
+                <classpathPrefix>lib/</classpathPrefix>
+                <mainClass>kz.ncanode.Launcher</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
           <version>2.5.2</version>
+          <executions>
+            <execution>
+              <id>install-external</id>
+              <phase>clean</phase>
+              <configuration>
+                <file>${basedir}/lib/kalkancrypt-0.4.jar</file>
+                <repositoryLayout>default</repositoryLayout>
+                <groupId>pki.gov.kz</groupId>
+                <artifactId>kalkancrypt</artifactId>
+                <version>0.4</version>
+                <packaging>jar</packaging>
+                <generatePom>true</generatePom>
+              </configuration>
+              <goals>
+                <goal>install-file</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>install-external2</id>
+              <phase>clean</phase>
+              <configuration>
+                <file>${basedir}/lib/kalkancrypt_xmldsig-0.3.jar</file>
+                <repositoryLayout>default</repositoryLayout>
+                <groupId>pki.gov.kz</groupId>
+                <artifactId>kalkancryptxmldsig</artifactId>
+                <version>0.3</version>
+                <packaging>jar</packaging>
+                <generatePom>true</generatePom>
+              </configuration>
+              <goals>
+                <goal>install-file</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <artifactId>maven-deploy-plugin</artifactId>
@@ -109,6 +175,27 @@
         <configuration>
           <source>8</source>
           <target>8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>kz.ncanode.Launcher</mainClass>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
     </plugins>
