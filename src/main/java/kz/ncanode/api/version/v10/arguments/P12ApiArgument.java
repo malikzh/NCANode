@@ -35,6 +35,7 @@ public class P12ApiArgument extends ApiArgument {
 
         String p12B64   = (String)params.get("p12");
         String password = (String)params.get("password");
+        this.password   = password;
 
         if (p12B64 == null) {
             throw new InvalidArgumentException("Parameter required");
@@ -55,6 +56,10 @@ public class P12ApiArgument extends ApiArgument {
     @Override
     public Object get() {
         return key;
+    }
+
+    public String getPassword() {
+        return password;
     }
 
     @Override
