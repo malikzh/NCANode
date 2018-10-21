@@ -4,6 +4,7 @@ import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.info.InfoServiceProvider;
 import kz.ncanode.interaction.interactors.HttpInteractor;
+import kz.ncanode.interaction.interactors.RabbitMqInteractor;
 import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 
@@ -26,6 +27,7 @@ public class InteractionServiceProvider implements ServiceProvider {
 
         interactors = new Hashtable<>();
         interactors.put("http", new HttpInteractor(this));
+        interactors.put("rabbitmq", new RabbitMqInteractor(this));
     }
 
     public void start() {
@@ -39,6 +41,11 @@ public class InteractionServiceProvider implements ServiceProvider {
         out.write("Running in \"" + interactorName + "\" mode...");
 
         Interactor interactor = interactors.get(interactorName);
+
+        if (interactor == null) {
+            out.write("Unknwown interaction mode: '" + interactorName + "'. Aborting...");
+        }
+
         interactor.interact();
     }
 }
