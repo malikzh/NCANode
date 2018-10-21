@@ -74,7 +74,11 @@ public class ApiServiceProvider implements ServiceProvider {
         ApiVersion ver = supportedVersions.get(apiVer);
 
         ver.setApiManager(this);
-        return ver.process(request);
+        JSONObject resp = ver.process(request);
+
+        req.write("Request: " + request.toJSONString() + "");
+
+        return resp;
     }
 
 

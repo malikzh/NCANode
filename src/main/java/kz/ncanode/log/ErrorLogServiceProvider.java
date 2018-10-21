@@ -21,9 +21,15 @@ public class ErrorLogServiceProvider extends Log implements ServiceProvider {
 
         try {
             errorLogFile = this.config.get("log", "error_log");
+
+            if (errorLogFile == null || errorLogFile.isEmpty()) {
+                return;
+            }
+
             errorLogFile = Helper.absolutePath(errorLogFile);
 
-            os = new FileOutputStream(errorLogFile);
+
+            os = new FileOutputStream(errorLogFile, true);
             ps = new LogPrintStream(os);
         } catch (FileNotFoundException e) {
             this.out.write("WARNING! Cannot create error log file at: " + errorLogFile);

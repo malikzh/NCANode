@@ -20,9 +20,14 @@ public class RequestLogServiceProvider extends Log implements ServiceProvider {
 
         try {
             requestLogFile = this.config.get("log", "request_log");
+
+            if (requestLogFile == null || requestLogFile.isEmpty()) {
+                return;
+            }
+
             requestLogFile = Helper.absolutePath(requestLogFile);
 
-            os = new FileOutputStream(requestLogFile);
+            os = new FileOutputStream(requestLogFile, true);
             ps = new LogPrintStream(os);
         } catch (FileNotFoundException e) {
             this.out.write("WARNING! Cannot create request log file at: " + requestLogFile);
