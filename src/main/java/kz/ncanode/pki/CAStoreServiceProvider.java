@@ -17,6 +17,11 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
+/**
+ * Класс, который хранит в себе промежуточные (trusted) и корневые сертификаты (root)
+ * Также, здесь находится реализация алгоритма проверки цепочки. Важно учесть,
+ * что notBefore и notAfter здесь не проверяются.
+ */
 public class CAStoreServiceProvider implements ServiceProvider {
     public final static String CERT_FILE_EXT = ".crt";
 

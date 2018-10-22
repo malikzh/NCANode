@@ -15,6 +15,9 @@ import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+/**
+ * Класс для работы с CRL
+ */
 public class CrlServiceProvider implements ServiceProvider {
 
     public static final String CRL_FILE_EXT  = ".crl";

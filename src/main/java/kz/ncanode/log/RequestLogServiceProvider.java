@@ -7,6 +7,9 @@ import kz.ncanode.ioc.ServiceProvider;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+/**
+ * Класс логирования, который предназначен, для логирования запросов по API (requrest.log)
+ */
 public class RequestLogServiceProvider extends Log implements ServiceProvider {
     OutLogServiceProvider out = null;
     ConfigServiceProvider config = null;

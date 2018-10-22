@@ -8,6 +8,9 @@ import kz.ncanode.log.OutLogServiceProvider;
 import java.security.Provider;
 import java.security.Security;
 
+/**
+ * Обёртка для загрузки провайдера Kalkan
+ */
 public class KalkanServiceProvider implements ServiceProvider {
     private KalkanProvider provider = null;
     private OutLogServiceProvider out = null;

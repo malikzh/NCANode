@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * Класс для загрузки и хранения конфигурации
+ */
 public class ConfigServiceProvider extends Config implements ServiceProvider {
 
     public final static String CONFIG_FILENAME = "ncanode.ini";

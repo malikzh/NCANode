@@ -13,6 +13,11 @@ import org.json.simple.JSONObject;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+/**
+ * Версия API 1.0
+ *
+ * Данный класс реализует роутинг методов для данной версии API
+ */
 public class ApiVersion10 implements ApiVersion {
 
     private ApiServiceProvider man = null;
@@ -43,6 +48,12 @@ public class ApiVersion10 implements ApiVersion {
         man = apiManager;
     }
 
+    /**
+     * Направляет API запрос в нужный метод
+     *
+     * @param request запрос
+     * @return ответ от API
+     */
     @Override
     public JSONObject process(JSONObject request) {
         // route method

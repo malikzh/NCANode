@@ -9,9 +9,10 @@ import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
+/**
+ * Хелпер для загрузки сертификатов
+ */
 public class X509Manager {
-    private static final String OCSP_URL = "http://ocsp.pki.gov.kz";
-
     public static X509Certificate load(String file) throws CertificateException, NoSuchProviderException, FileNotFoundException {
         return (X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509", KalkanProvider.PROVIDER_NAME).generateCertificate(new FileInputStream(file));
     }

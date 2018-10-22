@@ -11,6 +11,9 @@ import kz.ncanode.log.OutLogServiceProvider;
 
 import java.util.Hashtable;
 
+/**
+ * Класс-менеджер для управления методами взаимодействия с API (HTTP, RabbitMQ)
+ */
 public class InteractionServiceProvider implements ServiceProvider {
 
     public ConfigServiceProvider config;

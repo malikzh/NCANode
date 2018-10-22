@@ -9,6 +9,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Класс-хелпер. Здесь лежат всякие методы, которые понадобились для работы других модулей
+ */
 public class Helper {
     public static String absolutePath(String path) {
         return Paths.get(path).toAbsolutePath().toString();

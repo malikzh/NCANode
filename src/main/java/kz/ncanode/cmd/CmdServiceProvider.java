@@ -5,7 +5,9 @@ import kz.ncanode.ioc.ServiceProvider;
 
 import java.util.HashMap;
 
-
+/**
+ * Обработчик аргументов командной строки
+ */
 public class CmdServiceProvider implements ServiceProvider {
 
     private final static char ARGUMENT_TOKEN='-';

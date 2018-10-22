@@ -15,6 +15,10 @@ import org.json.simple.JSONObject;
 
 import java.util.Hashtable;
 
+/**
+ * Данный класс получает запрос на обработку API,
+ * И передает на обработку нужно версии (ApiVersion)
+ */
 public class ApiServiceProvider implements ServiceProvider {
 
     public ConfigServiceProvider config;
@@ -42,6 +46,11 @@ public class ApiServiceProvider implements ServiceProvider {
         supportedVersions.put("1.0", new ApiVersion10(this));
     }
 
+    /**
+     * Обрабатывает API запрос
+     * @param request сам запрос
+     * @return ответ от API
+     */
     public JSONObject process(JSONObject request) {
 
         String apiVer;
