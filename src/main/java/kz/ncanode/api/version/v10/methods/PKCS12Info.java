@@ -8,12 +8,10 @@ import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.version.v10.arguments.P12ApiArgument;
 import kz.ncanode.api.version.v10.arguments.VerifyCrlArgument;
 import kz.ncanode.api.version.v10.arguments.VerifyOcspArgument;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateParsingException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;

@@ -3,7 +3,6 @@ package kz.ncanode.config;
 import kz.ncanode.Helper;
 import kz.ncanode.cmd.CmdServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
-import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 import org.ini4j.Ini;
 

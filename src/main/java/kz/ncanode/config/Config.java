@@ -1,6 +1,5 @@
 package kz.ncanode.config;
 
-import kz.ncanode.log.Log;
 import org.ini4j.Ini;
 
 import java.io.File;

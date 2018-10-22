@@ -1,6 +1,5 @@
 package kz.ncanode.cmd;
 
-import kz.ncanode.Helper;
 import kz.ncanode.Launcher;
 import kz.ncanode.ioc.ServiceProvider;
 

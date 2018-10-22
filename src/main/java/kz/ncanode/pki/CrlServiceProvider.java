@@ -6,11 +6,11 @@ import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 import org.apache.commons.io.FileUtils;
 
-import java.io.*;
-import java.net.MalformedURLException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
