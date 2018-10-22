@@ -25,7 +25,6 @@ public class RabbitMqInteractor implements Interactor {
         String host      = provider.config.get("rabbitmq", "host");
         String queueName = provider.config.get("rabbitmq", "queue_name");
         int port = Integer.valueOf(provider.config.get("rabbitmq", "port"));
-        boolean queueDurable = (provider.config.get("rabbitmq", "queue_durable") != null && provider.config.get("rabbitmq", "queue_durable").equalsIgnoreCase("true"));
 
         // Creating connection
         ConnectionFactory cf = new ConnectionFactory();
@@ -40,7 +39,7 @@ public class RabbitMqInteractor implements Interactor {
             Channel channel = conn.createChannel();
 
             provider.out.write("Listening queue:" + queueName);
-            channel.queueDeclare(queueName, false, queueDurable, false, null);
+            channel.queueDeclare(queueName, false, false, true, null);
 
             // Create consumer
             Consumer consumer = new DefaultConsumer(channel) {
@@ -69,7 +68,7 @@ public class RabbitMqInteractor implements Interactor {
                         response.put("reply_to", replyTo);
 
                         // Send response
-                        channel.queueDeclare(replyTo, false, false, false, null);
+                        channel.queueDeclare(replyTo, false, false, true, null);
                         channel.basicPublish("", replyTo, null, response.toJSONString().getBytes(StandardCharsets.UTF_8));
 
                     } catch (ParseException e) {
