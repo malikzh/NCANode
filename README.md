@@ -1,4 +1,6 @@
-# NCANode
+
+![NCANode](docs/NCANode.png)
+
 
 Сервер электронной подписи документов
 
