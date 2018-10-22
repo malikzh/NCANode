@@ -21,7 +21,7 @@ public class Launcher
         // Intro
         System.out.printf("NCANode v%s\n", InfoServiceProvider.VERSION);
         System.out.printf("Official project page: %s\n", InfoServiceProvider.PROJECT_PAGE);
-        System.out.println("Copyright (c) 2018 Zharykov Malik.");
+        System.out.println("Copyright (c) 2018 Malik Zharykov.");
         System.out.println("------------------------------------");
         System.out.print("\n");
 
