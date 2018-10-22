@@ -7,6 +7,11 @@ import kz.ncanode.ioc.ServiceProvider;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
+/**
+ * Класс для записи логов ошибок (error.log)
+ *
+ * Важно знать, что этот класс дополнительно дублирует лог в стандартный вывод
+ */
 public class ErrorLogServiceProvider extends Log implements ServiceProvider {
 
     OutLogServiceProvider out = null;

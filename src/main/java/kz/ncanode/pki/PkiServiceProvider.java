@@ -28,6 +28,10 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
+/**
+ * Класс для работы с PKI.GOV.KZ. Здесь содержатся реализации OCSP и
+ * управление сертификатами.
+ */
 public class PkiServiceProvider implements ServiceProvider {
     private ConfigServiceProvider   config = null;
     private OutLogServiceProvider   out    = null;
