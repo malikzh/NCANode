@@ -6,6 +6,10 @@
 
 ---
 
+![License:MIT](https://img.shields.io/badge/license-MIT-green.svg)
+![Downloads](https://img.shields.io/github/downloads/malikzh/NCANode/total.svg)
+---
+
 Возможности:
 
 - Кроссплатформенный сервер (Windows, Mac OS, Linux)
