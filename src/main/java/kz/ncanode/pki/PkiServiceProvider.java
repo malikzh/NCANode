@@ -398,7 +398,16 @@ public class PkiServiceProvider implements ServiceProvider {
         }
         else if (status instanceof RevokedStatus) {
             RevokedStatus rev = (RevokedStatus)status;
-            return new OCSPStatus(OCSPStatus.OCSPResult.REVOKED, rev.getRevocationTime(), rev.getRevocationReason());
+
+            int reason = 0;
+
+            try {
+                reason = rev.getRevocationReason();
+            } catch (IllegalStateException e) {
+                reason = 0;
+            }
+
+            return new OCSPStatus(OCSPStatus.OCSPResult.REVOKED, rev.getRevocationTime(), reason);
         }
 
         return new OCSPStatus(OCSPStatus.OCSPResult.UNKNOWN, null, 0);
