@@ -6,6 +6,7 @@ import kz.ncanode.info.InfoServiceProvider;
 import kz.ncanode.interaction.interactors.HttpInteractor;
 import kz.ncanode.interaction.interactors.RabbitMqInteractor;
 import kz.ncanode.ioc.ServiceProvider;
+import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
 
 import java.util.Hashtable;
@@ -16,14 +17,16 @@ public class InteractionServiceProvider implements ServiceProvider {
     public OutLogServiceProvider out;
     public ApiServiceProvider    api;
     public InfoServiceProvider info;
+    public ErrorLogServiceProvider err;
 
     Hashtable<String, Interactor> interactors;
 
-    public InteractionServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ApiServiceProvider api, InfoServiceProvider info) {
+    public InteractionServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ApiServiceProvider api, InfoServiceProvider info, ErrorLogServiceProvider err) {
         this.config = config;
         this.out    = out;
         this.api    = api;
         this.info   = info;
+        this.err    = err;
 
         interactors = new Hashtable<>();
         interactors.put("http", new HttpInteractor(this));

@@ -74,5 +74,12 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
         // [http]
         defaultIni.put("http", "ip", "127.0.0.1");
         defaultIni.put("http", "port", "14579");
+
+        // [rabbitmq]
+        defaultIni.put("rabbitmq", "host", "127.0.0.1");
+        defaultIni.put("rabbitmq", "port", "5672");
+        defaultIni.put("rabbitmq", "queue_name", "ncanode");
+        defaultIni.put("rabbitmq", "queue_durable", "false");
+
     }
 }
