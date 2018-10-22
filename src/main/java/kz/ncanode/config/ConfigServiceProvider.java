@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class ConfigServiceProvider extends Config implements ServiceProvider {
 
-    public final static String CONFIG_FILENAME = "ncanode.ini";
+    public final static String CONFIG_FILENAME = "NCANode.ini";
 
     Ini defaultIni = null;
 
