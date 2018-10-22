@@ -27,10 +27,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Hashtable;
+import java.util.*;
 
 public class PkiServiceProvider implements ServiceProvider {
     private ConfigServiceProvider   config = null;
@@ -121,6 +118,7 @@ public class PkiServiceProvider implements ServiceProvider {
         // crl: (option for crl)
         // Public key
         // Sign
+        Date currentDate = new Date();
         response.put("subject", subjectInfo(cert));
         response.put("issuer", issuerInfo(cert));
         response.put("keyUser", userType);
@@ -131,6 +129,7 @@ public class PkiServiceProvider implements ServiceProvider {
         response.put("publicKey", new String(Base64.getEncoder().encode(cert.getPublicKey().getEncoded())));
         response.put("sign", new String(Base64.getEncoder().encode(cert.getSignature())));
         response.put("serialNumber", String.valueOf(cert.getSerialNumber()));
+        response.put("valid", currentDate.after(cert.getNotBefore()) && currentDate.before(cert.getNotAfter()));
 
         if (verifyOcsp) {
             OCSPStatus ocspStatus = verifyOcsp(cert, issuerCert);

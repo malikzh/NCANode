@@ -5,6 +5,7 @@ import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.OutLogServiceProvider;
+import kz.ncanode.pki.exceptions.RootCertificatesNotFoundException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -81,8 +82,12 @@ public class CAStoreServiceProvider implements ServiceProvider {
         return counter;
     }
 
-    public ArrayList<X509Certificate> chain(X509Certificate cert) throws NoSuchAlgorithmException, CertificateException, NoSuchProviderException, InvalidKeyException, SignatureException {
+    public ArrayList<X509Certificate> chain(X509Certificate cert) throws NoSuchAlgorithmException, CertificateException, NoSuchProviderException, InvalidKeyException, SignatureException, RootCertificatesNotFoundException {
         ArrayList<X509Certificate> result = new ArrayList<>();
+
+        if (root.isEmpty()) {
+            throw new RootCertificatesNotFoundException("Root certificates not found.");
+        }
 
         // Добавляем проверяемый сертификат в начало цепочки
         result.add(cert);
