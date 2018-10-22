@@ -1,7 +1,6 @@
 package kz.ncanode.log;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;

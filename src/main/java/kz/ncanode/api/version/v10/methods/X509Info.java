@@ -10,7 +10,6 @@ import kz.ncanode.api.version.v10.arguments.VerifyCrlArgument;
 import kz.ncanode.api.version.v10.arguments.VerifyOcspArgument;
 import org.json.simple.JSONObject;
 
-import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 
