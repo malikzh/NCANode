@@ -81,9 +81,11 @@ public class XMLVerify extends ApiMethod {
 
                 chainInf = new ArrayList<>();
 
-                for (X509Certificate chainCert : chain) {
-                    JSONObject chi = man.pki.certInfo(chainCert, false, false, null);
-                    chainInf.add(chi);
+                if (chain != null) {
+                    for (X509Certificate chainCert : chain) {
+                        JSONObject chi = man.pki.certInfo(chainCert, false, false, null);
+                        chainInf.add(chi);
+                    }
                 }
             } catch (Exception e) {
                 throw new ApiErrorException(e.getMessage());
