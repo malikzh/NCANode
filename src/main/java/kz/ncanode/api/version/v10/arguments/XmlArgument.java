@@ -8,10 +8,7 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class XmlArgument extends ApiArgument {
@@ -47,7 +44,9 @@ public class XmlArgument extends ApiArgument {
 
         try {
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-            xml = documentBuilder.parse(new ByteArrayInputStream(xmlstr.getBytes(StandardCharsets.UTF_8)));
+            ByteArrayInputStream xmlStream = new ByteArrayInputStream(xmlstr.getBytes(StandardCharsets.UTF_8));
+            xml = documentBuilder.parse(xmlStream);
+            xmlStream.close();
         } catch (Exception e) {
             throw new InvalidArgumentException(e.getMessage());
         }

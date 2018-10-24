@@ -6,7 +6,7 @@ import kz.ncanode.ioc.ServiceProvider;
  * Класс хранит информацию о запущенной ноде
  */
 public class InfoServiceProvider implements ServiceProvider {
-    public final static String VERSION = "1.0";
+    public final static String VERSION = "1.0.1";
     public final static String PROJECT_PAGE = "http://ncanode.kz";
 
     public String getName() {
