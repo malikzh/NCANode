@@ -96,6 +96,7 @@ public class PkiServiceProvider implements ServiceProvider {
 
             response = connection.getInputStream();
             OCSPStatus res = processOcspResponse(response, nonce);
+            connection.disconnect();
             return res;
         } catch (IOException e) {
             e.printStackTrace();
