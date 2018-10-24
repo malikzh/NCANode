@@ -49,13 +49,21 @@ public class PkiServiceProvider implements ServiceProvider {
 
     public KeyStore loadKey(String file, String password) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         KeyStore store = KeyStore.getInstance("PKCS12", kalkan.get());
-        store.load(new FileInputStream(file), password.toCharArray());
+        FileInputStream fs = new FileInputStream(file);
+
+        store.load(fs, password.toCharArray());
+        fs.close();
+
         return store;
     }
 
     public KeyStore loadKey(byte[] p12, String password) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         KeyStore store = KeyStore.getInstance("PKCS12", kalkan.get());
-        store.load(new ByteArrayInputStream(p12), password.toCharArray());
+
+        ByteArrayInputStream bs = new ByteArrayInputStream(p12);
+        store.load(bs, password.toCharArray());
+        bs.close();
+
         return store;
     }
 
@@ -74,6 +82,7 @@ public class PkiServiceProvider implements ServiceProvider {
         }
 
         // make request
+        InputStream response = null;
         try {
             URL url = new URL(ocspUrl);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -85,9 +94,9 @@ public class PkiServiceProvider implements ServiceProvider {
             os.write(ocspRequest.getEncoded());
             os.close();
 
-            InputStream response = connection.getInputStream();
+            response = connection.getInputStream();
             OCSPStatus res = processOcspResponse(response, nonce);
-            response.close();
+            connection.disconnect();
             return res;
         } catch (IOException e) {
             e.printStackTrace();
@@ -95,6 +104,14 @@ public class PkiServiceProvider implements ServiceProvider {
             e.printStackTrace();
         } catch (OCSPException e) {
             e.printStackTrace();
+        } finally {
+            if (response != null) {
+                try {
+                    response.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         // read response

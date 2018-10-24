@@ -45,7 +45,10 @@ public class CrlServiceProvider implements ServiceProvider {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
 
             for (File crlFile : crls()) {
-                X509CRL crl = (X509CRL)cf.generateCRL(new FileInputStream(crlFile));
+                FileInputStream fileInputStream = new FileInputStream(crlFile);
+
+                X509CRL crl = (X509CRL)cf.generateCRL(fileInputStream);
+                fileInputStream.close();
 
                 if (crl.isRevoked(cert)) {
                     return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()));
@@ -59,6 +62,9 @@ public class CrlServiceProvider implements ServiceProvider {
             e.printStackTrace();
             return null;
         } catch (CRLException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
