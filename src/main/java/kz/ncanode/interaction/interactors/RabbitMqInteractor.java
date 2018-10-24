@@ -75,6 +75,8 @@ public class RabbitMqInteractor implements Interactor {
                         provider.err.write("Invalid request given. JSON parsing failed.");
                     } catch (ClassCastException e) {
                         provider.err.write("Invalid parameter given. request_id or reply_to");
+                    } finally {
+                        System.gc();
                     }
 
                 }
