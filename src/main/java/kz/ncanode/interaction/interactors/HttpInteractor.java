@@ -105,6 +105,7 @@ public class HttpInteractor implements Interactor {
                 exchange.sendResponseHeaders(200, respBytes.length);
                 resp.write(respBytes);
                 resp.close();
+                req.close();
             }
 
         }

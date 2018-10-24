@@ -9,6 +9,7 @@ import kz.ncanode.pki.exceptions.RootCertificatesNotFoundException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -80,6 +81,8 @@ public class CAStoreServiceProvider implements ServiceProvider {
             } catch (NoSuchProviderException e) {
                 err.write("Cannot open load certificate: " + p + ". Exception: " + e.getMessage());
             } catch (FileNotFoundException e) {
+                err.write("Cannot open load certificate: " + p + ". Exception: " + e.getMessage());
+            } catch (IOException e) {
                 err.write("Cannot open load certificate: " + p + ". Exception: " + e.getMessage());
             }
         }
