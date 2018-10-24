@@ -106,6 +106,7 @@ public class HttpInteractor implements Interactor {
                 resp.write(respBytes);
                 resp.close();
                 req.close();
+                System.gc();
             }
 
         }
