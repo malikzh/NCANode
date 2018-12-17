@@ -170,7 +170,7 @@
 
 ## Благодарности
 
-- ⭐ @exe-dealer - За Dockerfile
+- ⭐ [@exe-dealer](https://github.com/exe-dealer) - За Dockerfile
 
 ## Лицензия
 
