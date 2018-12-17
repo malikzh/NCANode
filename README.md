@@ -168,6 +168,10 @@
 
 - **Malik Zharykov** - Initial work
 
+## Благодарности
+
+- ⭐ @exe-dealer - За Dockerfile
+
 ## Лицензия
 
 Проект лицензирован под лицензией [MIT](LICENSE)
