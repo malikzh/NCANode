@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.security.cert.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 
 /**
@@ -51,8 +52,19 @@ public class CrlServiceProvider implements ServiceProvider {
                 fileInputStream.close();
 
                 if (crl.isRevoked(cert)) {
-                    return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()));
+                    X509CRLEntry entry = crl.getRevokedCertificate(cert);
+
+                    Date revokationDate = null;
+                    String revokationReason = "";
+
+                    if (entry != null) {
+                        revokationDate   = entry.getRevocationDate();
+                        revokationReason = entry.getRevocationReason().toString();
+                    }
+
+                    return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()), revokationDate, revokationReason);
                 }
+
             }
 
         } catch (CertificateException e) {
@@ -69,7 +81,7 @@ public class CrlServiceProvider implements ServiceProvider {
             return null;
         }
 
-        return new CrlStatus(CrlStatus.CrlResult.ACTIVE, "");
+        return new CrlStatus(CrlStatus.CrlResult.ACTIVE, "", null, "");
     }
 
     public void updateCache(boolean forceUpdate) throws IOException {
