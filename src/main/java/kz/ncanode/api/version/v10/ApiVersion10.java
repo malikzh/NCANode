@@ -39,6 +39,9 @@ public class ApiVersion10 implements ApiVersion {
         methods.put("TSP.verify", new TSPVerify(this, man));
         methods.put("TSP.sign", new TSPSign(this, man));
 
+        // RAW
+        methods.put("RAW.sign", new RAWSign(this, man));
+        methods.put("RAW.verify", new RAWVerify(this, man));
 
         // X509
         methods.put("X509.info", new X509Info(this, man));
