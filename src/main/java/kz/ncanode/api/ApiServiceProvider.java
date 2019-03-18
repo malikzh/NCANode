@@ -11,6 +11,7 @@ import kz.ncanode.log.RequestLogServiceProvider;
 import kz.ncanode.pki.CAStoreServiceProvider;
 import kz.ncanode.pki.CrlServiceProvider;
 import kz.ncanode.pki.PkiServiceProvider;
+import kz.ncanode.pki.TSPServiceProvider;
 import org.json.simple.JSONObject;
 
 import java.util.Hashtable;
@@ -28,10 +29,11 @@ public class ApiServiceProvider implements ServiceProvider {
     public CrlServiceProvider crl;
     public CAStoreServiceProvider ca;
     public InfoServiceProvider info;
+    public TSPServiceProvider tsp;
 
     public Hashtable<String, ApiVersion> supportedVersions = null;
 
-    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info) {
+    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp) {
         this.config = config;
         this.req    = req;
         this.err    = err;
@@ -39,6 +41,7 @@ public class ApiServiceProvider implements ServiceProvider {
         this.crl    = crl;
         this.ca     = ca;
         this.info   = info;
+        this.tsp    = tsp;
 
         // Роутинг версий
         supportedVersions = new Hashtable<>();

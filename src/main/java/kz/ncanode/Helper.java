@@ -1,5 +1,7 @@
 package kz.ncanode;
 
+import kz.gov.pki.kalkan.tsp.TSPAlgorithms;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
@@ -8,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Класс-хелпер. Здесь лежат всякие методы, которые понадобились для работы других модулей
@@ -67,5 +70,23 @@ public class Helper {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static String getHashingAlgorithmByOID(String oid) {
+        HashMap<String, String> algos = new HashMap<>();
+
+        algos.put(TSPAlgorithms.MD5,"MD5");
+        algos.put(TSPAlgorithms.SHA1,"SHA1");
+        algos.put(TSPAlgorithms.SHA224,"SHA224");
+        algos.put(TSPAlgorithms.SHA256,"SHA256");
+        algos.put(TSPAlgorithms.SHA384,"SHA384");
+        algos.put(TSPAlgorithms.SHA512,"SHA512");
+        algos.put(TSPAlgorithms.RIPEMD128,"RIPEMD128");
+        algos.put(TSPAlgorithms.RIPEMD160,"RIPEMD160");
+        algos.put(TSPAlgorithms.RIPEMD256,"RIPEMD256");
+        algos.put(TSPAlgorithms.GOST34311GT,"GOST34311GT");
+        algos.put(TSPAlgorithms.GOST34311,"GOST34311");
+
+        return algos.get(oid);
     }
 }

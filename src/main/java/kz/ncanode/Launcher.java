@@ -51,6 +51,9 @@ public class Launcher
             // Регистрация провайдера для работы с PKI
             sc.register(PkiServiceProvider.class.getName());
 
+            // Регистрация провайдера для работы с TSP
+            sc.register(TSPServiceProvider.class.getName());
+
             // Регистрация CRL провайдера
             sc.register(CrlServiceProvider.class.getName());
 
