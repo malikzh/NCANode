@@ -100,7 +100,7 @@ public class CrlServiceProvider implements ServiceProvider {
         if (!forceUpdate) {
             for (File crlFile : crls()) {
 
-                if (crlFile.lastModified() > (ct + cfgCrlCacheLifetime * 60)) {
+                if ((ct - crlFile.lastModified()) > cfgCrlCacheLifetime * 60 * 1000) {
                     String fileName = crlFile.getName();
 
                     if (names.containsKey(fileName)) {
