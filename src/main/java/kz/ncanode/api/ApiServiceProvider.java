@@ -6,6 +6,7 @@ import kz.ncanode.api.version.v10.ApiVersion10;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.info.InfoServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
+import kz.ncanode.kalkan.KalkanServiceProvider;
 import kz.ncanode.log.ErrorLogServiceProvider;
 import kz.ncanode.log.RequestLogServiceProvider;
 import kz.ncanode.pki.CAStoreServiceProvider;
@@ -30,10 +31,11 @@ public class ApiServiceProvider implements ServiceProvider {
     public CAStoreServiceProvider ca;
     public InfoServiceProvider info;
     public TSPServiceProvider tsp;
+    public KalkanServiceProvider kalkan;
 
     public Hashtable<String, ApiVersion> supportedVersions = null;
 
-    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp) {
+    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp, KalkanServiceProvider kalkan) {
         this.config = config;
         this.req    = req;
         this.err    = err;
@@ -42,6 +44,7 @@ public class ApiServiceProvider implements ServiceProvider {
         this.ca     = ca;
         this.info   = info;
         this.tsp    = tsp;
+        this.kalkan = kalkan;
 
         // Роутинг версий
         supportedVersions = new Hashtable<>();
