@@ -153,11 +153,16 @@ public class PkiServiceProvider implements ServiceProvider {
 
         if (verifyOcsp) {
             OCSPStatus ocspStatus = verifyOcsp(cert, issuerCert);
+            Date revokationTime = ocspStatus.getRevokationTime();
+
+            if (revokationTime != null && (Boolean)response.get("valid")) {
+                response.put("valid", revokationTime.after(currentDate));
+            }
 
             JSONObject ocspvJson = new JSONObject();
             ocspvJson.put("status", ocspStatus.getStatus().toString());
             ocspvJson.put("revokationReason", ocspStatus.getRevokationReason());
-            ocspvJson.put("revokationTime", ocspStatus.getRevokationTime() != null ? Helper.dateTime(ocspStatus.getRevokationTime()) : null);
+            ocspvJson.put("revokationTime", revokationTime != null ? Helper.dateTime(revokationTime) : null);
             response.put("ocsp", ocspvJson);
         }
 
@@ -165,11 +170,26 @@ public class PkiServiceProvider implements ServiceProvider {
             crl.updateCache(false);
             CrlStatus crlStatus = crl.verify(cert);
 
+            Date revokationTime     = crlStatus.getDate();
+            String revokationReason = crlStatus.getReason();
+
+            String revtime = "";
+
+            if (revokationTime != null) {
+                revtime = Helper.dateTime(revokationTime);
+
+                if ((Boolean)response.get("valid")) {
+                    response.put("valid", revokationTime.after(currentDate));
+                }
+            }
+
             JSONObject crlJson = new JSONObject();
 
             if (crlStatus != null) {
                 crlJson.put("status", crlStatus.getStatus().toString());
                 crlJson.put("revokedBy", crlStatus.getRevokedBy());
+                crlJson.put("revokationTime", revtime);
+                crlJson.put("revokationReason", revokationReason);
             }
 
             response.put("crl", crlJson);
