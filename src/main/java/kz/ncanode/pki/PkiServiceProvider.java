@@ -22,7 +22,10 @@ import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
@@ -67,7 +70,7 @@ public class PkiServiceProvider implements ServiceProvider {
         return store;
     }
 
-    public OCSPStatus verifyOcsp(X509Certificate cert, X509Certificate issuerCert) {
+    public OCSPStatus verifyOcsp(X509Certificate cert, X509Certificate issuerCert) throws IOException, OCSPException {
         String ocspUrl = config.get("pki", "ocsp_url");
 
         byte[] nonce = generateOcspNonce();
@@ -83,6 +86,7 @@ public class PkiServiceProvider implements ServiceProvider {
 
         // make request
         InputStream response = null;
+        OCSPStatus res = null;
         try {
             URL url = new URL(ocspUrl);
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
@@ -94,15 +98,9 @@ public class PkiServiceProvider implements ServiceProvider {
             os.close();
 
             response = connection.getInputStream();
-            OCSPStatus res = processOcspResponse(response, nonce);
+            res = processOcspResponse(response, nonce);
             connection.disconnect();
             return res;
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchProviderException e) {
-            e.printStackTrace();
-        } catch (OCSPException e) {
-            e.printStackTrace();
         } finally {
             if (response != null) {
                 try {
@@ -112,10 +110,6 @@ public class PkiServiceProvider implements ServiceProvider {
                 }
             }
         }
-
-        // read response
-
-        return null;
     }
 
     public JSONObject certInfo(X509Certificate cert, boolean verifyOcsp, boolean verifyCrl, X509Certificate issuerCert) throws CertificateParsingException, IOException {
@@ -151,17 +145,27 @@ public class PkiServiceProvider implements ServiceProvider {
         response.put("valid", currentDate.after(cert.getNotBefore()) && currentDate.before(cert.getNotAfter()));
 
         if (verifyOcsp) {
-            OCSPStatus ocspStatus = verifyOcsp(cert, issuerCert);
-            Date revokationTime = ocspStatus.getRevokationTime();
+            OCSPStatus ocspStatus = null;
+            JSONObject ocspvJson = new JSONObject();
 
-            if (revokationTime != null && (Boolean)response.get("valid")) {
-                response.put("valid", revokationTime.after(currentDate));
+            try {
+                ocspStatus = verifyOcsp(cert, issuerCert);
+            } catch (OCSPException e) {
+                ocspvJson.put("error", e.getMessage());
             }
 
-            JSONObject ocspvJson = new JSONObject();
-            ocspvJson.put("status", ocspStatus.getStatus().toString());
-            ocspvJson.put("revokationReason", ocspStatus.getRevokationReason());
-            ocspvJson.put("revokationTime", revokationTime != null ? Helper.dateTime(revokationTime) : null);
+            if (ocspStatus != null) {
+                Date revokationTime = ocspStatus.getRevokationTime();
+
+                if (revokationTime != null && (Boolean)response.get("valid")) {
+                    response.put("valid", revokationTime.after(currentDate));
+                }
+
+                ocspvJson.put("status", ocspStatus.getStatus().toString());
+                ocspvJson.put("revokationReason", ocspStatus.getRevokationReason());
+                ocspvJson.put("revokationTime", revokationTime != null ? Helper.dateTime(revokationTime) : null);
+            }
+
             response.put("ocsp", ocspvJson);
         }
 
@@ -397,12 +401,11 @@ public class PkiServiceProvider implements ServiceProvider {
         return nonce;
     }
 
-    private OCSPStatus processOcspResponse(InputStream response, byte[] nonce) throws IOException, OCSPException, NoSuchProviderException {
+    private OCSPStatus processOcspResponse(InputStream response, byte[] nonce) throws IOException, OCSPException {
         OCSPResp resp = new OCSPResp(response);
 
         if (resp.getStatus() != 0) {
-            throw new OCSPException("Unsuccessful request. Status: "
-                    + resp.getStatus());
+            return new OCSPStatus(OCSPStatus.OCSPResult.UNKNOWN, null, 0);
         }
 
         BasicOCSPResp brep = (BasicOCSPResp) resp.getResponseObject();

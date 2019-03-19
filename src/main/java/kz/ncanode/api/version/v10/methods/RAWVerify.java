@@ -77,14 +77,18 @@ public class RAWVerify extends ApiMethod {
 
         java.security.cert.X509Certificate issuerCert = null;
 
-        if (chain != null && chain.size() >= 1) {
-            issuerCert = chain.get(0);
+        if (chain != null && chain.size() > 1) {
+            issuerCert = chain.get(1);
         }
 
-        JSONObject certInf;
-        certInf = man.pki.certInfo(cert, ((boolean)args.get(1).get() && issuerCert != null) , ((boolean)args.get(2).get() && issuerCert != null), issuerCert);
-        certInf.put("chain", chainInf);
-        resp.put("cert", certInf);
+        try {
+            JSONObject certInf;
+            certInf = man.pki.certInfo(cert, ((Boolean) args.get(1).get() && issuerCert != null) , ((Boolean) args.get(2).get() && issuerCert != null), issuerCert);
+            certInf.put("chain", chainInf);
+            resp.put("cert", certInf);
+        } catch (Exception e) {
+            throw new ApiErrorException(e.getMessage());
+        }
 
         return resp;
     }
