@@ -81,9 +81,13 @@ public class RAWVerify extends ApiMethod {
             issuerCert = chain.get(1);
         }
 
+        if (issuerCert == null) {
+            throw new ApiErrorException("Cannot find certificate issuer");
+        }
+
         try {
             JSONObject certInf;
-            certInf = man.pki.certInfo(cert, ((Boolean) args.get(1).get() && issuerCert != null) , ((Boolean) args.get(2).get() && issuerCert != null), issuerCert);
+            certInf = man.pki.certInfo(cert,(Boolean) args.get(1).get() , (Boolean) args.get(2).get(), issuerCert);
             certInf.put("chain", chainInf);
             resp.put("cert", certInf);
         } catch (Exception e) {
