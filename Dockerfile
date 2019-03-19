@@ -1,3 +1,16 @@
+#
+# NCANode Dockerfile
+#
+# The NCANode Dockerfile for building from source code
+# ----------------------------------------------------
+# Build image with command: docker build -t malikzh/ncanode .
+# Run container with command: docker run -ti -p 14579:14579 malikzh/ncanode
+# ----------------------------------------------------
+# Author: @exe-dealer ( https://github.com/exe-dealer )
+# Contributor: @malikzh ( https://github.com/malikzh/NCANode )
+# License: MIT
+#
+
 FROM maven:3.6.0-jdk-11-slim
 WORKDIR /usr/local/src/NCANode
 RUN apt update && apt install -y crudini
@@ -16,11 +29,13 @@ RUN mkdir logs \
  && ln -s /dev/stderr logs/error.log \
  && mkdir -p ca/root \
  && cd ca/root && wget \
-  http://www.pki.gov.kz/cert/pki_rsa.crt \
-  http://www.pki.gov.kz/cert/pki_gost.crt \
-  http://www.pki.gov.kz/cert/root_rsa.crt \
-  http://www.pki.gov.kz/cert/root_gost.crt \
-  http://www.pki.gov.kz/cert/nca_rsa.crt \
-  http://www.pki.gov.kz/cert/nca_gost.crt
+    http://www.pki.gov.kz/cert/root_rsa.crt \
+    http://www.pki.gov.kz/cert/root_gost.crt
+
+RUN cd /opt/ncanode && mkdir -p ca/trusted && cd ca/trusted && wget \
+    http://www.pki.gov.kz/cert/pki_rsa.crt \
+    http://www.pki.gov.kz/cert/pki_gost.crt \
+    http://www.pki.gov.kz/cert/nca_rsa.crt \
+    http://www.pki.gov.kz/cert/nca_gost.crt
 COPY --from=0 /usr/local/src/NCANode/NCANode.ini ./NCANode.ini
 COPY --from=0 /usr/local/src/NCANode/target/ncanode-*-jar-with-dependencies.jar ./ncanode.jar
