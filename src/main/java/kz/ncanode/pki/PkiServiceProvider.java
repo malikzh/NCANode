@@ -88,8 +88,7 @@ public class PkiServiceProvider implements ServiceProvider {
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type",
-                    "application/ocsp-request");
+            connection.setRequestProperty("Content-Type", "application/ocsp-request");
             OutputStream os = connection.getOutputStream();
             os.write(ocspRequest.getEncoded());
             os.close();
