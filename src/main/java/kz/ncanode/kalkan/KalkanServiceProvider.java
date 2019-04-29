@@ -15,8 +15,6 @@ public class KalkanServiceProvider implements ServiceProvider {
     private KalkanProvider provider = null;
     private OutLogServiceProvider out = null;
 
-    public final static String KALKAN_VERSION = "0.4";
-
     public KalkanServiceProvider(OutLogServiceProvider out) {
         this.out = out;
 
@@ -24,7 +22,11 @@ public class KalkanServiceProvider implements ServiceProvider {
         provider = new KalkanProvider();
         Security.addProvider(provider);
         KncaXS.loadXMLSecurity();
-        this.out.write("Kalkan crypto initialized. Version: " + KALKAN_VERSION);
+        this.out.write("Kalkan crypto initialized. Version: " + getVersion());
+    }
+
+    public String getVersion() {
+        return KalkanProvider.class.getPackage().getImplementationVersion();
     }
 
     public Provider get() {
