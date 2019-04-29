@@ -1,7 +1,7 @@
 package kz.ncanode.api.version.v10.methods;
 
-import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData;
+import kz.ncanode.Helper;
 import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.api.core.ApiArgument;
 import kz.ncanode.api.core.ApiMethod;
@@ -12,7 +12,6 @@ import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.transforms.Transforms;
-import org.apache.xml.security.utils.Constants;
 import org.json.simple.JSONObject;
 import org.w3c.dom.Document;
 
@@ -83,22 +82,13 @@ public class XMLSign extends ApiMethod {
         } catch (KeyStoreException e) {
             throw new ApiErrorException(e.getMessage());
         }
-        String sigAlgOid = cert.getSigAlgOID();
-        if (sigAlgOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
-            signMethod = Constants.MoreAlgorithmsSpecNS + "rsa-sha1";
-            digestMethod = Constants.MoreAlgorithmsSpecNS + "sha1";
-        } else if (sigAlgOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
-            signMethod = Constants.MoreAlgorithmsSpecNS + "rsa-sha256";
-            digestMethod = XMLCipherParameters.SHA256;
-        } else {
-            signMethod = Constants.MoreAlgorithmsSpecNS + "gost34310-gost34311";
-            digestMethod = Constants.MoreAlgorithmsSpecNS + "gost34311";
-        }
+
+        String[] alg = Helper.getSignMethodByOID(cert.getSigAlgOID());
 
         // signing
         XMLSignature sig;
         try {
-            sig = new XMLSignature(xml, "", signMethod);
+            sig = new XMLSignature(xml, "", alg[0]);
         } catch (XMLSecurityException e) {
             throw new ApiErrorException(e.getMessage());
         }
@@ -112,7 +102,7 @@ public class XMLSign extends ApiMethod {
                 Transforms transforms = new Transforms(xml);
                 transforms.addTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE);
                 transforms.addTransform(XMLCipherParameters.N14C_XML_CMMNTS);
-                sig.addDocument("", transforms, digestMethod);
+                sig.addDocument("", transforms, alg[1]);
                 sig.addKeyInfo(cert);
                 sig.sign(privateKey);
                 StringWriter os = new StringWriter();
