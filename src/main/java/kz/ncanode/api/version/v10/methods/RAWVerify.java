@@ -77,29 +77,31 @@ public class RAWVerify extends ApiMethod {
             }
 
             // Tsp verification
-            Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
+            if (signer.getUnsignedAttributes() != null) {
+                Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
 
-            if (attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
-                Attribute attr = (Attribute)attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
+                if (attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
+                    Attribute attr = (Attribute) attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
 
 
-                if (attr.getAttrValues().size() != 1) {
-                    throw new Exception("Too many TSP tokens");
+                    if (attr.getAttrValues().size() != 1) {
+                        throw new Exception("Too many TSP tokens");
+                    }
+
+                    CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
+                    TimeStampTokenInfo tspi = man.tsp.verifyTSP(tspCms);
+
+                    JSONObject tspout = new JSONObject();
+
+                    tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
+                    tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
+                    tspout.put("policy", tspi.getPolicy());
+                    tspout.put("tsa", tspi.getTsa());
+                    tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
+                    tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
+
+                    tspinf.add(tspout);
                 }
-
-                CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
-                TimeStampTokenInfo tspi = man.tsp.verifyTSP(tspCms);
-
-                JSONObject tspout = new JSONObject();
-
-                tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
-                tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
-                tspout.put("policy", tspi.getPolicy());
-                tspout.put("tsa", tspi.getTsa());
-                tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
-                tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
-
-                tspinf.add(tspout);
             }
         }
 
