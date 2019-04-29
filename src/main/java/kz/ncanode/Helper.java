@@ -1,5 +1,7 @@
 package kz.ncanode;
 
+import kz.gov.pki.kalkan.asn1.ASN1InputStream;
+import kz.gov.pki.kalkan.asn1.DERObject;
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
 import kz.gov.pki.kalkan.tsp.TSPAlgorithms;
@@ -7,6 +9,7 @@ import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.utils.Constants;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -134,6 +137,34 @@ public class Helper {
         }
         else {
             return CMSSignedDataGenerator.DIGEST_GOST34311_95;
+        }
+    }
+
+    /**
+     * Возвращает алгоритм подписи для TSP
+     */
+
+    public static String getTspHashAlgorithmByOid(String signOid) {
+        if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
+            return TSPAlgorithms.SHA1;
+        }
+        else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
+            return TSPAlgorithms.SHA256;
+        }
+        else {
+            return TSPAlgorithms.GOST34311;
+        }
+    }
+
+    public static DERObject byteToASN1(byte[] data) throws IOException {
+        ASN1InputStream in = new ASN1InputStream(data);
+        try
+        {
+            return in.readObject();
+        }
+        finally
+        {
+            in.close();
         }
     }
 }

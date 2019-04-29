@@ -29,7 +29,7 @@ public class TSPSign extends ApiMethod {
         JSONObject resp = new JSONObject();
 
         try {
-            CMSSignedData tsp = man.tsp.createTSP(raw, tspHashAlgorithm, useTsaPolicy);
+            CMSSignedData tsp = man.tsp.createTSP(raw, tspHashAlgorithm, useTsaPolicy).toCMSSignedData();
 
             // encode tsp to Base64
             String tspBase64 = new String(Base64.getEncoder().encode(tsp.getEncoded()));

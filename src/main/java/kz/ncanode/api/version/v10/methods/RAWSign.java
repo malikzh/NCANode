@@ -1,10 +1,8 @@
 package kz.ncanode.api.version.v10.methods;
 
-import kz.gov.pki.kalkan.jce.provider.cms.CMSException;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSProcessableByteArray;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
+import kz.gov.pki.kalkan.jce.provider.cms.*;
 import kz.gov.pki.kalkan.tsp.TSPException;
+import kz.gov.pki.kalkan.tsp.TimeStampToken;
 import kz.ncanode.Helper;
 import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.api.core.ApiArgument;
@@ -20,10 +18,7 @@ import java.security.cert.CertStore;
 import java.security.cert.CertStoreException;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Enumeration;
+import java.util.*;
 
 public class RAWSign extends ApiMethod {
     public RAWSign(ApiVersion ver, ApiServiceProvider man) {
@@ -66,27 +61,47 @@ public class RAWSign extends ApiMethod {
         sig.update(raw);
 
 
-
         CMSProcessableByteArray cmsData = new CMSProcessableByteArray(raw);
-        gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
         CertStore chainStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Arrays.asList(cert)),man.kalkan.get().getName());
+        gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
         gen.addCertificatesAndCRLs(chainStore);
+
         CMSSignedData signed = gen.generate(cmsData, true, man.kalkan.get().getName());
 
         JSONObject resp = new JSONObject();
-        resp.put("cms", new String(Base64.getEncoder().encode(signed.getEncoded())));
+
 
         // Create TSP Sign
         if ((Boolean)args.get(2).get()) {
+
             String useTsaPolicy     = (String)args.get(3).get();
             String tspHashAlgorithm = (String)args.get(4).get();
 
-            CMSSignedData tsp = man.tsp.createTSP(raw, tspHashAlgorithm, useTsaPolicy);
 
-            // encode tsp to Base64
-            String tspBase64 = new String(Base64.getEncoder().encode(tsp.getEncoded()));
-            resp.put("tsp", tspBase64);
+
+            // TSP отдельно
+            if (!(Boolean)args.get(5).get()) {
+                TimeStampToken tsp = man.tsp.createTSP(raw, tspHashAlgorithm, useTsaPolicy);
+
+                // encode tsp to Base64
+                String tspBase64 = new String(Base64.getEncoder().encode(tsp.toCMSSignedData().getEncoded()));
+                resp.put("tsp", tspBase64);
+            } else {
+                SignerInformationStore signerStore = signed.getSignerInfos();
+
+                List<SignerInformation> newSigners = new ArrayList<SignerInformation>();
+
+                for (SignerInformation signer : (Collection<SignerInformation>)signerStore.getSigners())
+                {
+                    newSigners.add(man.tsp.addTspToSigner(signer, cert, useTsaPolicy));
+                }
+
+                signed = CMSSignedData.replaceSigners(signed, new SignerInformationStore(newSigners));
+            }
         }
+
+
+        resp.put("cms", new String(Base64.getEncoder().encode(signed.getEncoded())));
 
         return resp;
     }
@@ -101,6 +116,7 @@ public class RAWSign extends ApiMethod {
         args.add(new CreateTspArgument(false, ver, man));
         args.add(new UseTsaPolicyArgument(false, ver, man));
         args.add(new TspHashAlgorithmArgument(false, ver, man));
+        args.add(new TspInCmsArgument(false, ver, man));
         return args;
     }
 }
