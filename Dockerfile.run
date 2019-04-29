@@ -13,7 +13,7 @@
 FROM ubuntu:16.04
 
 # Installing dependencies
-RUN apt-get update && apt-get install -y default-jre crudini curl tzdata
+RUN apt-get update && apt-get install -y default-jre crudini curl tzdata jq
 
 # Set timezone Asia/Almaty
 RUN ln -fs /usr/share/zoneinfo/Asia/Almaty /etc/localtime && dpkg-reconfigure -f noninteractive tzdata
@@ -22,7 +22,7 @@ RUN ln -fs /usr/share/zoneinfo/Asia/Almaty /etc/localtime && dpkg-reconfigure -f
 WORKDIR /NCANode
 
 # Downloading the latest NCANode
-RUN curl http://ncanode.kz/downloadlink.php -L -o NCANode.tar.gz
+RUN curl $(curl -s https://api.github.com/repos/malikzh/NCANode/releases/latest | jq '.assets | .[] | .browser_download_url' -r | grep -s '\.tar.gz$') -L -o NCANode.tar.gz
 
 # Extract NCANode.tar.gz
 RUN tar -xzvf NCANode.tar.gz . && rm -f NCANode.tar.gz
