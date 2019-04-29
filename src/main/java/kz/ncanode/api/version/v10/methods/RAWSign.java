@@ -5,6 +5,7 @@ import kz.gov.pki.kalkan.jce.provider.cms.CMSProcessableByteArray;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
 import kz.gov.pki.kalkan.tsp.TSPException;
+import kz.ncanode.Helper;
 import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.api.core.ApiArgument;
 import kz.ncanode.api.core.ApiMethod;
@@ -56,7 +57,6 @@ public class RAWSign extends ApiMethod {
         // get certificate
         X509Certificate cert = null;
         cert = (X509Certificate) p12.getCertificate(alias);
-        String sigAlgOid = cert.getSigAlgOID();
 
         CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
 
@@ -65,8 +65,10 @@ public class RAWSign extends ApiMethod {
         sig.initSign(privateKey);
         sig.update(raw);
 
+
+
         CMSProcessableByteArray cmsData = new CMSProcessableByteArray(raw);
-        gen.addSigner(privateKey, cert, CMSSignedDataGenerator.DIGEST_SHA256);
+        gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
         CertStore chainStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Arrays.asList(cert)),man.kalkan.get().getName());
         gen.addCertificatesAndCRLs(chainStore);
         CMSSignedData signed = gen.generate(cmsData, true, man.kalkan.get().getName());
