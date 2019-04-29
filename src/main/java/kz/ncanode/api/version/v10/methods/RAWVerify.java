@@ -45,19 +45,30 @@ public class RAWVerify extends ApiMethod {
 
         X509Certificate cert = null;
 
-        if (sit.hasNext()) {
+        boolean signInfo = false;
+
+        while (sit.hasNext()) {
+            signInfo = true;
+
             SignerInformation signer = (SignerInformation) sit.next();
             X509CertSelector signerConstraints = signer.getSID();
             Collection certCollection = clientCerts.getCertificates(signerConstraints);
             Iterator certIt = certCollection.iterator();
 
-            if (certIt.hasNext()) {
+            boolean certCheck = false;
+
+            while (certIt.hasNext()) {
+                certCheck = true;
                 cert = (X509Certificate) certIt.next();
                 cert.checkValidity();
-            } else {
+            }
+
+            if (!certCheck) {
                 throw new Exception("Certificate not found");
             }
-        } else {
+        }
+
+        if (!signInfo) {
             throw new Exception("SignerInformation not found");
         }
 
