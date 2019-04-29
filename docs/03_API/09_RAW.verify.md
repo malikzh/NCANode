@@ -33,6 +33,16 @@
 ```json
 {
     "result": {
+        "tsp": [
+                {
+                    "tspHashAlgorithm": "GOST34311",
+                    "serialNumber": "eb163160cfd916363e6252102db8cde44b60f500",
+                    "tsa": null,
+                    "genTime": "2019-04-29 16:14:28",
+                    "hash": "08a5e8f4b3e3b01fac5e53af166e5e3bc9ce81eb2449aa8d744cd41fff3f72b6",
+                    "policy": "1.2.398.3.3.2.6.1"
+                }
+            ],
         "cert": {
             "valid": true,
             "notAfter": "2019-08-22 18:11:36",
