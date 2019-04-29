@@ -1,9 +1,17 @@
 package kz.ncanode.pki;
 
+import kz.gov.pki.kalkan.asn1.ASN1Encodable;
+import kz.gov.pki.kalkan.asn1.ASN1EncodableVector;
+import kz.gov.pki.kalkan.asn1.DERSet;
+import kz.gov.pki.kalkan.asn1.cms.Attribute;
+import kz.gov.pki.kalkan.asn1.cms.AttributeTable;
+import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSException;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData;
+import kz.gov.pki.kalkan.jce.provider.cms.SignerInformation;
 import kz.gov.pki.kalkan.tsp.*;
+import kz.ncanode.Helper;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
@@ -36,7 +44,7 @@ public class TSPServiceProvider implements ServiceProvider {
         this.kalkan = kalkan;
     }
 
-    public CMSSignedData createTSP(byte[] data, String hashAlg, String reqPolicy) throws NoSuchProviderException, NoSuchAlgorithmException, IOException, TSPException {
+    public TimeStampToken createTSP(byte[] data, String hashAlg, String reqPolicy) throws NoSuchProviderException, NoSuchAlgorithmException, IOException, TSPException {
 
         // Generate hash
         MessageDigest md = MessageDigest.getInstance(hashAlg, KalkanProvider.PROVIDER_NAME);
@@ -69,7 +77,7 @@ public class TSPServiceProvider implements ServiceProvider {
         TimeStampResponse response = new TimeStampResponse(respStream);
         response.validate(request);
 
-        return response.getTimeStampToken().toCMSSignedData();
+        return response.getTimeStampToken();
     }
 
     public TimeStampTokenInfo verifyTSP(CMSSignedData data) throws NoSuchAlgorithmException, NoSuchProviderException, CMSException, IOException, TSPException, CertStoreException, CertificateNotYetValidException, CertificateExpiredException {
@@ -88,5 +96,27 @@ public class TSPServiceProvider implements ServiceProvider {
         tspt.validate(cert, KalkanProvider.PROVIDER_NAME);
 
         return tspt.getTimeStampInfo();
+    }
+
+    public SignerInformation addTspToSigner(SignerInformation signer, X509Certificate cert, String useTsaPolicy) throws NoSuchAlgorithmException, NoSuchProviderException, TSPException, IOException {
+        AttributeTable unsignedAttributes = signer.getUnsignedAttributes();
+
+        ASN1EncodableVector vector = new ASN1EncodableVector();
+        if (unsignedAttributes != null)
+        {
+            vector = unsignedAttributes.toASN1EncodableVector();
+        }
+
+        TimeStampToken tsp = createTSP(signer.getSignature(), Helper.getTspHashAlgorithmByOid(cert.getSigAlgOID()), useTsaPolicy);
+
+        byte[] ts = tsp.getEncoded();
+
+        ASN1Encodable signatureTimeStamp = new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, new DERSet(Helper.byteToASN1(ts)));
+
+        vector.add(signatureTimeStamp);
+
+        SignerInformation newSigner = SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(vector));
+
+        return newSigner;
     }
 }

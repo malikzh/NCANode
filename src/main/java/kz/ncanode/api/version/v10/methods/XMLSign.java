@@ -127,7 +127,7 @@ public class XMLSign extends ApiMethod {
             String tspHashAlgorithm = (String)args.get(4).get();
 
             try {
-                CMSSignedData tsp = man.tsp.createTSP(rawDocument.getBytes(), tspHashAlgorithm, useTsaPolicy);
+                CMSSignedData tsp = man.tsp.createTSP(rawDocument.getBytes(), tspHashAlgorithm, useTsaPolicy).toCMSSignedData();
 
                 // encode tsp to Base64
                 String tspBase64 = new String(Base64.getEncoder().encode(tsp.getEncoded()));
