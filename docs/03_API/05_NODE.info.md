@@ -27,6 +27,7 @@
         "dateTime": "2018-10-23 00:09:37",
         "timezone": "Asia/Almaty",
         "name": "NCANode v1.0",
+        "kalkanVersion": "0.4",
         "version": "1.0"
     },
     "message": "",
@@ -39,4 +40,5 @@
 - `dateTime` - Время на сервере NCANode
 - `timezone` - Временная зона на сервере NCANode
 - `name` - Название
+- `kalkanVersion` - Версия библиотеки Kalkan-Crypt
 - `version` - Версия
