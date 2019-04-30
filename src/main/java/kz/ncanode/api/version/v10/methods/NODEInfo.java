@@ -22,6 +22,7 @@ public class NODEInfo extends ApiMethod {
         JSONObject resp = new JSONObject();
 
         resp.put("version", man.info.getVersion());
+        resp.put("kalkanVersion", man.kalkan.getVersion());
         resp.put("name", man.info.getFullName());
         resp.put("dateTime", Helper.dateTime(new Date()));
         resp.put("timezone", Calendar.getInstance().getTimeZone().toZoneId().toString());
