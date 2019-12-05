@@ -36,7 +36,8 @@ public class ApiServiceProvider implements ServiceProvider {
 
     public Hashtable<String, ApiVersion> supportedVersions = null;
 
-    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp, KalkanServiceProvider kalkan) {
+    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp, KalkanServiceProvider kalkan)
+    {
         this.config = config;
         this.req    = req;
         this.err    = err;
@@ -59,7 +60,8 @@ public class ApiServiceProvider implements ServiceProvider {
      * @param request сам запрос
      * @return ответ от API
      */
-    public JSONObject process(JSONObject request) {
+    public JSONObject process(JSONObject request)
+    {
 
         String apiVer;
 
@@ -97,6 +99,4 @@ public class ApiServiceProvider implements ServiceProvider {
 
         return resp;
     }
-
-
 }
