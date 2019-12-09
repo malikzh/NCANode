@@ -7,7 +7,8 @@ import kz.ncanode.ioc.ServiceProvider;
  */
 public class InfoServiceProvider implements ServiceProvider {
     public final static String VERSION = "2.0.0";
-    public final static String PROJECT_PAGE = "http://ncanode.kz";
+    public final static String PROJECT_PAGE = "https://ncanode.kz";
+    public final static String GITHUB_PAGE = "https://github.com/malikzh/NCANode";
 
     public String getName() {
         return "NCANode";
