@@ -44,7 +44,9 @@ public class RAWVerify extends ApiMethod {
     private JSONObject verifySign() throws Exception {
         CMSSignedData cms = (CMSSignedData) args.get(0).get();
         SignerInformationStore signers = cms.getSignerInfos();
-        CertStore clientCerts = cms.getCertificatesAndCRLs("Collection", man.kalkan.get().getName());
+        boolean isSignatureValid = true;
+        String providerName = man.kalkan.get().getName();
+        CertStore clientCerts = cms.getCertificatesAndCRLs("Collection", providerName);
 
         JSONObject resp = new JSONObject();
 
@@ -70,6 +72,9 @@ public class RAWVerify extends ApiMethod {
                 certCheck = true;
                 cert = (X509Certificate) certIt.next();
                 cert.checkValidity();
+                if (!signer.verify(cert.getPublicKey(), providerName)) {
+                    isSignatureValid = false;
+                }
             }
 
             if (!certCheck) {
@@ -104,7 +109,7 @@ public class RAWVerify extends ApiMethod {
                 }
             }
         }
-
+        resp.put("valid", isSignatureValid);
         resp.put("tsp", tspinf);
 
         if (!signInfo) {
