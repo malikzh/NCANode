@@ -4,20 +4,20 @@ import kz.ncanode.api.core.ApiDependencies;
 import kz.ncanode.api.core.InputType;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
 
-public class BooleanDataType extends ApiDependencies implements InputType {
-    boolean value = false;
+public class StringDataType extends ApiDependencies implements InputType {
+    String value = null;
 
     @Override
-    public void validate() throws InvalidArgumentException {}
+    public void validate() throws InvalidArgumentException {
+
+    }
 
     @Override
     public void input(Object data) {
-        if (data != null) {
-            value = (Boolean)data;
-        }
+        value = (String)data;
     }
 
-    public boolean get() {
+    public String get() {
         return value;
     }
 }

@@ -9,9 +9,7 @@ import org.json.simple.JSONObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class ApiController {
-    private ApiVersion apiVersion;
-    private ApiServiceProvider apiServiceProvider;
+public abstract class ApiController extends ApiDependencies {
 
     public boolean hasMethod(String method) {
         int idx = method.lastIndexOf(".");
@@ -28,19 +26,6 @@ public abstract class ApiController {
         return false;
     }
 
-    public void setDependencies(ApiVersion apiVersion, ApiServiceProvider apiServiceProvider) {
-        this.apiVersion = apiVersion;
-        this.apiServiceProvider = apiServiceProvider;
-    }
-
-    public ApiVersion getApiVersion() {
-        return apiVersion;
-    }
-
-    public ApiServiceProvider getApiServiceProvider() {
-        return apiServiceProvider;
-    }
-
     public void callMethod(String method, JSONObject request, JSONObject response) throws ApiErrorException {
         int idx = method.lastIndexOf(".");
         String methodName = method.substring(idx+1);
@@ -53,7 +38,7 @@ public abstract class ApiController {
                     invokeMethod(m, request, response);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    throw new ApiErrorException(e.getMessage());
+                    throw new ApiErrorException(e.getCause().getMessage());
                 }
                 break;
             }
@@ -66,6 +51,7 @@ public abstract class ApiController {
 
         if (parameterTypes.length == 2) { // Метод получает параметры
             ApiModel model = (ApiModel) parameterTypes[0].getConstructor().newInstance();
+            model.setDependencies(getApiVersion(), getApiServiceProvider());
             model.accept(request);
             method.invoke(this, model, response);
         }

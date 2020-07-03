@@ -6,7 +6,10 @@ import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
 
-public abstract class ApiModel {
+public abstract class ApiModel extends ApiDependencies {
+
+    protected void afterAccept() throws InvalidArgumentException {}
+
     public void accept(JSONObject data) throws InvalidArgumentException, IllegalAccessException {
         for (Field field : this.getClass().getFields()) {
             InputType inputType = (InputType) field.get(this);
@@ -31,8 +34,11 @@ public abstract class ApiModel {
             }
 
             // Валидация
+            inputType.setDependencies(getApiVersion(), getApiServiceProvider());
             inputType.input(data.containsKey(field.getName()) ? data.get(field.getName()) : null);
             inputType.validate();
         }
+
+        afterAccept();
     }
 }

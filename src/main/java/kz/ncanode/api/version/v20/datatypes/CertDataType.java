@@ -1,5 +1,6 @@
 package kz.ncanode.api.version.v20.datatypes;
 
+import kz.ncanode.api.core.ApiDependencies;
 import kz.ncanode.api.core.InputType;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.pki.X509Manager;
@@ -7,7 +8,7 @@ import kz.ncanode.pki.X509Manager;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
-public class CertDataType implements InputType {
+public class CertDataType extends ApiDependencies implements InputType {
     private X509Certificate cert;
     private String b64;
 
