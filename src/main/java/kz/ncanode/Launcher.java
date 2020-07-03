@@ -20,6 +20,14 @@ public class Launcher
 
     public static void main( String[] args )
     {
+        // Shutdown handler
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Launcher.shutdown();
+            }
+        }));
+
         // Intro
         System.out.print(Helper.awesomeBanner());
         System.out.printf("NCANode v%s\n", InfoServiceProvider.VERSION);
@@ -79,5 +87,9 @@ public class Launcher
 
         // Поехали... :)
         ((InteractionServiceProvider)sc.instance(InteractionServiceProvider.class.getName())).start();
+    }
+
+    public static void shutdown() {
+        System.out.print("NCANode stopped. Good bye :)");
     }
 }
