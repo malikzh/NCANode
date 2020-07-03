@@ -1,5 +1,6 @@
 package kz.ncanode.api.core;
 
+import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.api.core.annotations.ApiMethod;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
@@ -9,6 +10,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public abstract class ApiController {
+    private ApiVersion apiVersion;
+    private ApiServiceProvider apiServiceProvider;
+
     public boolean hasMethod(String method) {
         int idx = method.lastIndexOf(".");
         String methodName = method.substring(idx+1);
@@ -22,6 +26,19 @@ public abstract class ApiController {
         }
 
         return false;
+    }
+
+    public void setDependencies(ApiVersion apiVersion, ApiServiceProvider apiServiceProvider) {
+        this.apiVersion = apiVersion;
+        this.apiServiceProvider = apiServiceProvider;
+    }
+
+    public ApiVersion getApiVersion() {
+        return apiVersion;
+    }
+
+    public ApiServiceProvider getApiServiceProvider() {
+        return apiServiceProvider;
     }
 
     public void callMethod(String method, JSONObject request, JSONObject response) throws ApiErrorException {

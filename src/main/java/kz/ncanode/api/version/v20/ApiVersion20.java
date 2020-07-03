@@ -19,13 +19,17 @@ import java.util.List;
  * Версия API 2.0
  */
 public class ApiVersion20 implements ApiVersion {
-    private ApiServiceProvider man = null;
+    private ApiServiceProvider man;
     private List<ApiController> controllers;
 
     public ApiVersion20(ApiServiceProvider man) {
         controllers = new ArrayList<>();
         this.man = man;
         registerControllers();
+
+        for (ApiController controller : controllers) {
+            controller.setDependencies(this, man);
+        }
     }
 
     // Регистрация контроллёров
