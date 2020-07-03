@@ -1,10 +1,13 @@
 package kz.ncanode.api.version.v20.controllers;
 
+import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.annotations.ApiController;
 import kz.ncanode.api.core.annotations.ApiMethod;
 import kz.ncanode.api.exceptions.ApiErrorException;
+import kz.ncanode.api.version.v20.models.InfoPKCS12AliasesModel;
 import kz.ncanode.api.version.v20.models.InfoPKCS12Model;
 import kz.ncanode.api.version.v20.models.InfoX509Model;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.security.KeyStore;
@@ -89,8 +92,32 @@ public class InfoController extends kz.ncanode.api.core.ApiController {
             resp.put("chain", chainInf);
             resp.put("alias", alias);
             response.put("certificate", resp);
+            response.put("status", ApiStatus.STATUS_OK);
+            response.put("message", "");
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }
+    }
+
+    @ApiMethod(url = "pkcs12aliases")
+    public void pkcs12aliases(InfoPKCS12AliasesModel model, JSONObject response) throws ApiErrorException {
+        KeyStore p12 = model.p12.get();
+
+        JSONArray aliases = new JSONArray();
+
+        Enumeration<String> als = null;
+        try {
+            als = p12.aliases();
+        } catch (KeyStoreException e) {
+            throw new ApiErrorException(e.getMessage());
+        }
+
+        while (als.hasMoreElements()) {
+            aliases.add(als.nextElement());
+        }
+
+        response.put("status", ApiStatus.STATUS_OK);
+        response.put("message", "");
+        response.put("aliases", aliases);
     }
 }
