@@ -1,6 +1,7 @@
 package kz.ncanode.api.version.v20.controllers;
 
 import kz.ncanode.Helper;
+import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.annotations.ApiController;
 import kz.ncanode.api.core.annotations.ApiMethod;
 import kz.ncanode.api.exceptions.ApiErrorException;
@@ -18,7 +19,6 @@ public class NodeController extends kz.ncanode.api.core.ApiController {
         resp.put("name", getApiServiceProvider().info.getFullName());
         resp.put("dateTime", Helper.dateTime(new Date()));
         resp.put("timezone", Calendar.getInstance().getTimeZone().toZoneId().toString());
-        resp.put("status", true);
-        resp.put("message", "");
+        resp.put("status", ApiStatus.STATUS_OK);
     }
 }
