@@ -6,7 +6,6 @@ import kz.ncanode.api.core.annotations.ApiMethod;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.version.v20.models.InfoPKCS12AliasesModel;
 import kz.ncanode.api.version.v20.models.InfoPKCS12Model;
-import kz.ncanode.api.version.v20.models.InfoX509Model;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
