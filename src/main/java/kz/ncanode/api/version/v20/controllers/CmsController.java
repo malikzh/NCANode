@@ -9,9 +9,11 @@ import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.annotations.ApiController;
 import kz.ncanode.api.core.annotations.ApiMethod;
 import kz.ncanode.api.exceptions.ApiErrorException;
+import kz.ncanode.api.version.v20.models.CmsExtractModel;
 import kz.ncanode.api.version.v20.models.CmsSignModel;
 import org.json.simple.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertStore;
@@ -96,7 +98,13 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
     }
 
     @ApiMethod(url = "extract")
-    public void extract(JSONObject resp) throws ApiErrorException {
-
+    public void extract(CmsExtractModel model, JSONObject response) throws ApiErrorException, IOException, CMSException {
+        CMSSignedData cms = model.cms.get();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        cms.getSignedContent().write(out);
+        byte[] original = out.toByteArray();
+        response.put("originalData", new String(Base64.getEncoder().encode(original)));
+        response.put("status", ApiStatus.STATUS_OK);
+        response.put("message", "");
     }
 }
