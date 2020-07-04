@@ -90,6 +90,6 @@ public class Launcher
     }
 
     public static void shutdown() {
-        System.out.print("NCANode stopped. Good bye :)");
+        System.out.print("\nNCANode stopped. Good bye :)\n");
     }
 }
