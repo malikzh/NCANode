@@ -3,6 +3,7 @@ package kz.ncanode.api;
 import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.version.v10.ApiVersion10;
+import kz.ncanode.api.version.v20.ApiVersion20;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.info.InfoServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
@@ -35,7 +36,8 @@ public class ApiServiceProvider implements ServiceProvider {
 
     public Hashtable<String, ApiVersion> supportedVersions = null;
 
-    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp, KalkanServiceProvider kalkan) {
+    public ApiServiceProvider(ConfigServiceProvider config, RequestLogServiceProvider req, ErrorLogServiceProvider err, PkiServiceProvider pki, CrlServiceProvider crl, CAStoreServiceProvider ca, InfoServiceProvider info, TSPServiceProvider tsp, KalkanServiceProvider kalkan)
+    {
         this.config = config;
         this.req    = req;
         this.err    = err;
@@ -50,6 +52,7 @@ public class ApiServiceProvider implements ServiceProvider {
         supportedVersions = new Hashtable<>();
 
         supportedVersions.put("1.0", new ApiVersion10(this));
+        supportedVersions.put("2.0", new ApiVersion20(this));
     }
 
     /**
@@ -57,7 +60,8 @@ public class ApiServiceProvider implements ServiceProvider {
      * @param request сам запрос
      * @return ответ от API
      */
-    public JSONObject process(JSONObject request) {
+    public JSONObject process(JSONObject request)
+    {
 
         String apiVer;
 
@@ -95,6 +99,4 @@ public class ApiServiceProvider implements ServiceProvider {
 
         return resp;
     }
-
-
 }

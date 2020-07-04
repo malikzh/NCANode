@@ -51,6 +51,11 @@ public class ApiVersion10 implements ApiVersion {
 
     }
 
+    public ApiVersion10() {
+        methods = new Hashtable<>();
+        this.man = man;
+    }
+
     @Override
     public void setApiManager(ApiServiceProvider apiManager) {
         man = apiManager;

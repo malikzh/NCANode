@@ -72,8 +72,9 @@ public class HttpInteractor implements Interactor {
                 String response = "";
                 headers.add("Content-Type", "application/json; charset=UTF-8");
 
+                String contentTypeHeader = exchange.getRequestHeaders().getFirst("Content-Type");
 
-                if (!exchange.getRequestHeaders().getFirst("Content-Type").equals("application/json")) {
+                if (contentTypeHeader == null || !exchange.getRequestHeaders().getFirst("Content-Type").equals("application/json")) {
                     response = "Invalid header Content-Type. Please set Content-Type to application/json";
                 } else {
                     // read request body

@@ -12,16 +12,28 @@ import kz.ncanode.log.RequestLogServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
 import kz.ncanode.pki.*;
 
+import java.util.Calendar;
+
 public class Launcher
 {
     public static String[] arguments = null;
 
     public static void main( String[] args )
     {
+        // Shutdown handler
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Launcher.shutdown();
+            }
+        }));
+
         // Intro
+        System.out.print(Helper.awesomeBanner());
         System.out.printf("NCANode v%s\n", InfoServiceProvider.VERSION);
         System.out.printf("Official project page: %s\n", InfoServiceProvider.PROJECT_PAGE);
-        System.out.println("Copyright (c) 2018 Malik Zharykov.");
+        System.out.printf("Please star ★ github repo: %s\n", InfoServiceProvider.GITHUB_PAGE);
+        System.out.printf("Copyright (c) 2018-%d Malik Zharykov.\n", Calendar.getInstance().get(Calendar.YEAR));
         System.out.println("------------------------------------");
         System.out.print("\n");
 
@@ -75,5 +87,9 @@ public class Launcher
 
         // Поехали... :)
         ((InteractionServiceProvider)sc.instance(InteractionServiceProvider.class.getName())).start();
+    }
+
+    public static void shutdown() {
+        System.out.print("NCANode stopped. Good bye :)");
     }
 }
