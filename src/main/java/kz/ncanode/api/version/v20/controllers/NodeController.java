@@ -20,5 +20,6 @@ public class NodeController extends kz.ncanode.api.core.ApiController {
         resp.put("dateTime", Helper.dateTime(new Date()));
         resp.put("timezone", Calendar.getInstance().getTimeZone().toZoneId().toString());
         resp.put("status", ApiStatus.STATUS_OK);
+        resp.put("message", "");
     }
 }
