@@ -1,0 +1,185 @@
+{
+	"info": {
+		"_postman_id": "cf642564-c527-4844-b379-de0a804a5602",
+		"name": "NCANode 2.0",
+		"description": "Методы API версии 2.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "node.info",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"2.0\",\n    \"method\": \"node.info\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:14579",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "14579"
+				},
+				"description": "Получает информацию о запущенном NCANode"
+			},
+			"response": []
+		},
+		{
+			"name": "info.pkcs12",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"2.0\",\n    \"method\": \"info.pkcs12\",\n    \"params\": {\n        \"p12\":\"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\",\n\t\t\"password\":\"Qwerty12\",\n\t\t\"checkOcsp\": true,\n\t\t\"checkCrl\": true,\n        \"alias\": \"\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:14579",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "14579"
+				},
+				"description": "Возвращает информацию PKCS12 (p12 файл)"
+			},
+			"response": []
+		},
+		{
+			"name": "info.pkcs12aliases",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"2.0\",\n    \"method\": \"info.pkcs12aliases\",\n    \"params\": {\n        \"p12\":\"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\",\n\t\t\"password\":\"Qwerty12\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:14579",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "14579"
+				},
+				"description": "Возвращает алиасы сертификатов. Алиас можно использовать в методе info.pkcs12"
+			},
+			"response": []
+		},
+		{
+			"name": "cms.sign",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"2.0\",\n    \"method\": \"cms.sign\",\n    \"params\": {\n        \"data\": \"YXNkYXNk\",\n        \"p12array\": [\n            {\n                \"alias\": \"\",\n                \"p12\":\"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\",\n\t\t        \"password\":\"Qwerty12\"\n            }\n        ]\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:14579",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "14579"
+				},
+				"description": "Осуществляет подписывание данных и сохранение в формат CMS"
+			},
+			"response": []
+		},
+		{
+			"name": "cms.verify",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"2.0\",\n    \"method\": \"cms.verify\",\n    \"params\": {\n        \"checkOcsp\": true,\n        \"checkCrl\": true,\n        \"cms\": \"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\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:14579",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "14579"
+				},
+				"description": "Осуществляет проверку подписи CMS"
+			},
+			"response": []
+		},
+		{
+			"name": "cms.extract",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"version\": \"2.0\",\n    \"method\": \"cms.extract\",\n    \"params\": {\n        \"cms\": \"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\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:14579",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "14579"
+				},
+				"description": "Извлекает данные из CMS"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
