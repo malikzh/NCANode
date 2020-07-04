@@ -7,6 +7,7 @@ import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.version.v10.ApiVersion10;
+import kz.ncanode.api.version.v20.controllers.CmsController;
 import kz.ncanode.api.version.v20.controllers.InfoController;
 import kz.ncanode.api.version.v20.controllers.NodeController;
 import org.json.simple.JSONObject;
@@ -36,6 +37,7 @@ public class ApiVersion20 implements ApiVersion {
     private void registerControllers() {
         controllers.add(new NodeController());
         controllers.add(new InfoController());
+        controllers.add(new CmsController());
     }
 
     @Override
