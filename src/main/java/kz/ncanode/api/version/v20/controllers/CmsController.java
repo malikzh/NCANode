@@ -90,6 +90,8 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
 
         response.put("cms", new String(Base64.getEncoder().encode(signed.getEncoded())));
+        response.put("status", ApiStatus.STATUS_OK);
+        response.put("message", "");
     }
 
     @ApiMethod(url = "verify")
