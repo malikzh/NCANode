@@ -19,11 +19,6 @@ import java.util.Enumeration;
 @ApiController("info")
 public class InfoController extends kz.ncanode.api.core.ApiController {
 
-    @ApiMethod(url = "x509")
-    public void x509(InfoX509Model model, JSONObject response) {
-        response.put("param", "value");
-    }
-
     @ApiMethod(url = "pkcs12")
     public void pkcs12(InfoPKCS12Model model, JSONObject response) throws ApiErrorException {
         KeyStore p12 = model.p12.get();
