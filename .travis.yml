@@ -9,3 +9,8 @@ install:
   - mvn install:install-file -Dfile=./lib/kalkancrypt_xmldsig-0.3.jar -DgroupId=pki.gov.kz -DartifactId=kalkancryptxmldsig -Dversion=0.3 -Dpackaging=jar -DgeneratePom=true
 script:
   - mvn package
+
+after_success:
+  - NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
+  - "echo \"Build version is: ${NCANODE_BUILD_VERSION}\""
+  - ./build_release.sh $NCANODE_BUILD_VERSION
