@@ -1,1 +1,4 @@
 language: java
+before_install:
+  - wget https://ncanode.kz/kalkan/kalkancrypt-0.6.jar -O ./lib
+  - wget https://ncanode.kz/kalkan/kalkancrypt_xmldsig-0.3.jar -O ./lib
