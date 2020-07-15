@@ -3,7 +3,10 @@ version: 2.1
 orbs:
   maven: circleci/maven@0.0.12
 
-workflows:
-  maven_test:
-    jobs:
-      - maven/test # checkout, build, test, and upload test results
+jobs:
+  dependencies:
+    steps:
+      - checkout
+      - run: wget ${KALKAN_DOWNLOAD_URL} -O ./libs/
+      - run: wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -O ./libs/
+
