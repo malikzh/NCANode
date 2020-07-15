@@ -13,7 +13,7 @@ script:
 - mvn package
 after_success:
 - NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
-- 'echo "Build version is: ${NCANODE_BUILD_VERSION}"'
+- 'echo "Build version isx: ${NCANODE_BUILD_VERSION}"'
 - "./build_release.sh $NCANODE_BUILD_VERSION"
 deploy:
   provider: releases
