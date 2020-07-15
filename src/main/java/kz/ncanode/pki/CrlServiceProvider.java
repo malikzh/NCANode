@@ -50,7 +50,7 @@ public class CrlServiceProvider implements ServiceProvider {
 
                 X509CRL crl = (X509CRL)cf.generateCRL(fileInputStream);
                 fileInputStream.close();
-//
+
                 if (crl.isRevoked(cert)) {
                     X509CRLEntry entry = crl.getRevokedCertificate(cert);
 
