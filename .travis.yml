@@ -1,16 +1,29 @@
 language: java
 dist: trusty
 jdk:
-  - oraclejdk8
+- oraclejdk8
 install:
-  - wget ${KALKAN_DOWNLOAD_URL} -P ./lib
-  - wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -P ./lib
-  - mvn install:install-file -Dfile=./lib/kalkancrypt-0.6.jar -DgroupId=pki.gov.kz -DartifactId=kalkancrypt -Dversion=0.6 -Dpackaging=jar -DgeneratePom=true
-  - mvn install:install-file -Dfile=./lib/kalkancrypt_xmldsig-0.3.jar -DgroupId=pki.gov.kz -DartifactId=kalkancryptxmldsig -Dversion=0.3 -Dpackaging=jar -DgeneratePom=true
+- wget ${KALKAN_DOWNLOAD_URL} -P ./lib
+- wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -P ./lib
+- mvn install:install-file -Dfile=./lib/kalkancrypt-0.6.jar -DgroupId=pki.gov.kz -DartifactId=kalkancrypt
+  -Dversion=0.6 -Dpackaging=jar -DgeneratePom=true
+- mvn install:install-file -Dfile=./lib/kalkancrypt_xmldsig-0.3.jar -DgroupId=pki.gov.kz
+  -DartifactId=kalkancryptxmldsig -Dversion=0.3 -Dpackaging=jar -DgeneratePom=true
 script:
-  - mvn package
-
+- mvn package
 after_success:
-  - NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
-  - "echo \"Build version is: ${NCANODE_BUILD_VERSION}\""
-  - ./build_release.sh $NCANODE_BUILD_VERSION
+- NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
+- 'echo "Build version is: ${NCANODE_BUILD_VERSION}"'
+- "./build_release.sh $NCANODE_BUILD_VERSION"
+deploy:
+  provider: releases
+  api_key:
+    secure: P+Qqd1FUcyHKCfyA+0o4oMW31G8z/W5oNr7LGGOVl0WHS5VsXLjSe87Cqf0Ic+qEthUf4tEsfin1b4PZ5PgiJzXqAVUdm0V20g9pLhsVjo2EjRazGky7d5K3aNsgXcn9+hiYJWNVnpRxSz0H0QLa7jGsMS0mAfjiK6x0UUZzIlEU5AcmH7LzAGyXf3FGhAgsSlg9r4PkSlcd099b+ECqlU+uSo03n0c856piBmqQMVaOeVKD4h8Kr4yzT5zrLHsIyCyVA6+LRAY60bOmYsTejbBR/o54X1p0UY1RK0KDg3EB2OlBcTGxKOxie6HzSlWGZNCaPTIiQ5Yhn5iEQ3zaF0UpO8CZsb0ZqTd2gZU1G5vYiqThsasnNqasWPx0BK2RMPVJdi7vYdFcYD/FvMhKkwlkN/S7eBQ8s6e07I8hxR/oXmNyuPCsGhrjjkhcwM3eAPYtvrqhNuaVjrv/38DLP2JGsZGFiwXpztS/dAUGpLFJEknl5b76qBczLVnOEhXXwayX8itxLwuLXL3Z0VRfcE7DLL+KsvSHjxHdPB5igWo+BDJQN3RanrhLdqZxXZHzfmpEAdTiupX6weeVg17x4D8dTWc1N9eZSQIHoQIGEhHyXaIyU9FXqs0uhJOf4sKHxTHYh1Vf0Kvtt+LTDo2309lrR2qdf1m5daaacyua2K0=
+  file_glob: true
+  file:
+    - "NCANode*.tar.gz"
+    - "NCANode*.zip"
+  on:
+    tags: true
+  skip_cleanup: 'true'
+  draft: true
