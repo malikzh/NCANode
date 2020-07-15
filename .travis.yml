@@ -7,3 +7,7 @@ language: java
 before_install:
   - wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -O ./lib
   - wget ${KALKAN_DOWNLOAD_URL} -O ./lib
+install:
+  - mvn clean
+script:
+  - mvn package
