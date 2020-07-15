@@ -1,3 +1,8 @@
+#
+# Configuration for Travis CI
+# ---------------------------
+# Author: Malik Zharykov
+#
 language: java
 before_install:
   - wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -O ./lib
