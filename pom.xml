@@ -77,11 +77,15 @@
       <groupId>pki.gov.kz</groupId>
       <artifactId>kalkancrypt</artifactId>
       <version>0.6</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/kalkancrypt-0.6.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>pki.gov.kz</groupId>
       <artifactId>kalkancryptxmldsig</artifactId>
       <version>0.3</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/lib/kalkancrypt_xmldsig-0.3.jar</systemPath>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.santuario/xmlsec -->
     <dependency>
