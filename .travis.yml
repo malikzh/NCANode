@@ -1,4 +1,6 @@
 language: java
+jdk:
+  - oraclejdk8
 install:
   - wget ${KALKAN_DOWNLOAD_URL} -P ./lib
   - wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -P ./lib
