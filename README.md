@@ -177,4 +177,13 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 ----
 
+### Сборка проекта
+
+Для сборки проекта необходимо:
+
+1. Подставить бибилиотеки kalkancrypt (Их можно запросить [тут](https://pki.gov.kz/developers/))
+2. `mvn clean package`
+
+Собранный проект будет лежать: `target/ncanode-jar-with-dependencies.jar`
+
 Сделано с ❤️
