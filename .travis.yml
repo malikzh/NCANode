@@ -13,17 +13,16 @@ script:
 - mvn package
 after_success:
 - NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
-- 'echo "Build version isx: ${NCANODE_BUILD_VERSION}"'
+- 'echo "Build version is: ${NCANODE_BUILD_VERSION}"'
 - "./build_release.sh $NCANODE_BUILD_VERSION"
 deploy:
   provider: releases
   api_key:
-    secure: KCPYj9jKO3eXxDtWjrogppCC+Emo5hiSAByDwAfPNnlYS3P+9To/KUh46Wu6b6Tm/lUmu/doMFxW9x7teKJ20h44GBJ15U7jRDQrr2tCU+wXKRsSO+ODBV7WDh9s1jsGQQrbGIE2Mz+AdBskbw1QkFvYyDk8tNyrsP3uBcPeg7mgneqMbbNd/Tmt7/9TAnsjBGZ9JMTflYQC9AlZmb5bHKRdT2Xh2gpzwmlK27dGNPTj+F1pnsUEF21Qzb4hAMZsq/wxpcBcYoesytblVr6gj34QzQjghARMsHJdjCn31b+Pt+UECx4pexXiU0vhFOrdtrrWA77ujK7/KUp2/K0ZMqcc94kgvPAh28a6dmJdQOCqkhkLmzuHaqga/JDiVgoANDU9KoRbO/cNk3m/Jp/v7+hkyAPCWOUP1FNfIkegCbX0URIOiv/6T0O0xZgkwTCnjh/lBazWuQPGOpHy+ErzIecroKjXhXXormKQi/z+ipNaYA3SW34dzyUVUvNn/wtkpVv+KPMBjCViiBWdW5UCcAA+RMCjhEectMcFNKoyVlKKqPXjBTMYwIIkfaPp5mVmsEJRDMpLVeVrRti1CxVRvgeA/CbqvMIswTNWIfOr1sHFSS9VUdu0R/nUEd9WvqHEP25eZJQBDj06FEJuYggc0zG49hvmcy5VqIsxFv91bWk=
+    secure: FF2oJs1Zpyx3GOxjrCako/r4lDQRC3kbuOKmKyfa8nw5r6SHs4I0IGeCKUTNLUuw3FWhNk8cCnZKnTm6CT0BSaxf6kAxn9bc3IN8CBINwn/l6l8I2aO46xOGipOqmwqrj+XgdXAF9HuYwGXC/iM7zDksaJ2bpEqbc64GFxQKXXK1S4nEDea+t5JZUVkyCWNzjJX/+zyhUHBPeW6fSIbyRHag6GOnHurVOJ1idS5L2OMNkQ1ut2sO/8ZCuTDf6MFU/O34FGJi5i1bioJJ8rCCg04QynkndGLNkzGBP8D18Np1Qs57iNEAzBBWxsHRpR8g1Ych6f9XKn8TglDrFcBMRIEJCPecG04WQV3lzI00o7/E/jhy26AiOIxq60d+n4rOi2I21EBZ3Cfx2Z04ptKjNYDpvT70iCnnAn94mfBIToSvgdhcuBitQNct2/uKZuHtF59ukLoWXQVc+6LpR60d2wBucQ1RZGIZZNx73/q3qs+GAEd6v5ogNZw/TdDQTeTnAZomBYlW+b9TiVy0lGTmhZrQbikDqfLF56sUmVq7tBoVC8h/B+hUqsx75suC808XuSG58s2U5EeIHMZ9iXm/ZNTHPnC897gdqSjvSqdcK4gcCSAbqSo8WELnc8BB9Sna+7OzAgFtNA2z8PK8Me0VHUzqSeKliykF6RX9bMxxkZY=
   file_glob: true
   file:
-    - "NCANode*.tar.gz"
     - "NCANode*.zip"
+    - "NCANode*.tar.gz"
   on:
     tags: true
   skip_cleanup: 'true'
-  draft: true
