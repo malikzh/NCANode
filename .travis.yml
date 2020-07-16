@@ -1,3 +1,7 @@
+#
+# Описание конфигурации для Travis CI
+#
+
 language: java
 dist: trusty
 jdk:
@@ -24,5 +28,6 @@ deploy:
     - "NCANode.tar.gz"
   on:
     tags: true
+    branch: master
   skip_cleanup: 'true'
   draft: true
