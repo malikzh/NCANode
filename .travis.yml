@@ -19,7 +19,7 @@ deploy:
   provider: releases
   api_key:
     secure: KCPYj9jKO3eXxDtWjrogppCC+Emo5hiSAByDwAfPNnlYS3P+9To/KUh46Wu6b6Tm/lUmu/doMFxW9x7teKJ20h44GBJ15U7jRDQrr2tCU+wXKRsSO+ODBV7WDh9s1jsGQQrbGIE2Mz+AdBskbw1QkFvYyDk8tNyrsP3uBcPeg7mgneqMbbNd/Tmt7/9TAnsjBGZ9JMTflYQC9AlZmb5bHKRdT2Xh2gpzwmlK27dGNPTj+F1pnsUEF21Qzb4hAMZsq/wxpcBcYoesytblVr6gj34QzQjghARMsHJdjCn31b+Pt+UECx4pexXiU0vhFOrdtrrWA77ujK7/KUp2/K0ZMqcc94kgvPAh28a6dmJdQOCqkhkLmzuHaqga/JDiVgoANDU9KoRbO/cNk3m/Jp/v7+hkyAPCWOUP1FNfIkegCbX0URIOiv/6T0O0xZgkwTCnjh/lBazWuQPGOpHy+ErzIecroKjXhXXormKQi/z+ipNaYA3SW34dzyUVUvNn/wtkpVv+KPMBjCViiBWdW5UCcAA+RMCjhEectMcFNKoyVlKKqPXjBTMYwIIkfaPp5mVmsEJRDMpLVeVrRti1CxVRvgeA/CbqvMIswTNWIfOr1sHFSS9VUdu0R/nUEd9WvqHEP25eZJQBDj06FEJuYggc0zG49hvmcy5VqIsxFv91bWk=
-file_glob: true
+  file_glob: true
   file:
     - "NCANode*.tar.gz"
     - "NCANode*.zip"
