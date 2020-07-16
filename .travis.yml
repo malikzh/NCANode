@@ -17,8 +17,7 @@ after_success:
 - "./build_release.sh $NCANODE_BUILD_VERSION"
 before_deploy:
   - mkdir ci_release
-  - cp NCANode*.tar.gz ci_release/
-  - cp NCANode*.zip ci_release/
+  - cp NCANode-v* ci_release/
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
