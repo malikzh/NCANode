@@ -11,6 +11,7 @@
 ![License:MIT](https://img.shields.io/badge/license-MIT-green.svg)
 ![Downloads](https://img.shields.io/github/downloads/malikzh/NCANode/total.svg)
 [![HitCount](http://hits.dwyl.io/malikzh/ncanode.svg)](http://hits.dwyl.io/malikzh/ncanode)
+[![Build Status](https://travis-ci.com/malikzh/NCANode.svg?branch=master)](https://travis-ci.com/malikzh/NCANode)
 
 ---
 
