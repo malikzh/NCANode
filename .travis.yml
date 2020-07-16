@@ -20,8 +20,8 @@ deploy:
   api_key: $GITHUB_TOKEN
   file_glob: true
   file:
-    - "NCANode*.zip"
-    - "NCANode*.tar.gz"
+    - "NCANode.zip"
+    - "NCANode.tar.gz"
   on:
     tags: true
   skip_cleanup: 'true'
