@@ -59,7 +59,8 @@ public class CrlServiceProvider implements ServiceProvider {
 
                     if (entry != null) {
                         revokationDate   = entry.getRevocationDate();
-                        revokationReason = entry.getRevocationReason().toString();
+                        revokationReason = (entry.getRevocationReason() != null ?
+                            entry.getRevocationReason().toString() : "");
                     }
 
                     return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()), revokationDate, revokationReason);

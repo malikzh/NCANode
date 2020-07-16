@@ -1,0 +1,33 @@
+#
+# Описание конфигурации для Travis CI
+#
+
+language: java
+dist: trusty
+jdk:
+- oraclejdk8
+install:
+- wget ${KALKAN_DOWNLOAD_URL} -P ./lib
+- wget ${KALKAN_XMLDSIG_DOWNLOAD_URL} -P ./lib
+- mvn install:install-file -Dfile=./lib/kalkancrypt-0.6.jar -DgroupId=pki.gov.kz -DartifactId=kalkancrypt
+  -Dversion=0.6 -Dpackaging=jar -DgeneratePom=true
+- mvn install:install-file -Dfile=./lib/kalkancrypt_xmldsig-0.3.jar -DgroupId=pki.gov.kz
+  -DartifactId=kalkancryptxmldsig -Dversion=0.3 -Dpackaging=jar -DgeneratePom=true
+script:
+- mvn package
+after_success:
+- NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
+- 'echo "Build version is: ${NCANODE_BUILD_VERSION}"'
+- "./build_release.sh $NCANODE_BUILD_VERSION"
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file_glob: true
+  file:
+    - "NCANode.zip"
+    - "NCANode.tar.gz"
+  on:
+    tags: true
+    branch: master
+  skip_cleanup: 'true'
+  draft: true
