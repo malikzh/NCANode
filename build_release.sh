@@ -10,7 +10,7 @@ if [ "$1" == "" ]; then
 fi
 
 RELEASE_DIR="release_v${1}"
-NCANODE_ORIGINAL_JAR="./target/ncanode-*-jar-with-dependencies.jar"
+NCANODE_ORIGINAL_JAR="./target/ncanode-jar-with-dependencies.jar"
 
 if [ ! -f "$NCANODE_ORIGINAL_JAR" ]; then
   echo "Release $NCANODE_ORIGINAL_JAR not exists"

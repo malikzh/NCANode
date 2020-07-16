@@ -125,6 +125,7 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
           <configuration>
+            <finalName>${project.artifactId}</finalName>
             <archive>
               <manifest>
                 <addClasspath>true</addClasspath>
@@ -198,6 +199,7 @@
           </execution>
         </executions>
         <configuration>
+          <finalName>${project.artifactId}</finalName>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
