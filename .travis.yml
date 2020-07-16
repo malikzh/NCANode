@@ -15,13 +15,16 @@ after_success:
 - NCANODE_BUILD_VERSION=${TRAVIS_TAG:1:100}
 - 'echo "Build version is: ${NCANODE_BUILD_VERSION}"'
 - "./build_release.sh $NCANODE_BUILD_VERSION"
+before_deploy:
+  - mkdir ci_release
+  - cp NCANode*.tar.gz
+  - cp NCANode*.zip
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
   file_glob: true
-  file:
-    - "NCANode*.zip"
-    - "NCANode*.tar.gz"
+  file: "ci_release/**/*"
   on:
     tags: true
   skip_cleanup: 'true'
+  draft: true
