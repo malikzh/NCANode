@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
+#
+# Build script for CI
+#
+
 if [ "$1" == "" ]; then
     echo "Version not specified"
     exit
 fi
 
 RELEASE_DIR="release_v${1}"
-NCANODE_ORIGINAL_JAR="./target/ncanode-${1}-jar-with-dependencies.jar"
+NCANODE_ORIGINAL_JAR="./target/ncanode-*-jar-with-dependencies.jar"
 
 if [ ! -f "$NCANODE_ORIGINAL_JAR" ]; then
   echo "Release $NCANODE_ORIGINAL_JAR not exists"
@@ -37,12 +41,12 @@ curl -k -L -o "$RELEASE_DIR/ca/trusted/pki_gost.crt" http://www.pki.gov.kz/cert/
 curl -k -L -o "$RELEASE_DIR/ca/trusted/nca_rsa.crt" http://www.pki.gov.kz/cert/nca_rsa.crt && \
 curl -k -L -o "$RELEASE_DIR/ca/trusted/nca_gost.crt" http://www.pki.gov.kz/cert/nca_gost.crt && \
 cd "$RELEASE_DIR" && \
-zip "../NCANode.zip" -r . && \
-tar cvzf "../NCANode.tar.gz" . && \
+zip "../NCANode-v${1}.zip" -r . && \
+tar cvzf "../NCANode-v${1}.tar.gz" . && \
 cd .. && \
 rm -r "$RELEASE_DIR"
 
-md5sum "NCANode.zip" "NCANode.tar.gz"
-sha1sum "NCANode.zip" "NCANode.tar.gz"
+md5sum "NCANode-v${1}.zip" "NCANode-v${1}.tar.gz"
+sha1sum "NCANode-v${1}.zip" "NCANode-v${1}.tar.gz"
 
 echo "Build OK"
