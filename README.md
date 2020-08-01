@@ -12,6 +12,7 @@
 ![Downloads](https://img.shields.io/github/downloads/malikzh/NCANode/total.svg)
 [![HitCount](http://hits.dwyl.io/malikzh/ncanode.svg)](http://hits.dwyl.io/malikzh/ncanode)
 [![Build Status](https://travis-ci.com/malikzh/NCANode.svg?branch=master)](https://travis-ci.com/malikzh/NCANode)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/malikzh/NCANode)
 
 ---
 
