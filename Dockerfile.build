@@ -38,4 +38,4 @@ RUN cd /opt/ncanode && mkdir -p ca/trusted && cd ca/trusted && wget \
     https://pki.gov.kz/cert/nca_rsa.crt \
     https://pki.gov.kz/cert/nca_gost.crt
 COPY --from=0 /usr/local/src/NCANode/NCANode.ini ./NCANode.ini
-COPY --from=0 /usr/local/src/NCANode/target/ncanode-*-jar-with-dependencies.jar ./ncanode.jar
+COPY --from=0 /usr/local/src/NCANode/target/ncanode-jar-with-dependencies.jar ./ncanode.jar
