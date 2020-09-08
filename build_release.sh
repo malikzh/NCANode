@@ -34,12 +34,12 @@ mkdir -p "$RELEASE_DIR/cache/crl" && \
 mkdir "$RELEASE_DIR/logs" && \
 touch "$RELEASE_DIR/logs/error.log" && \
 touch "$RELEASE_DIR/logs/request.log" && \
-curl -k -L -o "$RELEASE_DIR/ca/root/root_rsa.crt" http://www.pki.gov.kz/cert/root_rsa.crt && \
-curl -k -L -o "$RELEASE_DIR/ca/root/root_gost.crt" http://www.pki.gov.kz/cert/root_gost.crt && \
-curl -k -L -o "$RELEASE_DIR/ca/trusted/pki_rsa.crt" http://www.pki.gov.kz/cert/pki_rsa.crt && \
-curl -k -L -o "$RELEASE_DIR/ca/trusted/pki_gost.crt" http://www.pki.gov.kz/cert/pki_gost.crt && \
-curl -k -L -o "$RELEASE_DIR/ca/trusted/nca_rsa.crt" http://www.pki.gov.kz/cert/nca_rsa.crt && \
-curl -k -L -o "$RELEASE_DIR/ca/trusted/nca_gost.crt" http://www.pki.gov.kz/cert/nca_gost.crt && \
+curl -k -L -o "$RELEASE_DIR/ca/root/root_rsa.crt" https://pki.gov.kz/cert/root_rsa.crt && \
+curl -k -L -o "$RELEASE_DIR/ca/root/root_gost.crt" https://pki.gov.kz/cert/root_gost.crt && \
+curl -k -L -o "$RELEASE_DIR/ca/trusted/pki_rsa.crt" https://pki.gov.kz/cert/pki_rsa.crt && \
+curl -k -L -o "$RELEASE_DIR/ca/trusted/pki_gost.crt" https://pki.gov.kz/cert/pki_gost.crt && \
+curl -k -L -o "$RELEASE_DIR/ca/trusted/nca_rsa.crt" https://pki.gov.kz/cert/nca_rsa.crt && \
+curl -k -L -o "$RELEASE_DIR/ca/trusted/nca_gost.crt" https://pki.gov.kz/cert/nca_gost.crt && \
 cd "$RELEASE_DIR" && \
 zip "../NCANode.zip" -r . && \
 tar cvzf "../NCANode.tar.gz" . && \
