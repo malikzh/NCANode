@@ -26,16 +26,8 @@ WORKDIR /opt/ncanode
 CMD ["java", "-jar", "ncanode.jar"]
 RUN mkdir logs \
  && ln -s /dev/stdout logs/request.log \
- && ln -s /dev/stderr logs/error.log \
- && mkdir -p ca/root \
- && cd ca/root && wget \
-    https://pki.gov.kz/cert/root_rsa.crt \
-    https://pki.gov.kz/cert/root_gost.crt
+ && ln -s /dev/stderr logs/error.log
 
-RUN cd /opt/ncanode && mkdir -p ca/trusted && cd ca/trusted && wget \
-    https://pki.gov.kz/cert/pki_rsa.crt \
-    https://pki.gov.kz/cert/pki_gost.crt \
-    https://pki.gov.kz/cert/nca_rsa.crt \
-    https://pki.gov.kz/cert/nca_gost.crt
+COPY ca ca/
 COPY --from=0 /usr/local/src/NCANode/NCANode.ini ./NCANode.ini
 COPY --from=0 /usr/local/src/NCANode/target/ncanode-jar-with-dependencies.jar ./ncanode.jar
