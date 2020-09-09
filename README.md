@@ -155,10 +155,9 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 ## Благодарности
 
-- ⭐ [@exe-dealer](https://github.com/exe-dealer) - За Dockerfile
-
-Также хочу поблагодарить всех, кто даёт обратную связь по ошибкам в разделе ["Issues"](https://github.com/malikzh/NCANode/issues).
-Спасибо Вам огромное! 😊
+<a href="https://github.com/malikzh/NCANode/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=malikzh/NCANode" />
+</a>
 
 ## Лицензия
 
