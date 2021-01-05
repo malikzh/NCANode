@@ -33,6 +33,7 @@ public class ApiVersion10 implements ApiVersion {
 
         // XML
         methods.put("XML.sign", new XMLSign(this, man));
+        methods.put("XML.signWithSecurityHeader", new XMLSignWithSecurityHeader(this, man));
         methods.put("XML.verify", new XMLVerify(this, man));
 
         // TSP
