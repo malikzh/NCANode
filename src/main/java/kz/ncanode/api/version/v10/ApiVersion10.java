@@ -34,6 +34,7 @@ public class ApiVersion10 implements ApiVersion {
         // XML
         methods.put("XML.sign", new XMLSign(this, man));
         methods.put("XML.verify", new XMLVerify(this, man));
+        methods.put("XML.verifyWithSecurityHeader", new XMLVerifyWithSecurityHeader(this, man));
 
         // TSP
         methods.put("TSP.verify", new TSPVerify(this, man));
