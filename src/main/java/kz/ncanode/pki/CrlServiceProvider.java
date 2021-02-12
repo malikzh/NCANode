@@ -8,13 +8,14 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.security.cert.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Класс для работы с CRL
@@ -22,6 +23,8 @@ import java.util.Hashtable;
 public class CrlServiceProvider implements ServiceProvider {
 
     public static final String CRL_FILE_EXT  = ".crl";
+
+    private Map<String, X509CRL> crlMemo = new ConcurrentHashMap<>();
 
     ConfigServiceProvider config;
     OutLogServiceProvider out;
@@ -42,44 +45,26 @@ public class CrlServiceProvider implements ServiceProvider {
         String[] cfgCrlCacheUrls = config.get("pki", "crl_urls").split(" ");
         Hashtable<String, String> names = crlNames(cfgCrlCacheUrls);
 
-        try {
-            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        for (File crlFile : crls()) {
+            X509CRL crl = generateCRL(crlFile);
 
-            for (File crlFile : crls()) {
-                FileInputStream fileInputStream = new FileInputStream(crlFile);
+            if (crl == null)
+                return null;
 
-                X509CRL crl = (X509CRL)cf.generateCRL(fileInputStream);
-                fileInputStream.close();
+            if (crl.isRevoked(cert)) {
+                X509CRLEntry entry = crl.getRevokedCertificate(cert);
 
-                if (crl.isRevoked(cert)) {
-                    X509CRLEntry entry = crl.getRevokedCertificate(cert);
+                Date revokationDate = null;
+                String revokationReason = "";
 
-                    Date revokationDate = null;
-                    String revokationReason = "";
-
-                    if (entry != null) {
-                        revokationDate   = entry.getRevocationDate();
-                        revokationReason = (entry.getRevocationReason() != null ?
+                if (entry != null) {
+                    revokationDate   = entry.getRevocationDate();
+                    revokationReason = (entry.getRevocationReason() != null ?
                             entry.getRevocationReason().toString() : "");
-                    }
-
-                    return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()), revokationDate, revokationReason);
                 }
 
+                return new CrlStatus(CrlStatus.CrlResult.REVOKED, names.get(crlFile.getName()), revokationDate, revokationReason);
             }
-
-        } catch (CertificateException e) {
-            e.printStackTrace();
-            return null;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        } catch (CRLException e) {
-            e.printStackTrace();
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
 
         return new CrlStatus(CrlStatus.CrlResult.ACTIVE, "", null, "");
@@ -96,6 +81,7 @@ public class CrlServiceProvider implements ServiceProvider {
 
 
         Hashtable<String, String> names = crlNames(cfgCrlCacheUrls);
+        boolean updateCrlCache = false;
 
         // Обновляем суещствующие CRL
         if (!forceUpdate) {
@@ -110,6 +96,7 @@ public class CrlServiceProvider implements ServiceProvider {
 
                         // Загружаем CRL'ки
                         downloadCrl(url, filePath);
+                        updateCrlCache = true;
                     }
                 }
             }
@@ -124,8 +111,39 @@ public class CrlServiceProvider implements ServiceProvider {
 
             if (!crlFile.exists() || forceUpdate) {
                 downloadCrl(url, filePath);
+                updateCrlCache = true;
             }
         }
+
+        if (updateCrlCache)
+            updateCrlCache();
+    }
+
+    private X509CRL generateCRL(File file) {
+        X509CRL crl = crlMemo.get(file.getName());
+
+        if (crl != null)
+            return crl;
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            crl = (X509CRL) cf.generateCRL(fis);
+            crlMemo.put(file.getName(), crl);
+        } catch (CRLException | IOException | CertificateException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return crl;
+    }
+
+    private void updateCrlCache() {
+        crlMemo = new ConcurrentHashMap<>();
+
+        for (File file : crls())
+            generateCRL(file);
+
+        System.gc();
     }
 
     private ArrayList<File> crls() {
