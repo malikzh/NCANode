@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
 
 public abstract class ApiController extends ApiDependencies {
 
@@ -36,9 +37,12 @@ public abstract class ApiController extends ApiDependencies {
             if (am.url().equals(methodName)) {
                 try {
                     invokeMethod(m, request, response);
+                } catch (InvalidArgumentException e) {
+                    throw new ApiErrorException(e.getMessage(), HttpURLConnection.HTTP_BAD_REQUEST);
                 } catch (Exception e) {
+                    // TODO заменить printStackTrace на нормальное логирование в json
                     e.printStackTrace();
-                    throw new ApiErrorException(e.getCause().getMessage());
+                    throw new ApiErrorException(e.getMessage());
                 }
                 break;
             }

@@ -2,18 +2,16 @@ package kz.ncanode.api.version.v20;
 
 import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.api.core.ApiController;
-import kz.ncanode.api.core.ApiMethod;
 import kz.ncanode.api.core.ApiStatus;
 import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.exceptions.ApiErrorException;
-import kz.ncanode.api.version.v10.ApiVersion10;
 import kz.ncanode.api.version.v20.controllers.CmsController;
 import kz.ncanode.api.version.v20.controllers.InfoController;
 import kz.ncanode.api.version.v20.controllers.NodeController;
 import org.json.simple.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -52,10 +50,11 @@ public class ApiVersion20 implements ApiVersion {
         String method = "";
 
         try {
-            method = (String)request.get("method");
+            method = (String) request.get("method");
         } catch (ClassCastException e) {
             JSONObject resp = new JSONObject();
             resp.put("status", ApiStatus.STATUS_INVALID_PARAMETER);
+            resp.put("httpCode", HttpURLConnection.HTTP_BAD_REQUEST);
             resp.put("message", "Invalid parameter \"method\"");
             return resp;
         }
@@ -64,6 +63,7 @@ public class ApiVersion20 implements ApiVersion {
         if (method == null || method.isEmpty()) {
             JSONObject resp = new JSONObject();
             resp.put("status", ApiStatus.STATUS_METHOD_NOT_SPECIFIED);
+            resp.put("httpCode", HttpURLConnection.HTTP_BAD_REQUEST);
             resp.put("message", "\"method\" not specified");
             return resp;
         }
@@ -73,6 +73,7 @@ public class ApiVersion20 implements ApiVersion {
         if (controller == null || !controller.hasMethod(method)) {
             JSONObject resp = new JSONObject();
             resp.put("status", ApiStatus.STATUS_METHOD_NOT_FOUND);
+            resp.put("httpCode", HttpURLConnection.HTTP_BAD_REQUEST);
             resp.put("message", "Method not found");
             return resp;
         }
@@ -81,10 +82,11 @@ public class ApiVersion20 implements ApiVersion {
         JSONObject params;
 
         try {
-            params = (JSONObject)request.get("params");
+            params = (JSONObject) request.get("params");
         } catch (ClassCastException e) {
             JSONObject resp = new JSONObject();
             resp.put("status", ApiStatus.STATUS_INVALID_PARAMETER);
+            resp.put("httpCode", HttpURLConnection.HTTP_BAD_REQUEST);
             resp.put("message", "Invalid parameter \"params\"");
             return resp;
         }
@@ -97,8 +99,10 @@ public class ApiVersion20 implements ApiVersion {
             controller.callMethod(method, params, response);
         } catch (ApiErrorException e) {
             JSONObject resp = new JSONObject();
+            resp.put("httpCode", e.getHttpCode());
             resp.put("status", ApiStatus.STATUS_API_ERROR);
             resp.put("message", "Api error: " + e.getMessage());
+
             return resp;
         }
 
