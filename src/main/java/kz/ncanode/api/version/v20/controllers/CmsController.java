@@ -63,7 +63,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             sig.initSign(privateKey);
             sig.update(model.data.get());
 
-            CertStore chainStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Arrays.asList(cert)),getApiServiceProvider().kalkan.get().getName());
+            CertStore chainStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Arrays.asList(cert)), getApiServiceProvider().kalkan.get().getName());
             gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
             gen.addCertificatesAndCRLs(chainStore);
         }
@@ -80,10 +80,9 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             List<SignerInformation> newSigners = new ArrayList<SignerInformation>();
 
-            int i=0;
+            int i = 0;
 
-            for (SignerInformation signer : (Collection<SignerInformation>)signerStore.getSigners())
-            {
+            for (SignerInformation signer : (Collection<SignerInformation>) signerStore.getSigners()) {
                 X509Certificate cert = certs.get(i++);
                 newSigners.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
             }
@@ -169,7 +168,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
         JSONArray certsList = new JSONArray();
 
-        for (int i=0; i<certs.size(); ++i) {
+        for (int i = 0; i < certs.size(); ++i) {
             X509Certificate cert = certs.get(i);
 
             // Chain information
@@ -198,7 +197,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             try {
                 JSONObject certInf2 = new JSONObject();
-                JSONObject certInf = getApiServiceProvider().pki.certInfo(cert,model.checkOcsp.get(), model.checkCrl.get(), issuerCert);
+                JSONObject certInf = getApiServiceProvider().pki.certInfo(cert, model.checkOcsp.get(), model.checkCrl.get(), issuerCert);
                 certInf2.put("chain", chainInf);
                 certInf2.put("cert", certInf);
                 certsList.add(certInf2);
