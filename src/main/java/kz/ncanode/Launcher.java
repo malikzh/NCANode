@@ -34,6 +34,8 @@ public class Launcher
         System.out.printf("Official project page: %s\n", InfoServiceProvider.PROJECT_PAGE);
         System.out.printf("Please star ★ github repo: %s\n", InfoServiceProvider.GITHUB_PAGE);
         System.out.printf("Copyright (c) 2018-%d Malik Zharykov.\n", Calendar.getInstance().get(Calendar.YEAR));
+        System.out.println("Memory info:");
+        System.out.println(Helper.getMemoryInfo().toJSONString());
         System.out.println("------------------------------------");
         System.out.print("\n");
 

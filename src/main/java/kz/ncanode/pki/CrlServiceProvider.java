@@ -115,8 +115,9 @@ public class CrlServiceProvider implements ServiceProvider {
             }
         }
 
-        if (updateCrlCache)
+        if (updateCrlCache) {
             updateCrlCache();
+        }
     }
 
     private X509CRL generateCRL(File file) {
@@ -140,10 +141,15 @@ public class CrlServiceProvider implements ServiceProvider {
     private void updateCrlCache() {
         crlMemo = new ConcurrentHashMap<>();
 
-        for (File file : crls())
+        for (File file : crls()) {
             generateCRL(file);
-
-        System.gc();
+            this.out.write(String.format(
+                    "CRL generation %s memory usage: %s",
+                    file.getName(),
+                    Helper.getMemoryInfo().toJSONString()
+            ));
+            System.gc();
+        }
     }
 
     private ArrayList<File> crls() {
