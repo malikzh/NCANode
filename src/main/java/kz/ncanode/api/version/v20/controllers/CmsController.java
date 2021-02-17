@@ -16,6 +16,7 @@ import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.version.v20.models.CmsExtractModel;
 import kz.ncanode.api.version.v20.models.CmsSignModel;
 import kz.ncanode.api.version.v20.models.CmsVerifyModel;
+import kz.ncanode.kalkan.KalkanServiceProvider;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -29,15 +30,20 @@ import java.util.*;
 public class CmsController extends kz.ncanode.api.core.ApiController {
     @ApiMethod(url = "sign")
     public void sign(CmsSignModel model, JSONObject response) throws KeyStoreException, ApiErrorException, UnrecoverableKeyException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, InvalidAlgorithmParameterException, CertStoreException, CMSException, IOException, TSPException {
+        KalkanServiceProvider kalkan = getApiServiceProvider().kalkan;
         CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
-        CMSProcessableByteArray cmsData = new CMSProcessableByteArray(model.data.get());
-
+        CMSProcessable cmsData = model.getDataToEncode();
         List<X509Certificate> certs = new ArrayList<>();
 
-        for (int i=0; i<model.p12array.size(); ++i) {
-            KeyStore p12      = model.p12array.getKey(i);
-            String password   = model.p12array.getPassword(i);
-            String alias      = model.p12array.getAlias(i);
+        if (model.isAlreadySigned()) {
+            certs = kalkan.getCertificatesFromCmsSignedData(model.getSignedData());
+            gen.addSigners(model.getSignedData().getSignerInfos());
+        }
+
+        for (int i = 0; i < model.p12array.size(); ++i) {
+            KeyStore p12 = model.p12array.getKey(i);
+            String password = model.p12array.getPassword(i);
+            String alias = model.p12array.getAlias(i);
 
             if (alias == null || alias.isEmpty()) {
                 Enumeration<String> als = p12.aliases();
@@ -59,17 +65,20 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             certs.add(cert);
 
             Signature sig = null;
-            sig = Signature.getInstance(cert.getSigAlgName(), getApiServiceProvider().kalkan.get());
+            sig = Signature.getInstance(cert.getSigAlgName(), kalkan.get());
             sig.initSign(privateKey);
             sig.update(model.data.get());
 
-            CertStore chainStore = CertStore.getInstance("Collection", new CollectionCertStoreParameters(Arrays.asList(cert)), getApiServiceProvider().kalkan.get().getName());
+            CertStore chainStore = CertStore.getInstance(
+                    "Collection",
+                    new CollectionCertStoreParameters(certs),
+                    kalkan.get().getName()
+            );
             gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
             gen.addCertificatesAndCRLs(chainStore);
         }
 
-        CMSSignedData signed = gen.generate(cmsData, true, getApiServiceProvider().kalkan.get().getName());
-
+        CMSSignedData signed = gen.generate(cmsData, true, kalkan.get().getName());
 
         if (model.withTsp.get()) {
             String useTsaPolicy = model.useTsaPolicy.get().equals("TSA_GOSTGT_POLICY") ?
