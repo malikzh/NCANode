@@ -22,6 +22,7 @@ import org.json.simple.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
@@ -107,6 +108,17 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
     @ApiMethod(url = "verify")
     public void verify(CmsVerifyModel model, JSONObject response) throws Exception {
+        if (model.checkCrl.get() && !getApiServiceProvider().crl.isEnabled()) {
+            response.put("status", ApiStatus.STATUS_INVALID_PARAMETER);
+            response.put("httpCode", HttpURLConnection.HTTP_BAD_REQUEST);
+            response.put(
+                    "message",
+                    "CRL verification is disabled. Turn it on in service configuration with 'crl_enabled=true'."
+            );
+
+            return;
+        }
+
         CMSSignedData cms = model.cms.get();
 
         SignerInformationStore signers = cms.getSignerInfos();

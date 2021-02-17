@@ -29,15 +29,32 @@ public class CrlServiceProvider implements ServiceProvider {
     ConfigServiceProvider config;
     OutLogServiceProvider out;
 
+    /**
+     * Включена ли работа с CRL
+     */
+    final private boolean isEnabled;
+
     public CrlServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out) {
         this.config = config;
         this.out    = out;
 
-        try {
-            updateCache(false);
-        } catch (IOException e) {
-            e.printStackTrace();
+        this.isEnabled = Boolean.parseBoolean(config.get("pki", "crl_enabled"));
+
+        if (this.isEnabled) {
+            this.out.write("CRL verification is enabled. Downloading CRL files");
+
+            try {
+                updateCache(false);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            this.out.write("CRL verification is disabled. CRL files will not be downloaded.");
         }
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
     }
 
     public CrlStatus verify(X509Certificate cert) {
