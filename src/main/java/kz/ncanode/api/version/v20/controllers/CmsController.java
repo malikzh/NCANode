@@ -166,32 +166,42 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                 Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
 
                 if (attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
-                    Attribute attr = (Attribute) attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
+                    Vector<Attribute> tspAttrs = new Vector<>();
 
+                    // в подписи может быть один или несколько tsp атрибутов
+                    Object attrOrAttrs = attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
 
-                    if (attr.getAttrValues().size() != 1) {
-                        throw new Exception("Too many TSP tokens");
+                    if (attrOrAttrs instanceof Attribute) {
+                        tspAttrs.add((Attribute) attrOrAttrs);
+                    } else {
+                        tspAttrs = (Vector<Attribute>) attrOrAttrs;
                     }
 
-                    CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
-                    TimeStampTokenInfo tspi = getApiServiceProvider().tsp.verifyTSP(tspCms);
+                    for (Attribute attr: tspAttrs) {
+                        if (attr.getAttrValues().size() != 1) {
+                            throw new Exception("Too many TSP tokens");
+                        }
 
-                    JSONObject tspout = new JSONObject();
+                        CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
+                        TimeStampTokenInfo tspi = getApiServiceProvider().tsp.verifyTSP(tspCms);
 
-                    tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
-                    tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
-                    tspout.put("policy", tspi.getPolicy());
-                    tspout.put("tsa", tspi.getTsa());
-                    tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
-                    tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
+                        JSONObject tspout = new JSONObject();
 
-                    for (String certSerialNumber: certSerialNumbers) {
-                        ArrayList<JSONObject> tspsWithCerialNumber = certSerialNumbersToTsps.getOrDefault(certSerialNumber, new ArrayList<>());
-                        tspsWithCerialNumber.add(tspout);
-                        certSerialNumbersToTsps.put(certSerialNumber, tspsWithCerialNumber);
+                        tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
+                        tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
+                        tspout.put("policy", tspi.getPolicy());
+                        tspout.put("tsa", tspi.getTsa());
+                        tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
+                        tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
+
+                        for (String certSerialNumber: certSerialNumbers) {
+                            ArrayList<JSONObject> tspsWithCerialNumber = certSerialNumbersToTsps.getOrDefault(certSerialNumber, new ArrayList<>());
+                            tspsWithCerialNumber.add(tspout);
+                            certSerialNumbersToTsps.put(certSerialNumber, tspsWithCerialNumber);
+                        }
+
+                        tspinf.add(tspout);
                     }
-
-                    tspinf.add(tspout);
                 }
             }
         }
