@@ -34,11 +34,11 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
         KalkanServiceProvider kalkan = getApiServiceProvider().kalkan;
         CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
         CMSProcessable cmsData = model.getDataToEncode();
-        List<X509Certificate> certs = new ArrayList<>();
+        List<X509Certificate> allCerts = new ArrayList<>();
+        List<X509Certificate> addedCerts = new ArrayList<>();
 
         if (model.isAlreadySigned()) {
-            certs = kalkan.getCertificatesFromCmsSignedData(model.getSignedData());
-            gen.addSigners(model.getSignedData().getSignerInfos());
+            allCerts = kalkan.getCertificatesFromCmsSignedData(model.getSignedData());
         }
 
         for (int i = 0; i < model.p12array.size(); ++i) {
@@ -63,7 +63,8 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             // Получаем сертификат
             X509Certificate cert = (X509Certificate) p12.getCertificate(alias);
-            certs.add(cert);
+            allCerts.add(cert);
+            addedCerts.add(cert);
 
             Signature sig = null;
             sig = Signature.getInstance(cert.getSigAlgName(), kalkan.get());
@@ -72,7 +73,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             CertStore chainStore = CertStore.getInstance(
                     "Collection",
-                    new CollectionCertStoreParameters(certs),
+                    new CollectionCertStoreParameters(allCerts),
                     kalkan.get().getName()
             );
             gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
@@ -90,10 +91,15 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             List<SignerInformation> newSigners = new ArrayList<SignerInformation>();
 
+            if (model.isAlreadySigned()) {
+                // добавляем информацию о подписях, которая уже была в загруженном документе
+                newSigners.addAll(model.getSignedData().getSignerInfos().getSigners());
+            }
+
             int i = 0;
 
             for (SignerInformation signer : (Collection<SignerInformation>) signerStore.getSigners()) {
-                X509Certificate cert = certs.get(i++);
+                X509Certificate cert = addedCerts.get(i++);
                 newSigners.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
             }
 
@@ -240,7 +246,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                 JSONObject certInf = getApiServiceProvider().pki.certInfo(cert, model.checkOcsp.get(), model.checkCrl.get(), issuerCert);
                 certInf2.put("chain", chainInf);
                 certInf2.put("cert", certInf);
-                certInf2.put("tsps", certSerialNumbersToTsps.get(String.valueOf(cert.getSerialNumber())));
+                certInf2.put("tsps", certSerialNumbersToTsps.getOrDefault(String.valueOf(cert.getSerialNumber()), new ArrayList<>()));
                 certsList.add(certInf2);
             } catch (Exception e) {
                 throw new ApiErrorException(e.getMessage());
