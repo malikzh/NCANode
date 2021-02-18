@@ -135,6 +135,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
         List<X509Certificate> certs = new ArrayList<>();
         List<Boolean> certsSignValid = new ArrayList<>();
+        HashMap<String, ArrayList<JSONObject>> certSerialNumbersToTsps = new HashMap<>();
 
         while (sit.hasNext()) {
             signInfo = true;
@@ -145,6 +146,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             Iterator certIt = certCollection.iterator();
 
             boolean certCheck = false;
+            List<String> certSerialNumbers = new ArrayList<>();
 
             while (certIt.hasNext()) {
                 certCheck = true;
@@ -152,6 +154,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                 cert.checkValidity();
                 certs.add(cert);
                 certsSignValid.add(signer.verify(cert.getPublicKey(), providerName));
+                certSerialNumbers.add(String.valueOf(cert.getSerialNumber()));
             }
 
             if (!certCheck) {
@@ -181,6 +184,12 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                     tspout.put("tsa", tspi.getTsa());
                     tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
                     tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
+
+                    for (String certSerialNumber: certSerialNumbers) {
+                        ArrayList<JSONObject> tspsWithCerialNumber = certSerialNumbersToTsps.getOrDefault(certSerialNumber, new ArrayList<>());
+                        tspsWithCerialNumber.add(tspout);
+                        certSerialNumbersToTsps.put(certSerialNumber, tspsWithCerialNumber);
+                    }
 
                     tspinf.add(tspout);
                 }
@@ -221,6 +230,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                 JSONObject certInf = getApiServiceProvider().pki.certInfo(cert, model.checkOcsp.get(), model.checkCrl.get(), issuerCert);
                 certInf2.put("chain", chainInf);
                 certInf2.put("cert", certInf);
+                certInf2.put("tsps", certSerialNumbersToTsps.get(String.valueOf(cert.getSerialNumber())));
                 certsList.add(certInf2);
             } catch (Exception e) {
                 throw new ApiErrorException(e.getMessage());
