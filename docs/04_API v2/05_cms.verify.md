@@ -29,7 +29,109 @@
 
 ### Пример ответа
 ```json
-
+{
+    "result": {
+        "tsp": [
+            {
+                "tspHashAlgorithm": "SHA256",
+                "serialNumber": "...",
+                "tsa": null,
+                "genTime": "2021-02-18 10:04:45",
+                "hash": "...",
+                "policy": "1.2.398.3.3.2.6.1"
+            },
+            {
+                "tspHashAlgorithm": "GOST34311",
+                "serialNumber": "..",
+                "tsa": null,
+                "genTime": "2021-02-18 10:04:45",
+                "hash": "...",
+                "policy": "1.2.398.3.3.2.6.1"
+            }
+        ],
+        "signers": [
+            {
+                "chain": [
+                    {
+                        "valid": true,
+                        "notAfter": "2022-02-17 11:15:20",
+                        "keyUsage": "SIGN",
+                        "serialNumber": "...",
+                        "subject": {
+                            "lastName": "АХМЕТОВИЧ",
+                            "country": "KZ",
+                            "commonName": "АХМЕТОВ КАЙРАТ",
+                            "gender": "MALE",
+                            "bin": "...",
+                            "surname": "АХМЕТОВ",
+                            "organization": "ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"...\"",
+                            "dn": "CN=АХМЕТОВ КАЙРАТ,SURNAME=АХМЕТОВ,SERIALNUMBER=IIN...,C=KZ,O=ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \\\"...\\\",OU=...,G=АХМЕТОВИЧ,E=EXAMPLE@MAIL.KZ",
+                            "birthDate": "YYYY-MM-DD",
+                            "email": "EXAMPLE@MAIL.KZ",
+                            "iin": "..."
+                        },
+                        "signAlg": "ECGOST34310",
+                        "sign": "...",
+                        "publicKey": "...",
+                        "issuer": {
+                            "commonName": "ҰЛТТЫҚ КУӘЛАНДЫРУШЫ ОРТАЛЫҚ (GOST)",
+                            "country": "KZ",
+                            "dn": "C=KZ,CN=ҰЛТТЫҚ КУӘЛАНДЫРУШЫ ОРТАЛЫҚ (GOST)"
+                        },
+                        "notBefore": "2021-02-17 11:15:20",
+                        "keyUser": [
+                            "ORGANIZATION",
+                            "EMPLOYEE"
+                        ]
+                    }
+                ],
+                "tsps": [
+                    {
+                        "tspHashAlgorithm": "SHA256",
+                        "serialNumber": "...",
+                        "tsa": null,
+                        "genTime": "2021-02-18 10:04:45",
+                        "hash": "...",
+                        "policy": "1.2.398.3.3.2.6.1"
+                    }
+                ],
+                "cert": {
+                    "valid": true,
+                    "notAfter": "2022-02-17 11:15:20",
+                    "ocsp": {
+                        "revokationReason": 0,
+                        "revokationTime": null,
+                        "status": "ACTIVE"
+                    },
+                    "keyUsage": "SIGN",
+                    "serialNumber": "...",
+                    "subject": {...},
+                    "signAlg": "ECGOST34310",
+                    "sign": "...",
+                    "publicKey": "...",
+                    "issuer": {
+                        "commonName": "ҰЛТТЫҚ КУӘЛАНДЫРУШЫ ОРТАЛЫҚ (GOST)",
+                        "country": "KZ",
+                        "dn": "C=KZ,CN=ҰЛТТЫҚ КУӘЛАНДЫРУШЫ ОРТАЛЫҚ (GOST)"
+                    },
+                    "notBefore": "2021-02-17 11:15:20",
+                    "keyUser": [
+                        "ORGANIZATION",
+                        "EMPLOYEE"
+                    ]
+                }
+            }
+        ]
+    },
+    "message": "",
+    "status": 0
+}
 ```
+
+Обратите внимание: в ответе дублируется информация о TSP метках.
+Свойство `result.tsp` было в первоначальной версии сервиса и оставлено для обратной совместимости. 
+По этому свойству нельзя понять, к какому элементу из `result.signers` относится эта метка.
+
+Поэтому в более поздней версии информация о метках `tsps` добавлена внутрь каждого элемента `result.signers`.
 
 ### Параметры ответа
