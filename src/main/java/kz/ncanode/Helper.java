@@ -7,6 +7,7 @@ import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
 import kz.gov.pki.kalkan.tsp.TSPAlgorithms;
 import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.utils.Constants;
+import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -166,6 +168,29 @@ public class Helper {
         {
             in.close();
         }
+    }
+
+    /**
+     * Возвращает информацию об использовании памяти
+     */
+    public static JSONObject getMemoryInfo()
+    {
+        Runtime runtime = Runtime.getRuntime();
+        NumberFormat format = NumberFormat.getInstance();
+
+        long maxMemory = runtime.maxMemory();
+        long allocatedMemory = runtime.totalMemory();
+        long freeMemory = runtime.freeMemory();
+        long mb = 1024 * 1024;
+        String suffix = "MB";
+
+        JSONObject result = new JSONObject();
+        result.put("free", format.format(freeMemory / mb) + suffix);
+        result.put("allocated", format.format(allocatedMemory / mb) + suffix);
+        result.put("max", format.format(maxMemory / mb) + suffix);
+        result.put("totalFree", format.format((freeMemory + (maxMemory - allocatedMemory)) / mb) + suffix);
+
+        return result;
     }
 
     /**

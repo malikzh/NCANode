@@ -8,6 +8,7 @@ import kz.gov.pki.kalkan.asn1.x509.X509Extension;
 import kz.gov.pki.kalkan.asn1.x509.X509Extensions;
 import kz.gov.pki.kalkan.ocsp.*;
 import kz.ncanode.Helper;
+import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
@@ -36,18 +37,18 @@ import java.util.*;
  * управление сертификатами.
  */
 public class PkiServiceProvider implements ServiceProvider {
-    private ConfigServiceProvider   config = null;
-    private OutLogServiceProvider   out    = null;
-    private ErrorLogServiceProvider err    = null;
-    private KalkanServiceProvider   kalkan = null;
-    private CrlServiceProvider   crl    = null;
+    private ConfigServiceProvider config = null;
+    private OutLogServiceProvider out = null;
+    private ErrorLogServiceProvider err = null;
+    private KalkanServiceProvider kalkan = null;
+    private CrlServiceProvider crl = null;
 
     public PkiServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ErrorLogServiceProvider err, KalkanServiceProvider kalkan, CrlServiceProvider crl) {
         this.config = config;
-        this.out    = out;
-        this.err    = err;
+        this.out = out;
+        this.err = err;
         this.kalkan = kalkan;
-        this.crl    = crl;
+        this.crl = crl;
     }
 
     public KeyStore loadKey(String file, String password) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
@@ -89,7 +90,7 @@ public class PkiServiceProvider implements ServiceProvider {
         OCSPStatus res = null;
         try {
             URL url = new URL(ocspUrl);
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-Type", "application/ocsp-request");
@@ -112,7 +113,13 @@ public class PkiServiceProvider implements ServiceProvider {
         }
     }
 
-    public JSONObject certInfo(X509Certificate cert, boolean verifyOcsp, boolean verifyCrl, X509Certificate issuerCert) throws CertificateParsingException, IOException {
+    public JSONObject certInfo(X509Certificate cert, boolean verifyOcsp, boolean verifyCrl, X509Certificate issuerCert) throws CertificateParsingException, IOException, InvalidArgumentException {
+        if (verifyCrl && !crl.isEnabled()) {
+            throw new InvalidArgumentException(
+                    "CRL verification is disabled. Turn it on in service configuration with 'crl_enabled=true'."
+            );
+        }
+
         JSONObject response = new JSONObject();
 
         ArrayList<?> userType = keyUser(cert);
@@ -157,7 +164,7 @@ public class PkiServiceProvider implements ServiceProvider {
             if (ocspStatus != null) {
                 Date revokationTime = ocspStatus.getRevokationTime();
 
-                if (revokationTime != null && (Boolean)response.get("valid")) {
+                if (revokationTime != null && (Boolean) response.get("valid")) {
                     response.put("valid", revokationTime.after(currentDate));
                 }
 
@@ -173,7 +180,7 @@ public class PkiServiceProvider implements ServiceProvider {
             crl.updateCache(false);
             CrlStatus crlStatus = crl.verify(cert);
 
-            Date revokationTime     = crlStatus.getDate();
+            Date revokationTime = crlStatus.getDate();
             String revokationReason = crlStatus.getReason();
 
             String revtime = "";
@@ -181,7 +188,7 @@ public class PkiServiceProvider implements ServiceProvider {
             if (revokationTime != null) {
                 revtime = Helper.dateTime(revokationTime);
 
-                if ((Boolean)response.get("valid")) {
+                if ((Boolean) response.get("valid")) {
                     response.put("valid", revokationTime.after(currentDate));
                 }
             }
@@ -246,33 +253,28 @@ public class PkiServiceProvider implements ServiceProvider {
         // add iin info
         iin = (String) subject.get("iin");
         if (iin != null && iin.length() == 12) {
-            String birthYear  = iin.substring(0, 2);
+            String birthYear = iin.substring(0, 2);
             String birthMonth = iin.substring(2, 4);
-            String birthDay   = iin.substring(4, 6);
-            String birthAge   = iin.substring(6, 7);
-            String gender     = "";
+            String birthDay = iin.substring(4, 6);
+            String birthAge = iin.substring(6, 7);
+            String gender = "";
 
             if (birthAge.equals("1")) {
                 birthYear = "18" + birthYear;
                 gender = "MALE";
-            }
-            else if (birthAge.equals("2")) {
+            } else if (birthAge.equals("2")) {
                 birthYear = "18" + birthYear;
                 gender = "FEMALE";
-            }
-            else if (birthAge.equals("3")) {
+            } else if (birthAge.equals("3")) {
                 birthYear = "19" + birthYear;
                 gender = "MALE";
-            }
-            else if (birthAge.equals("4")) {
+            } else if (birthAge.equals("4")) {
                 birthYear = "19" + birthYear;
                 gender = "FEMALE";
-            }
-            else if (birthAge.equals("5")) {
+            } else if (birthAge.equals("5")) {
                 birthYear = "20" + birthYear;
                 gender = "MALE";
-            }
-            else if (birthAge.equals("6")) {
+            } else if (birthAge.equals("6")) {
                 birthYear = "20" + birthYear;
                 gender = "FEMALE";
             }
@@ -308,35 +310,25 @@ public class PkiServiceProvider implements ServiceProvider {
         for (String item : cert.getExtendedKeyUsage()) {
             if (item.equals("1.2.398.3.3.4.1.1")) {
                 result.add("INDIVIDUAL");
-            }
-            else if (item.equals("1.2.398.3.3.4.1.2")) {
+            } else if (item.equals("1.2.398.3.3.4.1.2")) {
                 result.add("ORGANIZATION");
-            }
-            else if (item.equals("1.2.398.3.3.4.1.2.1")) {
+            } else if (item.equals("1.2.398.3.3.4.1.2.1")) {
                 result.add("CEO");
-            }
-            else if (item.equals("1.2.398.3.3.4.1.2.2")) {
+            } else if (item.equals("1.2.398.3.3.4.1.2.2")) {
                 result.add("CAN_SIGN");
-            }
-            else if (item.equals("1.2.398.3.3.4.1.2.3")) {
+            } else if (item.equals("1.2.398.3.3.4.1.2.3")) {
                 result.add("CAN_SIGN_FINANCIAL");
-            }
-            else if (item.equals("1.2.398.3.3.4.1.2.4")) {
+            } else if (item.equals("1.2.398.3.3.4.1.2.4")) {
                 result.add("HR");
-            }
-            else if (item.equals("1.2.398.3.3.4.1.2.5")) {
+            } else if (item.equals("1.2.398.3.3.4.1.2.5")) {
                 result.add("EMPLOYEE");
-            }
-            else if (item.equals("1.2.398.3.3.4.2")) {
+            } else if (item.equals("1.2.398.3.3.4.2")) {
                 result.add("NCA_PRIVILEGES");
-            }
-            else if (item.equals("1.2.398.3.3.4.2.1")) {
+            } else if (item.equals("1.2.398.3.3.4.2.1")) {
                 result.add("NCA_ADMIN");
-            }
-            else if (item.equals("1.2.398.3.3.4.2.2")) {
+            } else if (item.equals("1.2.398.3.3.4.2.2")) {
                 result.add("NCA_MANAGER");
-            }
-            else if (item.equals("1.2.398.3.3.4.2.3")) {
+            } else if (item.equals("1.2.398.3.3.4.2.3")) {
                 result.add("NCA_OPERATOR");
             }
         }
@@ -356,7 +348,8 @@ public class PkiServiceProvider implements ServiceProvider {
         Hashtable x509Extensions = new Hashtable();
 
         // добавляем nonce
-        x509Extensions.put(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, new X509Extension(false, new DEROctetString(new DEROctetString(nonce))) {});
+        x509Extensions.put(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, new X509Extension(false, new DEROctetString(new DEROctetString(nonce))) {
+        });
         ocspReqGenerator.setRequestExtensions(new X509Extensions(x509Extensions));
 
         return ocspReqGenerator.generate();
@@ -369,12 +362,12 @@ public class PkiServiceProvider implements ServiceProvider {
             subject.put("surname", rdn.getValue());
         } else if (rdn.getType().equalsIgnoreCase("SERIALNUMBER")) {
 
-            String sn = ((String)rdn.getValue());
+            String sn = ((String) rdn.getValue());
 
             if (sn.startsWith("BIN")) {
-                subject.put("bin", ((String)rdn.getValue()).replaceAll("^BIN", ""));
+                subject.put("bin", ((String) rdn.getValue()).replaceAll("^BIN", ""));
             } else {
-                subject.put("iin", ((String)rdn.getValue()).replaceAll("^IIN", ""));
+                subject.put("iin", ((String) rdn.getValue()).replaceAll("^IIN", ""));
             }
         } else if (rdn.getType().equalsIgnoreCase("C")) {
             subject.put("country", rdn.getValue());
@@ -387,7 +380,7 @@ public class PkiServiceProvider implements ServiceProvider {
         } else if (rdn.getType().equalsIgnoreCase("O")) {
             subject.put("organization", rdn.getValue());
         } else if (rdn.getType().equalsIgnoreCase("OU")) {
-            subject.put("bin", ((String)rdn.getValue()).replaceAll("^BIN", ""));
+            subject.put("bin", ((String) rdn.getValue()).replaceAll("^BIN", ""));
         } else if (rdn.getType().equalsIgnoreCase("G")) {
             subject.put("lastName", rdn.getValue());
         }
@@ -409,9 +402,7 @@ public class PkiServiceProvider implements ServiceProvider {
         }
 
         BasicOCSPResp brep = (BasicOCSPResp) resp.getResponseObject();
-        byte[] respNonceExt = brep
-                .getExtensionValue(OCSPObjectIdentifiers.id_pkix_ocsp_nonce
-                        .getId());
+        byte[] respNonceExt = brep.getExtensionValue(OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId());
 
         if (respNonceExt != null) {
             ASN1InputStream asn1In = new ASN1InputStream(respNonceExt);
@@ -434,9 +425,8 @@ public class PkiServiceProvider implements ServiceProvider {
 
         if (status == null) {
             return new OCSPStatus(OCSPStatus.OCSPResult.ACTIVE, null, 0);
-        }
-        else if (status instanceof RevokedStatus) {
-            RevokedStatus rev = (RevokedStatus)status;
+        } else if (status instanceof RevokedStatus) {
+            RevokedStatus rev = (RevokedStatus) status;
 
             int reason = 0;
 
