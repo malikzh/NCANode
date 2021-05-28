@@ -98,23 +98,21 @@ public class TSPServiceProvider implements ServiceProvider {
         return tspt.getTimeStampInfo();
     }
 
+    /**
+     * Добавляет метку TSP к информации о подписанте.
+     */
     public SignerInformation addTspToSigner(SignerInformation signer, X509Certificate cert, String useTsaPolicy) throws NoSuchAlgorithmException, NoSuchProviderException, TSPException, IOException {
         AttributeTable unsignedAttributes = signer.getUnsignedAttributes();
-
         ASN1EncodableVector vector = new ASN1EncodableVector();
-        if (unsignedAttributes != null)
-        {
+
+        if (unsignedAttributes != null) {
             vector = unsignedAttributes.toASN1EncodableVector();
         }
 
         TimeStampToken tsp = createTSP(signer.getSignature(), Helper.getTspHashAlgorithmByOid(cert.getSigAlgOID()), useTsaPolicy);
-
         byte[] ts = tsp.getEncoded();
-
         ASN1Encodable signatureTimeStamp = new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, new DERSet(Helper.byteToASN1(ts)));
-
         vector.add(signatureTimeStamp);
-
         SignerInformation newSigner = SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(vector));
 
         return newSigner;
