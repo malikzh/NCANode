@@ -79,7 +79,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
         CertStore chainStore = CertStore.getInstance(
                 "Collection",
                 new CollectionCertStoreParameters(
-                        // если происходит повторная подпись, сертификаты могут дублироваьтся.
+                        // если происходит повторная подпись, сертификаты могут дублироваться.
                         // добавим в chainStore только уникальные сертификаты.
                         certificates.stream().distinct().collect(Collectors.toList())
                 ),
