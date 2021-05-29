@@ -1,7 +1,6 @@
 package kz.ncanode.api.version.v20.controllers;
 
 import kz.gov.pki.kalkan.asn1.cms.Attribute;
-import kz.gov.pki.kalkan.asn1.cms.AttributeTable;
 import kz.gov.pki.kalkan.asn1.knca.KNCAObjectIdentifiers;
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.cms.*;
@@ -26,19 +25,24 @@ import java.net.HttpURLConnection;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @ApiController("cms")
 public class CmsController extends kz.ncanode.api.core.ApiController {
     @ApiMethod(url = "sign")
     public void sign(CmsSignModel model, JSONObject response) throws KeyStoreException, ApiErrorException, UnrecoverableKeyException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, NoSuchProviderException, InvalidAlgorithmParameterException, CertStoreException, CMSException, IOException, TSPException {
         KalkanServiceProvider kalkan = getApiServiceProvider().kalkan;
-        CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
+        CMSSignedDataGenerator signedDataGenerator = new CMSSignedDataGenerator();
         CMSProcessable cmsData = model.getDataToEncode();
-        List<X509Certificate> allCerts = new ArrayList<>();
-        List<X509Certificate> addedCerts = new ArrayList<>();
+        List<X509Certificate> certificates = new ArrayList<>();
+        int signerCountBefore = 0;
+        int documentSizeBefore = model.data.get().length;
 
         if (model.isAlreadySigned()) {
-            allCerts = kalkan.getCertificatesFromCmsSignedData(model.getSignedData());
+            certificates = kalkan.getCertificatesFromCmsSignedData(model.getSignedData());
+            SignerInformationStore existingSigners = model.getSignedData().getSignerInfos();
+            signedDataGenerator.addSigners(existingSigners);
+            signerCountBefore = existingSigners.size();
         }
 
         for (int i = 0; i < model.p12array.size(); ++i) {
@@ -63,53 +67,54 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             // Получаем сертификат
             X509Certificate cert = (X509Certificate) p12.getCertificate(alias);
-            allCerts.add(cert);
-            addedCerts.add(cert);
+            certificates.add(cert);
 
-            Signature sig = null;
-            sig = Signature.getInstance(cert.getSigAlgName(), kalkan.get());
+            Signature sig = Signature.getInstance(cert.getSigAlgName(), kalkan.get());
             sig.initSign(privateKey);
             sig.update(model.data.get());
 
-            CertStore chainStore = CertStore.getInstance(
-                    "Collection",
-                    new CollectionCertStoreParameters(allCerts),
-                    kalkan.get().getName()
-            );
-            gen.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
-            gen.addCertificatesAndCRLs(chainStore);
+            signedDataGenerator.addSigner(privateKey, cert, Helper.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getSigAlgOID()));
         }
 
-        CMSSignedData signed = gen.generate(cmsData, true, kalkan.get().getName());
+        CertStore chainStore = CertStore.getInstance(
+                "Collection",
+                new CollectionCertStoreParameters(
+                        // если происходит повторная подпись, сертификаты могут дублироваться.
+                        // добавим в chainStore только уникальные сертификаты.
+                        certificates.stream().distinct().collect(Collectors.toList())
+                ),
+                kalkan.get().getName()
+        );
+        signedDataGenerator.addCertificatesAndCRLs(chainStore);
+        CMSSignedData signed = signedDataGenerator.generate(cmsData, true, kalkan.get().getName());
 
+        // добавляем метку tsp к сформированным подписям
         if (model.withTsp.get()) {
             String useTsaPolicy = model.useTsaPolicy.get().equals("TSA_GOSTGT_POLICY") ?
                     KNCAObjectIdentifiers.tsa_gostgt_policy.getId() :
                     KNCAObjectIdentifiers.tsa_gost_policy.getId();
-
             SignerInformationStore signerStore = signed.getSignerInfos();
-
-            List<SignerInformation> newSigners = new ArrayList<SignerInformation>();
-
-            if (model.isAlreadySigned()) {
-                // добавляем информацию о подписях, которая уже была в загруженном документе
-                newSigners.addAll(model.getSignedData().getSignerInfos().getSigners());
-            }
+            List<SignerInformation> signers = new ArrayList<SignerInformation>();
 
             int i = 0;
 
             for (SignerInformation signer : (Collection<SignerInformation>) signerStore.getSigners()) {
-                X509Certificate cert = addedCerts.get(i++);
-                newSigners.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
+                X509Certificate cert = certificates.get(i++);
+                signers.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
             }
 
-            signed = CMSSignedData.replaceSigners(signed, new SignerInformationStore(newSigners));
+            signed = CMSSignedData.replaceSigners(signed, new SignerInformationStore(signers));
         }
 
-
-        response.put("cms", new String(Base64.getEncoder().encode(signed.getEncoded())));
+        byte[] encodedData = signed.getEncoded();
+        response.put("cms", new String(Base64.getEncoder().encode(encodedData)));
         response.put("status", ApiStatus.STATUS_OK);
         response.put("message", "");
+        // дополнительная информация для отладки
+        response.put("documentSizeBefore", documentSizeBefore);
+        response.put("documentSizeAfter", encodedData.length);
+        response.put("signerCountBefore", signerCountBefore);
+        response.put("signerCountAfter", signed.getSignerInfos().size());
     }
 
     @ApiMethod(url = "verify")
@@ -164,7 +169,10 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             }
 
             if (!certCheck) {
-                throw new Exception("Certificate not found");
+                throw new ApiErrorException(
+                        "Certificate not found. The document signature is probably invalid.",
+                        HttpURLConnection.HTTP_BAD_REQUEST
+                );
             }
 
             // Tsp verification
@@ -183,7 +191,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                         tspAttrs = (Vector<Attribute>) attrOrAttrs;
                     }
 
-                    for (Attribute attr: tspAttrs) {
+                    for (Attribute attr : tspAttrs) {
                         if (attr.getAttrValues().size() != 1) {
                             throw new Exception("Too many TSP tokens");
                         }
@@ -200,7 +208,7 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
                         tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
                         tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
 
-                        for (String certSerialNumber: certSerialNumbers) {
+                        for (String certSerialNumber : certSerialNumbers) {
                             ArrayList<JSONObject> tspsWithCerialNumber = certSerialNumbersToTsps.getOrDefault(certSerialNumber, new ArrayList<>());
                             tspsWithCerialNumber.add(tspout);
                             certSerialNumbersToTsps.put(certSerialNumber, tspsWithCerialNumber);
@@ -238,7 +246,10 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             }
 
             if (issuerCert == null) {
-                throw new ApiErrorException("Cannot find certificate issuer");
+                throw new ApiErrorException(
+                        "Cannot find certificate issuer. The document signature is probably invalid.",
+                        HttpURLConnection.HTTP_BAD_REQUEST
+                );
             }
 
             try {
@@ -253,13 +264,15 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             }
         }
 
-        resp.put("signers", certsList);
-        resp.put("tsp", tspinf);
-
         if (!signInfo) {
-            throw new Exception("SignerInformation not found");
+            throw new ApiErrorException(
+                    "Signer information not found. The document signature is probably invalid.",
+                    HttpURLConnection.HTTP_BAD_REQUEST
+            );
         }
 
+        resp.put("signers", certsList);
+        resp.put("tsp", tspinf);
         response.put("result", resp);
         response.put("status", ApiStatus.STATUS_OK);
         response.put("message", "");

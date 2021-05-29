@@ -42,8 +42,15 @@ public abstract class ApiController extends ApiDependencies {
                 } catch (Exception e) {
                     // TODO заменить printStackTrace на нормальное логирование в json
                     e.printStackTrace();
-                    throw new ApiErrorException(e.getMessage());
+                    Throwable cause = e.getCause();
+
+                    if (cause instanceof ApiErrorException) {
+                        throw ((ApiErrorException) cause);
+                    } else {
+                        throw new ApiErrorException(e.getMessage());
+                    }
                 }
+
                 break;
             }
         }
