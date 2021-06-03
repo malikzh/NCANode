@@ -91,7 +91,12 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
         String signMethod = alg[0];
         String digestMethod = alg[1];
 
-        InputStream is = new ByteArrayInputStream(rawDocument.getBytes());
+        InputStream is;
+        try {
+            is = new ByteArrayInputStream(rawDocument.getBytes("UTF-8"));
+        } catch (Exception e) {
+            throw new ApiErrorException(e.getMessage());
+        }
 
         String result = "";
 
