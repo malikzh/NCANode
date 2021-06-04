@@ -35,12 +35,13 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
         CMSSignedDataGenerator signedDataGenerator = new CMSSignedDataGenerator();
         CMSProcessable cmsData = model.getDataToEncode();
         List<X509Certificate> certificates = new ArrayList<>();
+        SignerInformationStore existingSigners = null;
         int signerCountBefore = 0;
         int documentSizeBefore = model.data.get().length;
 
         if (model.isAlreadySigned()) {
             certificates = kalkan.getCertificatesFromCmsSignedData(model.getSignedData());
-            SignerInformationStore existingSigners = model.getSignedData().getSignerInfos();
+            existingSigners = model.getSignedData().getSignerInfos();
             signedDataGenerator.addSigners(existingSigners);
             signerCountBefore = existingSigners.size();
         }
@@ -100,7 +101,13 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
 
             for (SignerInformation signer : (Collection<SignerInformation>) signerStore.getSigners()) {
                 X509Certificate cert = certificates.get(i++);
-                signers.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
+
+                if (existingSigners != null && existingSigners.get(signer.getSID()) != null) {
+                    // пропускаем добавление tsp к подписи, если эта подпись уже была во входящем файле
+                    signers.add(signer);
+                } else {
+                    signers.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
+                }
             }
 
             signed = CMSSignedData.replaceSigners(signed, new SignerInformationStore(signers));
