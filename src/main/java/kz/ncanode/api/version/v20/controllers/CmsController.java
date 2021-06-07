@@ -102,10 +102,8 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             for (SignerInformation signer : (Collection<SignerInformation>) signerStore.getSigners()) {
                 X509Certificate cert = certificates.get(i++);
 
-                if (existingSigners != null && existingSigners.get(signer.getSID()) != null) {
+                if (!getApiServiceProvider().tsp.signerHasTsp(signer)) {
                     // пропускаем добавление tsp к подписи, если эта подпись уже была во входящем файле
-                    signers.add(signer);
-                } else {
                     signers.add(getApiServiceProvider().tsp.addTspToSigner(signer, cert, useTsaPolicy));
                 }
             }
@@ -183,47 +181,32 @@ public class CmsController extends kz.ncanode.api.core.ApiController {
             }
 
             // Tsp verification
-            if (signer.getUnsignedAttributes() != null) {
-                Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
+            Vector<Attribute> tspAttrs = getApiServiceProvider().tsp.getSignerTspAttributes(signer);
 
-                if (attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
-                    Vector<Attribute> tspAttrs = new Vector<>();
-
-                    // в подписи может быть один или несколько tsp атрибутов
-                    Object attrOrAttrs = attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
-
-                    if (attrOrAttrs instanceof Attribute) {
-                        tspAttrs.add((Attribute) attrOrAttrs);
-                    } else {
-                        tspAttrs = (Vector<Attribute>) attrOrAttrs;
-                    }
-
-                    for (Attribute attr : tspAttrs) {
-                        if (attr.getAttrValues().size() != 1) {
-                            throw new Exception("Too many TSP tokens");
-                        }
-
-                        CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
-                        TimeStampTokenInfo tspi = getApiServiceProvider().tsp.verifyTSP(tspCms);
-
-                        JSONObject tspout = new JSONObject();
-
-                        tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
-                        tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
-                        tspout.put("policy", tspi.getPolicy());
-                        tspout.put("tsa", tspi.getTsa());
-                        tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
-                        tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
-
-                        for (String certSerialNumber : certSerialNumbers) {
-                            ArrayList<JSONObject> tspsWithCerialNumber = certSerialNumbersToTsps.getOrDefault(certSerialNumber, new ArrayList<>());
-                            tspsWithCerialNumber.add(tspout);
-                            certSerialNumbersToTsps.put(certSerialNumber, tspsWithCerialNumber);
-                        }
-
-                        tspinf.add(tspout);
-                    }
+            for (Attribute attr : tspAttrs) {
+                if (attr.getAttrValues().size() != 1) {
+                    throw new Exception("Too many TSP tokens");
                 }
+
+                CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
+                TimeStampTokenInfo tspi = getApiServiceProvider().tsp.verifyTSP(tspCms);
+
+                JSONObject tspout = new JSONObject();
+
+                tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
+                tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
+                tspout.put("policy", tspi.getPolicy());
+                tspout.put("tsa", tspi.getTsa());
+                tspout.put("tspHashAlgorithm", Helper.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()));
+                tspout.put("hash", new String(Hex.encode(tspi.getMessageImprintDigest())));
+
+                for (String certSerialNumber : certSerialNumbers) {
+                    ArrayList<JSONObject> tspsWithCerialNumber = certSerialNumbersToTsps.getOrDefault(certSerialNumber, new ArrayList<>());
+                    tspsWithCerialNumber.add(tspout);
+                    certSerialNumbersToTsps.put(certSerialNumber, tspsWithCerialNumber);
+                }
+
+                tspinf.add(tspout);
             }
         }
 

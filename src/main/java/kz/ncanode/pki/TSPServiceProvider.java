@@ -29,7 +29,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.*;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Vector;
 
 public class TSPServiceProvider implements ServiceProvider {
     private ConfigServiceProvider   config = null;
@@ -65,6 +67,10 @@ public class TSPServiceProvider implements ServiceProvider {
 
         // Make request
         HttpURLConnection con = (HttpURLConnection) tspUrl.openConnection();
+        // connection timeout: 1 second
+        con.setConnectTimeout(1000);
+        // read timeout: 1 second
+        con.setReadTimeout(1000);
         con.setRequestMethod("POST");
         con.setDoOutput(true);
         con.setRequestProperty("Content-Type", "application/timestamp-query");
@@ -116,5 +122,40 @@ public class TSPServiceProvider implements ServiceProvider {
         SignerInformation newSigner = SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(vector));
 
         return newSigner;
+    }
+
+    /**
+     * Возвращает TSP атрибуты подписи
+     */
+    public Vector<Attribute> getSignerTspAttributes(SignerInformation signer) {
+        Vector<Attribute> tspAttrs = new Vector<>();
+
+        if (signer.getUnsignedAttributes() == null) {
+            return tspAttrs;
+        }
+
+        Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
+
+        if (attrs == null || !attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
+            return tspAttrs;
+        }
+
+        // в подписи может быть один или несколько tsp атрибутов
+        Object attrOrAttrs = attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
+
+        if (attrOrAttrs instanceof Attribute) {
+            tspAttrs.add((Attribute) attrOrAttrs);
+        } else {
+            tspAttrs = (Vector<Attribute>) attrOrAttrs;
+        }
+
+        return tspAttrs;
+    }
+
+    /**
+     * Есть ли у подписи метка TSP
+     */
+    public boolean signerHasTsp(SignerInformation signer) {
+        return !getSignerTspAttributes(signer).isEmpty();
     }
 }
