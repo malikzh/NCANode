@@ -330,6 +330,14 @@ public class PkiServiceProvider implements ServiceProvider {
                 result.add("NCA_MANAGER");
             } else if (item.equals("1.2.398.3.3.4.2.3")) {
                 result.add("NCA_OPERATOR");
+            } else if (item.equals("1.2.398.3.3.4.3")) {
+                result.add("IDENTIFICATION");
+            } else if (item.equals("1.2.398.3.3.4.3.1")) {
+                result.add("IDENTIFICATION_CON");
+            } else if (item.equals("1.2.398.3.3.4.3.2")) {
+                result.add("IDENTIFICATION_REMOTE");
+            } else if (item.equals("1.2.398.3.3.4.3.2.1")) {
+                result.add("IDENTIFICATION_REMOTE_DIGITAL_ID");
             }
         }
 
