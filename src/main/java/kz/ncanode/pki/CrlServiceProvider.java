@@ -148,6 +148,7 @@ public class CrlServiceProvider implements ServiceProvider {
             crl = (X509CRL) cf.generateCRL(fis);
             crlMemo.put(file.getName(), crl);
         } catch (CRLException | IOException | CertificateException e) {
+            file.delete();
             e.printStackTrace();
             return null;
         }
