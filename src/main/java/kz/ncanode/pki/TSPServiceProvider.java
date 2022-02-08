@@ -60,30 +60,27 @@ public class TSPServiceProvider implements ServiceProvider {
         BigInteger nonce = BigInteger.valueOf(System.currentTimeMillis());
         TimeStampRequest request = reqGen.generate(hashAlg, hash, nonce);
         byte[] reqData = request.getEncoded();
-
-        // Create url
         String configTspUrl = config.get("pki", "tsp_url");
-        URL tspUrl = new URL(configTspUrl);
 
-        // Make request
-        HttpURLConnection con = (HttpURLConnection) tspUrl.openConnection();
-        // connection timeout: 1 second
-        con.setConnectTimeout(1000);
-        // read timeout: 1 second
-        con.setReadTimeout(1000);
-        con.setRequestMethod("POST");
-        con.setDoOutput(true);
-        con.setRequestProperty("Content-Type", "application/timestamp-query");
-        OutputStream reqStream = con.getOutputStream();
-        reqStream.write(reqData);
-        reqStream.close();
+        // выполняем запрос к http://tsp.pki.gov.kz с ретраями,
+        // потому что иногда он отвечает медленно или с ошибками.
+        int retries = 0;
+        int maxRetries = 2;
+        IOException lastException = null;
 
-        // Get response
-        InputStream respStream = con.getInputStream();
-        TimeStampResponse response = new TimeStampResponse(respStream);
-        response.validate(request);
+        while (retries < maxRetries) {
+            try {
+                TimeStampResponse response = new TimeStampResponse(requestTsp(configTspUrl, reqData));
+                response.validate(request);
 
-        return response.getTimeStampToken();
+                return response.getTimeStampToken();
+            } catch (IOException e) {
+                lastException = e;
+                retries++;
+            }
+        }
+
+        throw lastException;
     }
 
     public TimeStampTokenInfo verifyTSP(CMSSignedData data) throws NoSuchAlgorithmException, NoSuchProviderException, CMSException, IOException, TSPException, CertStoreException, CertificateNotYetValidException, CertificateExpiredException {
@@ -157,5 +154,25 @@ public class TSPServiceProvider implements ServiceProvider {
      */
     public boolean signerHasTsp(SignerInformation signer) {
         return !getSignerTspAttributes(signer).isEmpty();
+    }
+
+    /**
+     * Выполняет запрос к сервису TSP
+     */
+    protected InputStream requestTsp(String url, byte[] request) throws IOException {
+        URL tspUrl = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) tspUrl.openConnection();
+        // connection timeout: 1 second
+        con.setConnectTimeout(1000);
+        // read timeout: 3 seconds
+        con.setReadTimeout(3000);
+        con.setRequestMethod("POST");
+        con.setDoOutput(true);
+        con.setRequestProperty("Content-Type", "application/timestamp-query");
+        OutputStream reqStream = con.getOutputStream();
+        reqStream.write(request);
+        reqStream.close();
+
+        return con.getInputStream();
     }
 }
