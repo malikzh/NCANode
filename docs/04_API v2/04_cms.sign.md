@@ -52,3 +52,14 @@
 ### Параметры ответа
 
 - `cms` - CMS в формате Base64
+
+### Пример ответа, если ЭЦП невалиден
+
+Status: 400 Bad Request.
+
+```json
+{
+    "httpCode": 400,
+    "message": "Api error: certificate expired on 20220102114836GMT+00:00",
+    "status": 8
+}
