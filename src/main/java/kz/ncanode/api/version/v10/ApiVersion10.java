@@ -150,7 +150,7 @@ public class ApiVersion10 implements ApiVersion {
             response = m.handle();
         } catch (ApiErrorException e) {
             JSONObject resp = new JSONObject();
-            resp.put("status", ApiStatus.STATUS_API_ERROR);
+            resp.put("status", e.getStatus());
             resp.put("message", "Api error: " + e.getMessage());
             return resp;
         }

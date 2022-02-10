@@ -100,7 +100,7 @@ public class ApiVersion20 implements ApiVersion {
         } catch (ApiErrorException e) {
             JSONObject resp = new JSONObject();
             resp.put("httpCode", e.getHttpCode());
-            resp.put("status", ApiStatus.STATUS_API_ERROR);
+            resp.put("status", e.getStatus());
             resp.put("message", "Api error: " + e.getMessage());
 
             return resp;
