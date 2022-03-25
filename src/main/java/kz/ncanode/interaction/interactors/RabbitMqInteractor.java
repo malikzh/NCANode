@@ -34,9 +34,9 @@ public class RabbitMqInteractor implements Interactor {
         provider.out.write("Trying to connect AMQP server " + host + ":" + port + "...");
 
         // Creating queue
-        try {
-            Connection conn = cf.newConnection();
-            Channel channel = conn.createChannel();
+        try (Connection conn = cf.newConnection();
+             Channel channel = conn.createChannel()){
+
 
             provider.out.write("Listening queue:" + queueName);
             channel.queueDeclare(queueName, false, false, true, null);
@@ -83,9 +83,7 @@ public class RabbitMqInteractor implements Interactor {
             };
 
             channel.basicConsume(queueName, consumer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
 

@@ -413,16 +413,17 @@ public class PkiServiceProvider implements ServiceProvider {
         byte[] respNonceExt = brep.getExtensionValue(OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId());
 
         if (respNonceExt != null) {
-            ASN1InputStream asn1In = new ASN1InputStream(respNonceExt);
-            DERObject derObj = asn1In.readObject();
-            asn1In.close();
-            byte[] extV = DEROctetString.getInstance(derObj).getOctets();
-            asn1In = new ASN1InputStream(extV);
-            derObj = asn1In.readObject();
-            asn1In.close();
+            try (ASN1InputStream asn1In = new ASN1InputStream(respNonceExt)) {
+                DERObject derObj = asn1In.readObject();
+                byte[] extV = DEROctetString.getInstance(derObj).getOctets();
 
-            if (!Arrays.equals(nonce, DEROctetString.getInstance(derObj).getOctets())) {
-                throw new OCSPException("Nonce aren't equals.");
+                try (ASN1InputStream asn2In = new ASN1InputStream(extV)) {
+                    derObj = asn2In.readObject();
+                }
+
+                if (!Arrays.equals(nonce, DEROctetString.getInstance(derObj).getOctets())) {
+                    throw new OCSPException("Nonce aren't equals.");
+                }
             }
         }
 
