@@ -9,7 +9,7 @@
   <version>2.0.1</version>
 
   <name>ncanode</name>
-  <url>http://ncanode.kz</url>
+  <url>https://ncanode.kz</url>
   <developers>
     <developer>
       <id>malikzh</id>
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>4.13.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -59,24 +59,24 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.1.1</version>
+      <version>1.2</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.7</version>
+      <version>2.11.0</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
     <dependency>
       <groupId>com.rabbitmq</groupId>
       <artifactId>amqp-client</artifactId>
-      <version>5.4.3</version>
+      <version>5.14.2</version>
     </dependency>
     <dependency>
       <groupId>pki.gov.kz</groupId>
       <artifactId>kalkancrypt</artifactId>
-      <version>0.6</version>
+      <version>0.6.1</version>
     </dependency>
     <dependency>
       <groupId>pki.gov.kz</groupId>
@@ -87,17 +87,17 @@
     <dependency>
       <groupId>org.apache.santuario</groupId>
       <artifactId>xmlsec</artifactId>
-      <version>2.1.7</version>
+      <version>2.3.0</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.5</version>
+      <version>1.7.36</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.5</version>
+      <version>1.7.36</version>
     </dependency>
     <dependency>
       <groupId>org.apache.ws.security</groupId>
@@ -107,23 +107,23 @@
     <dependency>
       <groupId>org.apache.wss4j</groupId>
       <artifactId>wss4j-ws-security-dom</artifactId>
-      <version>2.2.2</version>
+      <version>2.4.1</version>
     </dependency>
     <dependency>
       <groupId>jakarta.xml.ws</groupId>
       <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.1</version>
     </dependency>
     <dependency>
       <groupId>com.sun.xml.ws</groupId>
       <artifactId>jaxws-rt</artifactId>
-      <version>3.0.0</version>
+      <version>3.0.2</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
 
   <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (maybe moved to parent pom) -->
       <plugins>
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -164,11 +164,11 @@
               <id>install-external</id>
               <phase>clean</phase>
               <configuration>
-                <file>${basedir}/lib/kalkancrypt-0.6.jar</file>
+                <file>${basedir}/lib/kalkancrypt-0.6.1.jar</file>
                 <repositoryLayout>default</repositoryLayout>
                 <groupId>pki.gov.kz</groupId>
                 <artifactId>kalkancrypt</artifactId>
-                <version>0.6</version>
+                <version>0.6.1</version>
                 <packaging>jar</packaging>
                 <generatePom>true</generatePom>
               </configuration>
