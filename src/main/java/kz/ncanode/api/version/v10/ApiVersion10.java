@@ -22,7 +22,7 @@ public class ApiVersion10 implements ApiVersion {
 
     private ApiServiceProvider man = null;
 
-    private Hashtable<String, ApiMethod> methods = null;
+    private final Hashtable<String, ApiMethod> methods;
 
     public ApiVersion10(ApiServiceProvider man) {
         methods = new Hashtable<>();
@@ -55,7 +55,6 @@ public class ApiVersion10 implements ApiVersion {
 
     public ApiVersion10() {
         methods = new Hashtable<>();
-        this.man = man;
     }
 
     @Override
@@ -78,7 +77,7 @@ public class ApiVersion10 implements ApiVersion {
         // catch ApiError exception
         // process result
 
-        String method = "";
+        String method;
 
         try {
             method = (String)request.get("method");
