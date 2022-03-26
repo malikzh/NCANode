@@ -1,6 +1,5 @@
 package kz.ncanode.api.core;
 
-import kz.ncanode.api.ApiServiceProvider;
 import kz.ncanode.api.core.annotations.ApiMethod;
 import kz.ncanode.api.exceptions.ApiErrorException;
 import kz.ncanode.api.exceptions.InvalidArgumentException;

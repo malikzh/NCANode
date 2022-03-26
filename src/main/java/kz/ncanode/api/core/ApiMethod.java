@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 public abstract class ApiMethod {
 
-    public ApiVersion ver = null;
-    public ApiServiceProvider man = null;
+    public ApiVersion ver;
+    public ApiServiceProvider man;
 
     public ArrayList<ApiArgument> args = null;
 
