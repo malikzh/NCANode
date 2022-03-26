@@ -50,6 +50,7 @@ public class InteractionServiceProvider implements ServiceProvider {
 
         if (interactor == null) {
             out.write("Unknwown interaction mode: '" + interactorName + "'. Aborting...");
+            return;
         }
 
         interactor.interact();

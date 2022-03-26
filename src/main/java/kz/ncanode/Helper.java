@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -54,14 +55,10 @@ public class Helper {
         {
             MessageDigest crypt = MessageDigest.getInstance("SHA-1");
             crypt.reset();
-            crypt.update(data.getBytes("UTF-8"));
+            crypt.update(data.getBytes(StandardCharsets.UTF_8));
             sha1 = bytesToHex(crypt.digest());
         }
         catch(NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-        }
-        catch(UnsupportedEncodingException e)
         {
             e.printStackTrace();
         }
@@ -159,14 +156,9 @@ public class Helper {
     }
 
     public static DERObject byteToASN1(byte[] data) throws IOException {
-        ASN1InputStream in = new ASN1InputStream(data);
-        try
+        try (ASN1InputStream in = new ASN1InputStream(data))
         {
             return in.readObject();
-        }
-        finally
-        {
-            in.close();
         }
     }
 
@@ -181,7 +173,7 @@ public class Helper {
         long maxMemory = runtime.maxMemory();
         long allocatedMemory = runtime.totalMemory();
         long freeMemory = runtime.freeMemory();
-        long mb = 1024 * 1024;
+        long mb = 1024L * 1024L;
         String suffix = "MB";
 
         JSONObject result = new JSONObject();
