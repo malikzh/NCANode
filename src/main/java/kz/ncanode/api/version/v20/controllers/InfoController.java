@@ -26,7 +26,7 @@ public class InfoController extends kz.ncanode.api.core.ApiController {
         String alias = model.alias.get();
 
         if (alias == null || alias.isEmpty()) {
-            Enumeration<String> als = null;
+            Enumeration<String> als;
             try {
                 als = p12.aliases();
             } catch (KeyStoreException e) {
@@ -57,8 +57,8 @@ public class InfoController extends kz.ncanode.api.core.ApiController {
         }
 
         // Chain information
-        ArrayList<X509Certificate> chain = null;
-        ArrayList<JSONObject> chainInf = null;
+        ArrayList<X509Certificate> chain;
+        ArrayList<JSONObject> chainInf;
         try {
             chain = getApiServiceProvider().ca.chain(cert);
 
@@ -99,7 +99,7 @@ public class InfoController extends kz.ncanode.api.core.ApiController {
 
         JSONArray aliases = new JSONArray();
 
-        Enumeration<String> als = null;
+        Enumeration<String> als;
         try {
             als = p12.aliases();
         } catch (KeyStoreException e) {
