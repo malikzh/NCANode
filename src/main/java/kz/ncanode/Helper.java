@@ -11,7 +11,6 @@ import org.json.simple.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -21,6 +20,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Класс-хелпер. Здесь лежат всякие методы, которые понадобились для работы других модулей
@@ -104,7 +104,7 @@ public class Helper {
      */
     public static String[] getSignMethodByOID(String oid) {
 
-        String ret[] = new String[2];
+        String[] ret = new String[2];
 
 
         if (oid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
@@ -124,8 +124,8 @@ public class Helper {
     /**
      * Возвращает алгоритм хэширования по алгоритму подписи
      *
-     * @param signOid
-     * @return
+     * @param signOid sign OID
+     * @return digest algorithm OID
      */
     public static String getDigestAlgorithmOidBYSignAlgorithmOid(String signOid) {
         if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
@@ -176,18 +176,18 @@ public class Helper {
         long mb = 1024L * 1024L;
         String suffix = "MB";
 
-        JSONObject result = new JSONObject();
+        Map<String, Object> result = new HashMap<>();
         result.put("free", format.format(freeMemory / mb) + suffix);
         result.put("allocated", format.format(allocatedMemory / mb) + suffix);
         result.put("max", format.format(maxMemory / mb) + suffix);
         result.put("totalFree", format.format((freeMemory + (maxMemory - allocatedMemory)) / mb) + suffix);
 
-        return result;
+        return new JSONObject(result);
     }
 
     /**
      * Крутой баннер прям как в кряках)))
-     * @return
+     * @return banner text
      */
     public static String awesomeBanner()
     {

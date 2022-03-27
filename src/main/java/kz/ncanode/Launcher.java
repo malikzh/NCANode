@@ -21,12 +21,7 @@ public class Launcher
     public static void main( String[] args )
     {
         // Shutdown handler
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Launcher.shutdown();
-            }
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(Launcher::shutdown));
 
         // Intro
         System.out.print(Helper.awesomeBanner());
