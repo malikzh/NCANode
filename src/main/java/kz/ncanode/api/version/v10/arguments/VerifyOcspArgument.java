@@ -9,11 +9,9 @@ public class VerifyOcspArgument extends ApiArgument {
 
     ApiVersion ver;
     ApiServiceProvider man;
-    private boolean required = false;
     private boolean verifyOcsp = false;
 
-    public VerifyOcspArgument(boolean required, ApiVersion ver, ApiServiceProvider man) {
-        this.required = required;
+    public VerifyOcspArgument(ApiVersion ver, ApiServiceProvider man) {
         this.ver = ver;
         this.man = man;
     }

@@ -14,9 +14,6 @@ import kz.gov.pki.kalkan.tsp.*;
 import kz.ncanode.Helper;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
-import kz.ncanode.kalkan.KalkanServiceProvider;
-import kz.ncanode.log.ErrorLogServiceProvider;
-import kz.ncanode.log.OutLogServiceProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,16 +31,10 @@ import java.util.Iterator;
 import java.util.Vector;
 
 public class TSPServiceProvider implements ServiceProvider {
-    private ConfigServiceProvider   config = null;
-    private OutLogServiceProvider   out    = null;
-    private ErrorLogServiceProvider err    = null;
-    private KalkanServiceProvider   kalkan = null;
+    private final ConfigServiceProvider config;
 
-    public TSPServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ErrorLogServiceProvider err, KalkanServiceProvider kalkan, CrlServiceProvider crl) {
+    public TSPServiceProvider(ConfigServiceProvider config) {
         this.config = config;
-        this.out    = out;
-        this.err    = err;
-        this.kalkan = kalkan;
     }
 
     public TimeStampToken createTSP(byte[] data, String hashAlg, String reqPolicy) throws NoSuchProviderException, NoSuchAlgorithmException, IOException, TSPException {
@@ -116,9 +107,8 @@ public class TSPServiceProvider implements ServiceProvider {
         byte[] ts = tsp.getEncoded();
         ASN1Encodable signatureTimeStamp = new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, new DERSet(Helper.byteToASN1(ts)));
         vector.add(signatureTimeStamp);
-        SignerInformation newSigner = SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(vector));
 
-        return newSigner;
+        return SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(vector));
     }
 
     /**
@@ -131,7 +121,7 @@ public class TSPServiceProvider implements ServiceProvider {
             return tspAttrs;
         }
 
-        Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
+        Hashtable<?,?> attrs = signer.getUnsignedAttributes().toHashtable();
 
         if (attrs == null || !attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
             return tspAttrs;

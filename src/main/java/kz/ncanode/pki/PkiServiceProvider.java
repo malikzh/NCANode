@@ -12,8 +12,6 @@ import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.config.ConfigServiceProvider;
 import kz.ncanode.ioc.ServiceProvider;
 import kz.ncanode.kalkan.KalkanServiceProvider;
-import kz.ncanode.log.ErrorLogServiceProvider;
-import kz.ncanode.log.OutLogServiceProvider;
 import org.json.simple.JSONObject;
 
 import javax.naming.InvalidNameException;
@@ -37,16 +35,12 @@ import java.util.*;
  * управление сертификатами.
  */
 public class PkiServiceProvider implements ServiceProvider {
-    private ConfigServiceProvider config = null;
-    private OutLogServiceProvider out = null;
-    private ErrorLogServiceProvider err = null;
-    private KalkanServiceProvider kalkan = null;
-    private CrlServiceProvider crl = null;
+    private final ConfigServiceProvider config;
+    private final KalkanServiceProvider kalkan;
+    private final CrlServiceProvider crl;
 
-    public PkiServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out, ErrorLogServiceProvider err, KalkanServiceProvider kalkan, CrlServiceProvider crl) {
+    public PkiServiceProvider(ConfigServiceProvider config, KalkanServiceProvider kalkan, CrlServiceProvider crl) {
         this.config = config;
-        this.out = out;
-        this.err = err;
         this.kalkan = kalkan;
         this.crl = crl;
     }
@@ -76,10 +70,10 @@ public class PkiServiceProvider implements ServiceProvider {
 
         byte[] nonce = generateOcspNonce();
 
-        OCSPReq ocspRequest = null;
+        OCSPReq ocspRequest;
 
         try {
-            ocspRequest = buildOcspRequest(cert.getSerialNumber(), issuerCert, CertificateID.HASH_SHA256, nonce);
+            ocspRequest = buildOcspRequest(cert.getSerialNumber(), issuerCert, nonce);
         } catch (OCSPException e) {
             e.printStackTrace();
             return new OCSPStatus(OCSPStatus.OCSPResult.UNKNOWN, null, 0);
@@ -87,7 +81,7 @@ public class PkiServiceProvider implements ServiceProvider {
 
         // make request
         InputStream response = null;
-        OCSPStatus res = null;
+        OCSPStatus res;
         try {
             URL url = new URL(ocspUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -114,13 +108,13 @@ public class PkiServiceProvider implements ServiceProvider {
     }
 
     public JSONObject certInfo(X509Certificate cert, boolean verifyOcsp, boolean verifyCrl, X509Certificate issuerCert) throws CertificateParsingException, IOException, InvalidArgumentException {
-        if (verifyCrl && !crl.isEnabled()) {
+        if (verifyCrl && crl.isDisable()) {
             throw new InvalidArgumentException(
                     "CRL verification is disabled. Turn it on in service configuration with 'crl_enabled=true'."
             );
         }
 
-        JSONObject response = new JSONObject();
+        Map<String, Object> response = new HashMap<>();
 
         ArrayList<?> userType = keyUser(cert);
 
@@ -153,7 +147,7 @@ public class PkiServiceProvider implements ServiceProvider {
 
         if (verifyOcsp) {
             OCSPStatus ocspStatus = null;
-            JSONObject ocspvJson = new JSONObject();
+            Map<String, Object> ocspvJson = new HashMap<>();
 
             try {
                 ocspStatus = verifyOcsp(cert, issuerCert);
@@ -173,7 +167,7 @@ public class PkiServiceProvider implements ServiceProvider {
                 ocspvJson.put("revokationTime", revokationTime != null ? Helper.dateTime(revokationTime) : null);
             }
 
-            response.put("ocsp", ocspvJson);
+            response.put("ocsp", new JSONObject(ocspvJson));
         }
 
         if (verifyCrl) {
@@ -193,7 +187,7 @@ public class PkiServiceProvider implements ServiceProvider {
                 }
             }
 
-            JSONObject crlJson = new JSONObject();
+            Map<String, Object> crlJson = new HashMap<>();
 
             if (crlStatus != null) {
                 crlJson.put("status", crlStatus.getStatus().toString());
@@ -202,19 +196,19 @@ public class PkiServiceProvider implements ServiceProvider {
                 crlJson.put("revokationReason", revokationReason);
             }
 
-            response.put("crl", crlJson);
+            response.put("crl", new JSONObject(crlJson));
         }
 
-        return response;
+        return new JSONObject(response);
     }
 
     public static JSONObject issuerInfo(java.security.cert.X509Certificate cert) {
-        JSONObject issuer = new JSONObject();
+        Map<String, Object> issuer = new HashMap<>();
 
         String dn = cert.getIssuerDN().toString();
         issuer.put("dn", dn);
 
-        LdapName ldapName = null;
+        LdapName ldapName;
 
         try {
             ldapName = new LdapName(dn);
@@ -226,18 +220,18 @@ public class PkiServiceProvider implements ServiceProvider {
             e.printStackTrace();
         }
 
-        return issuer;
+        return new JSONObject(issuer);
     }
 
     public static JSONObject subjectInfo(java.security.cert.X509Certificate cert) {
-        JSONObject subject = new JSONObject();
+        Map<String, Object> subject = new HashMap<>();
 
         String dn = cert.getSubjectDN().toString();
 
         subject.put("dn", dn);
 
-        LdapName ldapName = null;
-        String iin = "";
+        LdapName ldapName;
+        String iin;
 
         try {
             ldapName = new LdapName(dn);
@@ -259,24 +253,31 @@ public class PkiServiceProvider implements ServiceProvider {
             String birthAge = iin.substring(6, 7);
             String gender = "";
 
-            if (birthAge.equals("1")) {
-                birthYear = "18" + birthYear;
-                gender = "MALE";
-            } else if (birthAge.equals("2")) {
-                birthYear = "18" + birthYear;
-                gender = "FEMALE";
-            } else if (birthAge.equals("3")) {
-                birthYear = "19" + birthYear;
-                gender = "MALE";
-            } else if (birthAge.equals("4")) {
-                birthYear = "19" + birthYear;
-                gender = "FEMALE";
-            } else if (birthAge.equals("5")) {
-                birthYear = "20" + birthYear;
-                gender = "MALE";
-            } else if (birthAge.equals("6")) {
-                birthYear = "20" + birthYear;
-                gender = "FEMALE";
+            switch (birthAge) {
+                case "1":
+                    birthYear = "18" + birthYear;
+                    gender = "MALE";
+                    break;
+                case "2":
+                    birthYear = "18" + birthYear;
+                    gender = "FEMALE";
+                    break;
+                case "3":
+                    birthYear = "19" + birthYear;
+                    gender = "MALE";
+                    break;
+                case "4":
+                    birthYear = "19" + birthYear;
+                    gender = "FEMALE";
+                    break;
+                case "5":
+                    birthYear = "20" + birthYear;
+                    gender = "MALE";
+                    break;
+                case "6":
+                    birthYear = "20" + birthYear;
+                    gender = "FEMALE";
+                    break;
             }
 
             subject.put("birthDate", birthYear + "-" + birthMonth + "-" + birthDay);
@@ -285,7 +286,7 @@ public class PkiServiceProvider implements ServiceProvider {
         }
 
 
-        return subject;
+        return new JSONObject(subject);
     }
 
     public static String keyUsage(X509Certificate cert) {
@@ -308,36 +309,52 @@ public class PkiServiceProvider implements ServiceProvider {
         }
 
         for (String item : cert.getExtendedKeyUsage()) {
-            if (item.equals("1.2.398.3.3.4.1.1")) {
-                result.add("INDIVIDUAL");
-            } else if (item.equals("1.2.398.3.3.4.1.2")) {
-                result.add("ORGANIZATION");
-            } else if (item.equals("1.2.398.3.3.4.1.2.1")) {
-                result.add("CEO");
-            } else if (item.equals("1.2.398.3.3.4.1.2.2")) {
-                result.add("CAN_SIGN");
-            } else if (item.equals("1.2.398.3.3.4.1.2.3")) {
-                result.add("CAN_SIGN_FINANCIAL");
-            } else if (item.equals("1.2.398.3.3.4.1.2.4")) {
-                result.add("HR");
-            } else if (item.equals("1.2.398.3.3.4.1.2.5")) {
-                result.add("EMPLOYEE");
-            } else if (item.equals("1.2.398.3.3.4.2")) {
-                result.add("NCA_PRIVILEGES");
-            } else if (item.equals("1.2.398.3.3.4.2.1")) {
-                result.add("NCA_ADMIN");
-            } else if (item.equals("1.2.398.3.3.4.2.2")) {
-                result.add("NCA_MANAGER");
-            } else if (item.equals("1.2.398.3.3.4.2.3")) {
-                result.add("NCA_OPERATOR");
-            } else if (item.equals("1.2.398.3.3.4.3")) {
-                result.add("IDENTIFICATION");
-            } else if (item.equals("1.2.398.3.3.4.3.1")) {
-                result.add("IDENTIFICATION_CON");
-            } else if (item.equals("1.2.398.3.3.4.3.2")) {
-                result.add("IDENTIFICATION_REMOTE");
-            } else if (item.equals("1.2.398.3.3.4.3.2.1")) {
-                result.add("IDENTIFICATION_REMOTE_DIGITAL_ID");
+            switch (item) {
+                case "1.2.398.3.3.4.1.1":
+                    result.add("INDIVIDUAL");
+                    break;
+                case "1.2.398.3.3.4.1.2":
+                    result.add("ORGANIZATION");
+                    break;
+                case "1.2.398.3.3.4.1.2.1":
+                    result.add("CEO");
+                    break;
+                case "1.2.398.3.3.4.1.2.2":
+                    result.add("CAN_SIGN");
+                    break;
+                case "1.2.398.3.3.4.1.2.3":
+                    result.add("CAN_SIGN_FINANCIAL");
+                    break;
+                case "1.2.398.3.3.4.1.2.4":
+                    result.add("HR");
+                    break;
+                case "1.2.398.3.3.4.1.2.5":
+                    result.add("EMPLOYEE");
+                    break;
+                case "1.2.398.3.3.4.2":
+                    result.add("NCA_PRIVILEGES");
+                    break;
+                case "1.2.398.3.3.4.2.1":
+                    result.add("NCA_ADMIN");
+                    break;
+                case "1.2.398.3.3.4.2.2":
+                    result.add("NCA_MANAGER");
+                    break;
+                case "1.2.398.3.3.4.2.3":
+                    result.add("NCA_OPERATOR");
+                    break;
+                case "1.2.398.3.3.4.3":
+                    result.add("IDENTIFICATION");
+                    break;
+                case "1.2.398.3.3.4.3.1":
+                    result.add("IDENTIFICATION_CON");
+                    break;
+                case "1.2.398.3.3.4.3.2":
+                    result.add("IDENTIFICATION_REMOTE");
+                    break;
+                case "1.2.398.3.3.4.3.2.1":
+                    result.add("IDENTIFICATION_REMOTE_DIGITAL_ID");
+                    break;
             }
         }
 
@@ -346,14 +363,14 @@ public class PkiServiceProvider implements ServiceProvider {
 
 
     // private
-    private OCSPReq buildOcspRequest(BigInteger serialNumber, X509Certificate issuerCert, String hashAlg, byte[] nonce) throws OCSPException {
+    private OCSPReq buildOcspRequest(BigInteger serialNumber, X509Certificate issuerCert, byte[] nonce) throws OCSPException {
         OCSPReqGenerator ocspReqGenerator = new OCSPReqGenerator();
 
-        CertificateID certId = new CertificateID(hashAlg, issuerCert, serialNumber, kalkan.get().getName());
+        CertificateID certId = new CertificateID(CertificateID.HASH_SHA256, issuerCert, serialNumber, kalkan.get().getName());
 
         ocspReqGenerator.addRequest(certId);
 
-        Hashtable x509Extensions = new Hashtable();
+        Hashtable<Object,Object> x509Extensions = new Hashtable<>();
 
         // добавляем nonce
         x509Extensions.put(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, new X509Extension(false, new DEROctetString(new DEROctetString(nonce))) {
@@ -363,7 +380,7 @@ public class PkiServiceProvider implements ServiceProvider {
         return ocspReqGenerator.generate();
     }
 
-    private static void parseRdn(Rdn rdn, JSONObject subject) {
+    private static void parseRdn(Rdn rdn, Map<String, Object> subject) {
         if (rdn.getType().equalsIgnoreCase("CN")) {
             subject.put("commonName", rdn.getValue());
         } else if (rdn.getType().equalsIgnoreCase("SURNAME")) {
@@ -437,7 +454,7 @@ public class PkiServiceProvider implements ServiceProvider {
         } else if (status instanceof RevokedStatus) {
             RevokedStatus rev = (RevokedStatus) status;
 
-            int reason = 0;
+            int reason;
 
             try {
                 reason = rev.getRevocationReason();

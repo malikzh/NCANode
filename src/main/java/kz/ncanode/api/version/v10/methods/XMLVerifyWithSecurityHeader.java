@@ -29,6 +29,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class XMLVerifyWithSecurityHeader extends ApiMethod {
     public XMLVerifyWithSecurityHeader(ApiVersion ver, ApiServiceProvider man) {
@@ -39,7 +41,7 @@ public class XMLVerifyWithSecurityHeader extends ApiMethod {
     public JSONObject handle() throws ApiErrorException {
         Document xml = (Document) args.get(0).get();
 
-        String rawDocument = "";
+        String rawDocument;
 
         try {
             StringWriter os = new StringWriter();
@@ -88,12 +90,12 @@ public class XMLVerifyWithSecurityHeader extends ApiMethod {
             throw new ApiErrorException(e.getMessage());
         }
 
-        JSONObject resp = new JSONObject();
+        Map<String, Object> resp = new HashMap<>();
 
         if (cert != null) {
             // Chain information
-            ArrayList<X509Certificate> chain = null;
-            ArrayList<JSONObject> chainInf = null;
+            ArrayList<X509Certificate> chain;
+            ArrayList<JSONObject> chainInf;
             try {
                 chain = man.ca.chain(cert);
 
@@ -127,15 +129,15 @@ public class XMLVerifyWithSecurityHeader extends ApiMethod {
 
         resp.put("valid", result);
 
-        return resp;
+        return new JSONObject(resp);
     }
 
     @Override
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
-        args.add(new XmlArgument(true, ver, man));
-        args.add(new VerifyOcspArgument(false, ver, man));
-        args.add(new VerifyCrlArgument(false, ver, man));
+        args.add(new XmlArgument(ver, man));
+        args.add(new VerifyOcspArgument(ver, man));
+        args.add(new VerifyCrlArgument(ver, man));
         return args;
     }
 }

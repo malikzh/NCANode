@@ -22,10 +22,7 @@ import org.json.simple.JSONObject;
 import java.security.cert.CertStore;
 import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.Iterator;
+import java.util.*;
 
 public class RAWVerify extends ApiMethod {
     public RAWVerify(ApiVersion ver, ApiServiceProvider man) {
@@ -48,9 +45,9 @@ public class RAWVerify extends ApiMethod {
         String providerName = man.kalkan.get().getName();
         CertStore clientCerts = cms.getCertificatesAndCRLs("Collection", providerName);
 
-        JSONObject resp = new JSONObject();
+        Map<String, Object> resp = new HashMap<>();
 
-        Iterator sit = signers.getSigners().iterator();
+        Iterator<?> sit = signers.getSigners().iterator();
 
         X509Certificate cert = null;
 
@@ -63,8 +60,8 @@ public class RAWVerify extends ApiMethod {
 
             SignerInformation signer = (SignerInformation) sit.next();
             X509CertSelector signerConstraints = signer.getSID();
-            Collection certCollection = clientCerts.getCertificates(signerConstraints);
-            Iterator certIt = certCollection.iterator();
+            Collection<?> certCollection = clientCerts.getCertificates(signerConstraints);
+            Iterator<?> certIt = certCollection.iterator();
 
             boolean certCheck = false;
 
@@ -83,7 +80,7 @@ public class RAWVerify extends ApiMethod {
 
             // Tsp verification
             if (signer.getUnsignedAttributes() != null) {
-                Hashtable attrs = signer.getUnsignedAttributes().toHashtable();
+                Hashtable<?,?> attrs = signer.getUnsignedAttributes().toHashtable();
 
                 if (attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
                     Attribute attr = (Attribute) attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
@@ -96,7 +93,7 @@ public class RAWVerify extends ApiMethod {
                     CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
                     TimeStampTokenInfo tspi = man.tsp.verifyTSP(tspCms);
 
-                    JSONObject tspout = new JSONObject();
+                    Map<String, Object> tspout = new HashMap<>();
 
                     tspout.put("serialNumber", new String(Hex.encode(tspi.getSerialNumber().toByteArray())));
                     tspout.put("genTime", Helper.dateTime(tspi.getGenTime()));
@@ -117,8 +114,8 @@ public class RAWVerify extends ApiMethod {
         }
 
         // Chain information
-        ArrayList<java.security.cert.X509Certificate> chain = null;
-        ArrayList<JSONObject> chainInf = null;
+        ArrayList<java.security.cert.X509Certificate> chain;
+        ArrayList<JSONObject> chainInf;
         chain = man.ca.chain(cert);
 
         chainInf = new ArrayList<>();
@@ -149,15 +146,15 @@ public class RAWVerify extends ApiMethod {
             throw new ApiErrorException(e.getMessage());
         }
 
-        return resp;
+        return new JSONObject(resp);
     }
 
     @Override
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
         args.add(new CmsArgument(true, ver, man));
-        args.add(new VerifyOcspArgument(false, ver, man));
-        args.add(new VerifyCrlArgument(false, ver, man));
+        args.add(new VerifyOcspArgument(ver, man));
+        args.add(new VerifyCrlArgument(ver, man));
         return args;
     }
 }

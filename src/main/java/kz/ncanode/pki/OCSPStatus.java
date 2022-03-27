@@ -9,9 +9,9 @@ public class OCSPStatus {
         UNKNOWN
     }
 
-    private OCSPResult status    = null;
-    private Date revokationTime  = null;
-    private int revokationReason = 0;
+    private final OCSPResult status;
+    private final Date revokationTime;
+    private final int revokationReason;
 
     public OCSPStatus(OCSPResult status, Date revokationTime, int revokationReason) {
         this.status           = status;

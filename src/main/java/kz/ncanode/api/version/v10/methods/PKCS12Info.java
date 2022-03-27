@@ -27,7 +27,7 @@ public class PKCS12Info extends ApiMethod {
 
         KeyStore p12 = (KeyStore)args.get(0).get();
 
-        Enumeration<String> als = null;
+        Enumeration<String> als;
         try {
             als = p12.aliases();
         } catch (KeyStoreException e) {
@@ -50,8 +50,8 @@ public class PKCS12Info extends ApiMethod {
         }
 
         // Chain information
-        ArrayList<X509Certificate> chain = null;
-        ArrayList<JSONObject> chainInf = null;
+        ArrayList<X509Certificate> chain;
+        ArrayList<JSONObject> chainInf;
         try {
             chain = man.ca.chain(cert);
 
@@ -90,8 +90,8 @@ public class PKCS12Info extends ApiMethod {
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
         args.add(new P12ApiArgument(true, ver, man));
-        args.add(new VerifyOcspArgument(false, ver, man));
-        args.add(new VerifyCrlArgument(false, ver, man));
+        args.add(new VerifyOcspArgument(ver, man));
+        args.add(new VerifyCrlArgument(ver, man));
 
         return args;
     }

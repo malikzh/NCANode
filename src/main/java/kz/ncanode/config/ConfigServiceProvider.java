@@ -19,15 +19,8 @@ public class ConfigServiceProvider extends Config implements ServiceProvider {
 
     Ini defaultIni = null;
 
-    // Dependencies
-    private CmdServiceProvider cmd = null;
-    private OutLogServiceProvider outLog = null;
-
     public ConfigServiceProvider(CmdServiceProvider cmd, OutLogServiceProvider outLog) {
-        this.cmd    = cmd;
-        this.outLog = outLog;
-
-        String configFile = this.cmd.get("config");
+        String configFile = cmd.get("config");
 
         if (configFile == null) {
             configFile = CONFIG_FILENAME;

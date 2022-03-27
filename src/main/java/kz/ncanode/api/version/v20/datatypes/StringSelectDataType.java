@@ -7,8 +7,8 @@ import kz.ncanode.api.exceptions.InvalidArgumentException;
 import java.util.List;
 
 public class StringSelectDataType extends ApiDependencies implements InputType {
-    String value = null;
-    List<String> valueList;
+    private String value;
+    private final List<String> valueList;
 
     public StringSelectDataType(String defaultValue, List<String> valueList) {
         this.valueList = valueList;
@@ -18,7 +18,7 @@ public class StringSelectDataType extends ApiDependencies implements InputType {
     @Override
     public void validate() throws InvalidArgumentException {
         if (!valueList.contains(value)) {
-            throw new InvalidArgumentException("Invalid value. Possible values is: " + valueList.toString());
+            throw new InvalidArgumentException("Invalid value. Possible values is: " + valueList);
         }
     }
 

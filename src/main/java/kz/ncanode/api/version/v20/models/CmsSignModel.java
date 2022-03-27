@@ -20,9 +20,9 @@ public class CmsSignModel extends ApiModel {
 
     @InputField
     public StringSelectDataType useTsaPolicy = new StringSelectDataType("TSA_GOST_POLICY",
-            new ArrayList<String>(
-            Arrays.asList("TSA_GOST_POLICY", "TSA_GOSTGT_POLICY")
-    ));
+            new ArrayList<>(
+                    Arrays.asList("TSA_GOST_POLICY", "TSA_GOSTGT_POLICY")
+            ));
 
     @InputField
     public BooleanDataType withTsp = new BooleanDataType();

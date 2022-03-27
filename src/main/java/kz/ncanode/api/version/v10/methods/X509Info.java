@@ -25,8 +25,8 @@ public class X509Info extends ApiMethod {
         JSONObject resp = new JSONObject();
 
         // Chain information
-        ArrayList<X509Certificate> chain = null;
-        ArrayList<JSONObject> chainInf = null;
+        ArrayList<X509Certificate> chain;
+        ArrayList<JSONObject> chainInf;
         try {
             chain = man.ca.chain(cert);
 
@@ -63,9 +63,9 @@ public class X509Info extends ApiMethod {
     @Override
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
-        args.add(new CertArgument(true, ver, man));
-        args.add(new VerifyOcspArgument(false, ver, man));
-        args.add(new VerifyCrlArgument(false, ver, man));
+        args.add(new CertArgument(ver, man));
+        args.add(new VerifyOcspArgument(ver, man));
+        args.add(new VerifyCrlArgument(ver, man));
 
         return args;
     }

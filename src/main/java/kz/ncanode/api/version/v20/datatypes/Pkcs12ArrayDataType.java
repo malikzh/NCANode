@@ -19,14 +19,14 @@ public class Pkcs12ArrayDataType extends ApiDependencies implements InputType {
 
     @Override
     public void validate() throws InvalidArgumentException {
-        for (int i=0; i<p12array.size(); ++i) {
-            JSONObject item = (JSONObject) p12array.get(i);
+        for (Object o : p12array) {
+            JSONObject item = (JSONObject) o;
 
             try {
-                keys.add( getApiServiceProvider().pki.loadKey(Base64.getDecoder().decode((String)item.get("p12")),
-                        (String)item.get("password")));
-                passwords.add((String)item.get("password"));
-                aliases.add((String)item.get("alias"));
+                keys.add(getApiServiceProvider().pki.loadKey(Base64.getDecoder().decode((String) item.get("p12")),
+                        (String) item.get("password")));
+                passwords.add((String) item.get("password"));
+                aliases.add((String) item.get("alias"));
             } catch (Exception e) {
                 throw new InvalidArgumentException(e.getMessage());
             }
