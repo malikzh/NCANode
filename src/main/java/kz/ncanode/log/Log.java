@@ -3,8 +3,8 @@ package kz.ncanode.log;
 import java.io.*;
 
 public class Log {
-    protected OutputStream os = null;
-    protected LogPrintStream  ps = null;
+    protected OutputStream os;
+    protected LogPrintStream  ps;
 
     public Log() {
         os = System.out;

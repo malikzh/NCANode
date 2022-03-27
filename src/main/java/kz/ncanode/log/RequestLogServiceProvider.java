@@ -8,19 +8,18 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 /**
- * Класс логирования, который предназначен, для логирования запросов по API (requrest.log)
+ * Класс логирования, который предназначен, для логирования запросов по API (request.log)
  */
 public class RequestLogServiceProvider extends Log implements ServiceProvider {
-    OutLogServiceProvider out = null;
-    ConfigServiceProvider config = null;
-
-    private String requestLogFile = "";
+    OutLogServiceProvider out;
+    ConfigServiceProvider config;
 
     public RequestLogServiceProvider(ConfigServiceProvider config, OutLogServiceProvider out) {
 
         this.out = out;
         this.config = config;
 
+        String requestLogFile = "";
         try {
             requestLogFile = this.config.get("log", "request_log");
 
