@@ -8,10 +8,10 @@ public class CrlStatus {
         REVOKED
     }
 
-    private String revokedBy;
-    private CrlResult status;
-    private Date date;
-    private String reason;
+    private final String revokedBy;
+    private final CrlResult status;
+    private final Date date;
+    private final String reason;
 
     public CrlStatus(CrlResult status, String revokedBy, Date date, String reason) {
         this.status    = status;

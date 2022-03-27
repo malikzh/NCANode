@@ -53,8 +53,8 @@ public class CrlServiceProvider implements ServiceProvider {
         }
     }
 
-    public boolean isEnabled() {
-        return isEnabled;
+    public boolean isDisable() {
+        return !isEnabled;
     }
 
     public CrlStatus verify(X509Certificate cert) {
@@ -92,7 +92,7 @@ public class CrlServiceProvider implements ServiceProvider {
         // достаем конфиги
         String cfgCrlCacheDir    = Helper.absolutePath(config.get("pki", "crl_cache_dir"));
         String[] cfgCrlCacheUrls = config.get("pki", "crl_urls").split(" ");
-        int cfgCrlCacheLifetime  = Integer.valueOf(config.get("pki", "crl_cache_lifetime"));
+        int cfgCrlCacheLifetime  = Integer.parseInt(config.get("pki", "crl_cache_lifetime"));
 
         long ct = System.currentTimeMillis();
 
@@ -104,7 +104,7 @@ public class CrlServiceProvider implements ServiceProvider {
         if (!forceUpdate) {
             for (File crlFile : crls()) {
 
-                if ((ct - crlFile.lastModified()) > cfgCrlCacheLifetime * 60 * 1000) {
+                if ((ct - crlFile.lastModified()) > (long) cfgCrlCacheLifetime * 60 * 1000) {
                     String fileName = crlFile.getName();
 
                     if (names.containsKey(fileName)) {
