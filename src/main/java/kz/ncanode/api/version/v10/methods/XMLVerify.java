@@ -30,7 +30,7 @@ public class XMLVerify extends ApiMethod {
     public JSONObject handle() throws ApiErrorException {
         Document xml = (Document)args.get(0).get();
 
-        Element sigElement = null;
+        Element sigElement;
         Element rootEl = (Element) xml.getFirstChild();
 
         NodeList list = rootEl.getElementsByTagName("ds:Signature");
@@ -74,8 +74,8 @@ public class XMLVerify extends ApiMethod {
 
 
             // Chain information
-            ArrayList<X509Certificate> chain = null;
-            ArrayList<JSONObject> chainInf = null;
+            ArrayList<X509Certificate> chain;
+            ArrayList<JSONObject> chainInf;
             try {
                 chain = man.ca.chain(cert);
 
@@ -119,9 +119,9 @@ public class XMLVerify extends ApiMethod {
     @Override
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
-        args.add(new XmlArgument(true, ver, man));
-        args.add(new VerifyOcspArgument(false, ver, man));
-        args.add(new VerifyCrlArgument(false, ver, man));
+        args.add(new XmlArgument(ver, man));
+        args.add(new VerifyOcspArgument(ver, man));
+        args.add(new VerifyCrlArgument(ver, man));
         return args;
     }
 

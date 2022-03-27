@@ -11,7 +11,7 @@ public class RawArgument extends ApiArgument {
 
     ApiVersion ver;
     ApiServiceProvider man;
-    private boolean required = false;
+    private final boolean required;
     byte[] raw = null;
 
     public RawArgument(boolean required, ApiVersion ver, ApiServiceProvider man) {

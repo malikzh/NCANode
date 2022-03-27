@@ -11,9 +11,9 @@ import java.util.ArrayList;
 public class TspHashAlgorithmArgument extends ApiArgument {
     ApiVersion ver;
     ApiServiceProvider man;
-    private boolean required = false;
+    private final boolean required;
     private String hashAlgorithm = "GOST34311";
-    private ArrayList<String> hashAlgorithms = null;
+    private final ArrayList<String> hashAlgorithms;
 
     public TspHashAlgorithmArgument(boolean required, ApiVersion ver, ApiServiceProvider man) {
         this.required = required;
@@ -47,50 +47,41 @@ public class TspHashAlgorithmArgument extends ApiArgument {
         String halg = (String)params.get("tspHashAlgorithm");
 
         if (halg != null) {
-            if (hashAlgorithms.indexOf(halg) == -1) {
+            if (!hashAlgorithms.contains(halg)) {
                 throw new InvalidArgumentException("Unknown TSP hashing algorithm");
             } else {
                 hashAlgorithm = halg;
             }
-        } else if (halg == null && required) {
+        } else if (required) {
             throw new InvalidArgumentException("Argument 'tspHashAlgorithm' is required");
         }
     }
 
     @Override
     public Object get() {
-        if (hashAlgorithm.equals("MD5")) {
-            return TSPAlgorithms.MD5;
-        }
-        else if (hashAlgorithm.equals("SHA1")) {
-            return TSPAlgorithms.SHA1;
-        }
-        else if (hashAlgorithm.equals("SHA224")) {
-            return TSPAlgorithms.SHA224;
-        }
-        else if (hashAlgorithm.equals("SHA256")) {
-            return TSPAlgorithms.SHA256;
-        }
-        else if (hashAlgorithm.equals("SHA384")) {
-            return TSPAlgorithms.SHA384;
-        }
-        else if (hashAlgorithm.equals("SHA512")) {
-            return TSPAlgorithms.SHA512;
-        }
-        else if (hashAlgorithm.equals("RIPEMD128")) {
-            return TSPAlgorithms.RIPEMD128;
-        }
-        else if (hashAlgorithm.equals("RIPEMD160")) {
-            return TSPAlgorithms.RIPEMD160;
-        }
-        else if (hashAlgorithm.equals("RIPEMD256")) {
-            return TSPAlgorithms.RIPEMD256;
-        }
-        else if (hashAlgorithm.equals("GOST34311GT")) {
-            return TSPAlgorithms.GOST34311GT;
-        }
-        else {
-            return TSPAlgorithms.GOST34311;
+        switch (hashAlgorithm) {
+            case "MD5":
+                return TSPAlgorithms.MD5;
+            case "SHA1":
+                return TSPAlgorithms.SHA1;
+            case "SHA224":
+                return TSPAlgorithms.SHA224;
+            case "SHA256":
+                return TSPAlgorithms.SHA256;
+            case "SHA384":
+                return TSPAlgorithms.SHA384;
+            case "SHA512":
+                return TSPAlgorithms.SHA512;
+            case "RIPEMD128":
+                return TSPAlgorithms.RIPEMD128;
+            case "RIPEMD160":
+                return TSPAlgorithms.RIPEMD160;
+            case "RIPEMD256":
+                return TSPAlgorithms.RIPEMD256;
+            case "GOST34311GT":
+                return TSPAlgorithms.GOST34311GT;
+            default:
+                return TSPAlgorithms.GOST34311;
         }
     }
 

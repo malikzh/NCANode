@@ -11,7 +11,7 @@ import kz.ncanode.api.exceptions.InvalidArgumentException;
 public class CmsArgument extends ApiArgument {
     ApiVersion ver;
     ApiServiceProvider man;
-    private boolean required = false;
+    private final boolean required;
     private CMSSignedData cms = null;
 
     public CmsArgument(boolean required, ApiVersion ver, ApiServiceProvider man) {

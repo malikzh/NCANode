@@ -24,9 +24,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Enumeration;
+import java.util.*;
 
 public class XMLSign extends ApiMethod {
     public XMLSign(ApiVersion ver, ApiServiceProvider man) {
@@ -38,7 +36,7 @@ public class XMLSign extends ApiMethod {
         KeyStore p12 = (KeyStore)args.get(0).get();
         Document xml = (Document)args.get(1).get();
 
-        String rawDocument = "";
+        String rawDocument;
 
         try {
             StringWriter os = new StringWriter();
@@ -52,7 +50,7 @@ public class XMLSign extends ApiMethod {
         }
 
         // todo Добавить возможность выбора алиаса
-        Enumeration<String> als = null;
+        Enumeration<String> als;
         try {
             als = p12.aliases();
         } catch (KeyStoreException e) {
@@ -72,11 +70,8 @@ public class XMLSign extends ApiMethod {
             throw new ApiErrorException(e.getMessage());
         }
 
-        String signMethod;
-        String digestMethod;
-
         // get cert
-        X509Certificate cert = null;
+        X509Certificate cert;
         try {
             cert = (X509Certificate) p12.getCertificate(alias);
         } catch (KeyStoreException e) {
@@ -117,7 +112,7 @@ public class XMLSign extends ApiMethod {
         }
 
 
-        JSONObject resp = new JSONObject();
+        Map<String, Object> resp = new HashMap<>();
         resp.put("xml", result);
         resp.put("raw", rawDocument);
 
@@ -138,14 +133,14 @@ public class XMLSign extends ApiMethod {
             }
         }
 
-        return resp;
+        return new JSONObject(resp);
     }
 
     @Override
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
         args.add(new P12ApiArgument(true, ver, man));
-        args.add(new XmlArgument(true, ver, man));
+        args.add(new XmlArgument(ver, man));
 
         // tsp arguments
         args.add(new CreateTspArgument(false, ver, man));

@@ -6,19 +6,16 @@ import kz.ncanode.api.core.ApiVersion;
 import kz.ncanode.api.exceptions.InvalidArgumentException;
 import kz.ncanode.pki.X509Manager;
 
-import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
 
 public class CertArgument extends ApiArgument {
-    private boolean required = false;
     private X509Certificate cert = null;
 
     ApiVersion ver;
     ApiServiceProvider man;
 
-    public CertArgument(boolean required, ApiVersion ver, ApiServiceProvider man) {
-        this.required = required;
+    public CertArgument(ApiVersion ver, ApiServiceProvider man) {
         this.ver = ver;
         this.man = man;
     }

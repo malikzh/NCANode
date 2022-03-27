@@ -10,7 +10,7 @@ public class TspInCmsArgument extends ApiArgument {
 
     ApiVersion ver;
     ApiServiceProvider man;
-    private boolean required = false;
+    private final boolean required;
     private boolean tspInCms = false;
 
     public TspInCmsArgument(boolean required, ApiVersion ver, ApiServiceProvider man) {

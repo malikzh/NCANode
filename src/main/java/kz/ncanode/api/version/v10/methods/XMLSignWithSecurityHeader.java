@@ -26,14 +26,12 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Enumeration;
-import java.util.UUID;
+import java.util.*;
 
 public class XMLSignWithSecurityHeader extends ApiMethod {
     public XMLSignWithSecurityHeader(ApiVersion ver, ApiServiceProvider man) {
@@ -45,7 +43,7 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
         KeyStore p12 = (KeyStore) args.get(0).get();
         Document xml = (Document) args.get(1).get();
 
-        String rawDocument = "";
+        String rawDocument;
 
         try {
             StringWriter os = new StringWriter();
@@ -59,7 +57,7 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
         }
 
         // todo Добавить возможность выбора алиаса
-        Enumeration<String> als = null;
+        Enumeration<String> als;
         try {
             als = p12.aliases();
         } catch (KeyStoreException e) {
@@ -80,7 +78,7 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
         }
 
         // get cert
-        X509Certificate cert = null;
+        X509Certificate cert;
         try {
             cert = (X509Certificate) p12.getCertificate(alias);
         } catch (KeyStoreException e) {
@@ -93,12 +91,12 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
 
         InputStream is;
         try {
-            is = new ByteArrayInputStream(rawDocument.getBytes("UTF-8"));
+            is = new ByteArrayInputStream(rawDocument.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }
 
-        String result = "";
+        String result;
 
         try {
             // sign a soap request according to a reference implementation from smartbridge
@@ -106,7 +104,7 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
             SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
             SOAPBody body = env.getBody();
 
-            String bodyId = "id-" + UUID.randomUUID().toString();
+            String bodyId = "id-" + UUID.randomUUID();
             body.addAttribute(new QName(WSConstants.WSU_NS, "Id", WSConstants.WSU_PREFIX), bodyId);
 
             SOAPHeader header = env.getHeader();
@@ -156,7 +154,7 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
             throw e;
         }
 
-        JSONObject resp = new JSONObject();
+        Map<String, Object> resp = new HashMap<>();
         resp.put("xml", result);
         resp.put("raw", rawDocument);
 
@@ -177,14 +175,14 @@ public class XMLSignWithSecurityHeader extends ApiMethod {
             }
         }
 
-        return resp;
+        return new JSONObject(resp);
     }
 
     @Override
     public ArrayList<ApiArgument> arguments() {
         ArrayList<ApiArgument> args = new ArrayList<>();
         args.add(new P12ApiArgument(true, ver, man));
-        args.add(new XmlArgument(true, ver, man));
+        args.add(new XmlArgument(ver, man));
 
         // tsp arguments
         args.add(new CreateTspArgument(false, ver, man));
