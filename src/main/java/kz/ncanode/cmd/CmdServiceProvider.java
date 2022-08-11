@@ -1,6 +1,6 @@
 package kz.ncanode.cmd;
 
-import kz.ncanode.Launcher;
+import kz.ncanode.NCANodeApplication;
 import kz.ncanode.ioc.ServiceProvider;
 
 import java.util.HashMap;
@@ -19,7 +19,7 @@ public class CmdServiceProvider implements ServiceProvider {
     }
 
     public CmdServiceProvider() {
-        arguments = parse(Launcher.arguments);
+        arguments = parse(NCANodeApplication.arguments);
     }
 
     public String get(String argumentName) {
