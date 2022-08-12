@@ -32,6 +32,10 @@ dependencies {
     testImplementation "org.spockframework:spock-core:2.1-groovy-3.0"
     testImplementation 'org.spockframework:spock-spring:2.1-groovy-3.0'
     testImplementation 'org.mockito:mockito-core:4.6.1'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 test {

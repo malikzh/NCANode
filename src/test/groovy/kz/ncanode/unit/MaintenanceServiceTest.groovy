@@ -15,7 +15,10 @@ class MaintenanceServiceTest extends Specification {
         when:
         def version = infoService.getVersion()
 
-        then:
+        then: 'version must not be a null'
+        version != null
+
+        and:
         version == getClass().getPackage().getImplementationVersion()
     }
 }
