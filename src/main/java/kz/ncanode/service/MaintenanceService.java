@@ -3,7 +3,7 @@ package kz.ncanode.service;
 import org.springframework.stereotype.Service;
 
 @Service
-public class InfoService {
+public class MaintenanceService {
     public String getVersion() {
         return getClass().getPackage().getImplementationVersion();
     }
