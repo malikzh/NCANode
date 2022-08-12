@@ -1,2 +1,2 @@
 server:
-  port: 14579
+  port: ${NCANODE_PORT:14579}
