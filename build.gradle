@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.2'
     id 'io.spring.dependency-management' version '1.0.12.RELEASE'
     id 'java'
+    id 'groovy'
 }
 
 group 'kz'
@@ -23,15 +24,16 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.codehaus.groovy:groovy-all:3.0.12'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation name: 'commons-logging-1.1.1'
     implementation name: 'kalkancrypt-0.7'
     implementation name: 'kalkancrypt_xmldsig-0.4'
-    //implementation name: 'knca_provider_util-0.7.1'
-    //implementation name: 'xmlsec-1.5.8'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "org.spockframework:spock-core:2.1-groovy-3.0"
+    testImplementation 'org.spockframework:spock-spring:2.1-groovy-3.0'
+    testImplementation 'org.mockito:mockito-core:4.6.1'
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
 }
