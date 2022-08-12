@@ -26,8 +26,6 @@ repositories {
 dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.12'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation name: 'kalkancrypt-0.7'
-    implementation name: 'kalkancrypt_xmldsig-0.4'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.spockframework:spock-core:2.1-groovy-3.0"
     testImplementation 'org.spockframework:spock-spring:2.1-groovy-3.0'
@@ -37,6 +35,10 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.24'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
     implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation name: 'kalkancrypt-0.7'
+    implementation name: 'kalkancrypt_xmldsig-0.4'
+    implementation 'org.apache.santuario:xmlsec:2.3.0'
+
 }
 
 test {
