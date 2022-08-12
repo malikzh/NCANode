@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class NCANodeApplication {
+public class NCANode {
     public static void main(String[] args) {
-        SpringApplication.run(NCANodeApplication.class, args);
+        SpringApplication.run(NCANode.class, args);
     }
 }

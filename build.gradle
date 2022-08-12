@@ -16,7 +16,7 @@ configurations {
 
 repositories {
     flatDir {
-        dirs 'libs'
+        dirs 'lib'
     }
 
     mavenCentral()
@@ -24,6 +24,11 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    //implementation name: 'commons-logging-1.1.1'
+    implementation name: 'kalkancrypt-0.7'
+    implementation name: 'kalkancrypt_xmldsig-0.4'
+    //implementation name: 'knca_provider_util-0.7.1'
+    //implementation name: 'xmlsec-1.5.8'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
