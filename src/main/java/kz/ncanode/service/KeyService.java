@@ -100,7 +100,8 @@ public class KeyService {
         try {
             return (PrivateKey)signer.getKey().getKey(signer.getAlias(), signer.getPassword().toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
-            throw new RuntimeException(e);
+            log.error(MessageConstants.KEY_CANT_EXTRACT_PRIVATE_KEY, e);
+            throw new ServerException(MessageConstants.KEY_CANT_EXTRACT_PRIVATE_KEY, e);
         }
     }
 
