@@ -1,7 +1,6 @@
 package kz.ncanode.service;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
-import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.dto.request.XmlSignRequest;
 import kz.ncanode.dto.response.XmlSignResponse;
 import kz.ncanode.exception.ServerException;
@@ -62,10 +61,6 @@ public class XmlService {
     public XmlSignResponse sign(XmlSignRequest request) {
         var xml = read(request.getXml());
 
-        // Подписываем данные
-        for (SignerRequest signerRequest : request.getSigners()) {
-            //
-        }
 
         return null;
     }
