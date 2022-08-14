@@ -1,8 +1,7 @@
 package kz.ncanode.service;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
-import kz.ncanode.dto.request.XmlSignRequest;
-import kz.ncanode.dto.response.XmlSignResponse;
+import kz.ncanode.dto.Signer;
 import kz.ncanode.exception.ServerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +20,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * XML/XMLDSIG Service.
  *
- * Сервис отвечае за всё что связано с XML/XMLDSIG.
+ * Сервис отвечает за всё что связано с XML/XMLDSIG.
  */
 @Slf4j
 @Service
@@ -52,16 +51,7 @@ public class XmlService {
         }
     }
 
-    /**
-     * Sign using XMLDSIG
-     *
-     * @param request Request
-     * @return Signed xml
-     */
-    public XmlSignResponse sign(XmlSignRequest request) {
-        var xml = read(request.getXml());
-
-
-        return null;
+    public void sign(Document xml, Signer signer) {
+        // todo
     }
 }
