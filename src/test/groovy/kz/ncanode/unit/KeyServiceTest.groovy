@@ -25,6 +25,7 @@ class KeyServiceTest extends SpecificationWithKeys {
         .key("key2")
         .password("password2")
         .keyAlias("keyAlias2")
+        .keyPassword(null)
         .build()
 
     @SpyBean
@@ -33,7 +34,7 @@ class KeyServiceTest extends SpecificationWithKeys {
     @Unroll('#caseName')
     def "read valid key"() {
         when: 'read key'
-        def key = keyService.read(rawKey, password, keyAlias)
+        def key = keyService.read(rawKey, password, keyAlias, null)
 
         then: 'check key'
         key != null
@@ -49,7 +50,7 @@ class KeyServiceTest extends SpecificationWithKeys {
     @Unroll('#caseName')
     def "read invalid key"() {
         when:
-        def key = keyService.read(rawKey, password, keyAlias)
+        def key = keyService.read(rawKey, password, keyAlias, password)
 
         then: 'exception must be thrown'
         def error = thrown(KeyException)
@@ -70,8 +71,8 @@ class KeyServiceTest extends SpecificationWithKeys {
         def signer1 = mock(Signer)
         def signer2 = mock(Signer)
 
-        doReturn(signer1).when(keyService).read(SIGNER_REQUEST_1.getKey(), SIGNER_REQUEST_1.getPassword(), SIGNER_REQUEST_1.getKeyAlias())
-        doReturn(signer2).when(keyService).read(SIGNER_REQUEST_2.getKey(), SIGNER_REQUEST_2.getPassword(), SIGNER_REQUEST_2.getKeyAlias())
+        doReturn(signer1).when(keyService).read(SIGNER_REQUEST_1.getKey(), SIGNER_REQUEST_1.getPassword(), SIGNER_REQUEST_1.getKeyAlias(), SIGNER_REQUEST_1.getKeyPassword())
+        doReturn(signer2).when(keyService).read(SIGNER_REQUEST_2.getKey(), SIGNER_REQUEST_2.getPassword(), SIGNER_REQUEST_2.getKeyAlias(), SIGNER_REQUEST_2.getKeyPassword())
 
         def signerRequests = [
             SIGNER_REQUEST_1,

@@ -8,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 @Data
 @Builder
 public class SignerRequest {
+
     @NotEmpty
     private String key;
 
@@ -15,4 +16,7 @@ public class SignerRequest {
     private String password;
 
     private String keyAlias;
+
+    private String keyPassword;
+
 }

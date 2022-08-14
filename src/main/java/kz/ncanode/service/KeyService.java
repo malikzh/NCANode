@@ -19,6 +19,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -32,11 +33,12 @@ public class KeyService {
      * Читает ключ p12
      *
      * @param key Key in Base64 format
-     * @param password Password
-     * @param alias Алиас ключа. Может быть null
+     * @param password Пароль к хранилищу ключей
+     * @param keyAlias Алиас ключа. Может быть null. Тогда будет выбран первый
+     * @param keyPassword Пароль ключа. Может быть пустым, тогда будет использоваться password
      * @return Ключ ЭЦП
      */
-    public Signer read(String key, String password, String alias) throws KeyException {
+    public Signer read(String key, String password, String keyAlias, String keyPassword) throws KeyException {
         KeyStore store;
 
         try {
@@ -71,18 +73,18 @@ public class KeyService {
             throw new KeyException(MessageConstants.KEY_ALIASES_NOT_FOUND);
         }
 
-        if (alias != null && !aliases.contains(alias)) {
-            final String err = String.format(MessageConstants.KEY_ALIAS_NOT_FOUND, alias);
+        if (keyAlias != null && !aliases.contains(keyAlias)) {
+            final String err = String.format(MessageConstants.KEY_ALIAS_NOT_FOUND, keyAlias);
             log.error(err);
             throw new KeyException(err);
         } else {
-            alias = aliases.get(0);
+            keyAlias = aliases.get(0);
         }
 
         return Signer.builder()
             .key(store)
-            .alias(alias)
-            .password(password)
+            .alias(keyAlias)
+            .password(Optional.ofNullable(keyPassword).orElse(password))
             .build();
     }
 
@@ -109,7 +111,11 @@ public class KeyService {
         SignerRequest signerRequest = signers.get(index);
 
         try {
-            return read(signerRequest.getKey(), signerRequest.getPassword(), signerRequest.getKeyAlias());
+            return read(
+                signerRequest.getKey(),
+                signerRequest.getPassword(),
+                signerRequest.getKeyAlias(),
+                signerRequest.getKeyPassword());
         } catch (KeyException e) {
             final String errorMessage = String.format("signers[%d]: %s", index, e.getMessage());
             log.error(errorMessage, e.getCause());
