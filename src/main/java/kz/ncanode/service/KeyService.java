@@ -27,7 +27,7 @@ public class KeyService {
     private final KalkanProvider kalkanProvider;
 
     /**
-     * Читает ключ p12
+     * Читает ключ p12.
      *
      * @param key Key in Base64 format
      * @param password Пароль к хранилищу ключей
@@ -85,7 +85,7 @@ public class KeyService {
     }
 
     /**
-     * Читает ключи из запроса SignerRequest
+     * Читает ключи из запроса SignerRequest.
      *
      * @param signers Ключи из запроса в формате Base64
      * @return Прочитанные ключи
@@ -96,6 +96,12 @@ public class KeyService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Извлекает приватный ключ.
+     *
+     * @param signer Signer object
+     * @return Приватный ключ
+     */
     public PrivateKey getPrivateKey(Signer signer) {
         try {
             return (PrivateKey)signer.getKey().getKey(signer.getAlias(), signer.getPassword().toCharArray());
