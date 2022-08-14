@@ -28,11 +28,13 @@ dependencies {
     implementation 'org.codehaus.groovy:groovy-all:3.0.12'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
 
     // Spock/Mockito
-    testImplementation "org.spockframework:spock-core:2.1-groovy-3.0"
+    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
     testImplementation 'org.spockframework:spock-spring:2.1-groovy-3.0'
     testImplementation 'org.mockito:mockito-core:4.6.1'
 

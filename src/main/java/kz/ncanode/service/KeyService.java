@@ -1,6 +1,7 @@
 package kz.ncanode.service;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
+import kz.ncanode.exception.ServerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class KeyService {
     private final KalkanProvider kalkanProvider;
 
     /**
-     * Открывает ключ p12
+     * Читает ключ p12
      *
      * @param key Key in Base64 format
      * @param password Password
@@ -30,15 +31,20 @@ public class KeyService {
      * @throws CertificateException
      * @throws NoSuchAlgorithmException
      */
-    public KeyStore load(String key, String password) throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        KeyStore store = KeyStore.getInstance("PKCS12", kalkanProvider);
+    public KeyStore read(String key, String password) {
+        try {
+            KeyStore store = KeyStore.getInstance("PKCS12", kalkanProvider);
 
-        var decodedKey = Base64.getDecoder().decode(key);
+            var decodedKey = Base64.getDecoder().decode(key);
 
-        try(ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedKey)) {
-            store.load(inputStream, password.toCharArray());
+            try (ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedKey)) {
+                store.load(inputStream, password.toCharArray());
+            }
+
+            return store;
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException e) {
+            log.error("Key reading error", e);
+            throw new ServerException(String.format("Cannot read PKCS12 key: %s", e.getMessage()));
         }
-
-        return store;
     }
 }

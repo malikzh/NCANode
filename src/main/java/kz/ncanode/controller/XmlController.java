@@ -1,6 +1,7 @@
 package kz.ncanode.controller;
 
 import kz.ncanode.dto.request.XmlSignRequest;
+import kz.ncanode.exception.ServerException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ public class XmlController {
 
     @PostMapping("/sign")
     public String sign(@Valid @RequestBody XmlSignRequest xmlSignRequest) {
-        return "asd";
+        throw new ServerException("server err", new Exception("Lol kek checburek"));
+        //return "asd";
     }
 }

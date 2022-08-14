@@ -1,2 +1,6 @@
 server:
   port: ${NCANODE_PORT:14579}
+
+ncanode:
+  system:
+    detailedErrors: ${NCANODE_DETAILED_ERRORS:false}
