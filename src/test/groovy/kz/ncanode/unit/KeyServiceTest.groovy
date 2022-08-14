@@ -88,4 +88,30 @@ class KeyServiceTest extends SpecificationWithKeys {
         signers[0] == signer1
         signers[1] == signer2
     }
+
+    @Unroll("#caseName")
+    def "test valid getPrivateKey"() {
+        given:
+        def signers = [createSigner2015(), createSigner2004Sign()]
+
+        when:
+        def pkey = keyService.getPrivateKey(signers[signerId])
+
+        then:
+        noExceptionThrown()
+        pkey != null
+
+        where:
+        caseName            | signerId
+        'test for 2015 key' | 0
+        'test for 2004 key' | 1
+    }
+
+    private Signer createSigner2015() {
+        return keyService.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_PASSWORD, KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+    }
+
+    private Signer createSigner2004Sign() {
+        return keyService.read(KEY_INDIVIDUAL_VALID_SIGN_2004, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD, KEY_INDIVIDUAL_VALID_SIGN_2004_ALIAS, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
+    }
 }

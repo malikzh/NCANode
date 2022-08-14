@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.List;
@@ -98,6 +96,14 @@ public class KeyService {
         return IntStream.range(0, signers.size())
             .mapToObj(i -> tryReadKey(signers, i))
             .collect(Collectors.toList());
+    }
+
+    public PrivateKey getPrivateKey(Signer signer) {
+        try {
+            return (PrivateKey)signer.getKey().getKey(signer.getAlias(), signer.getPassword().toCharArray());
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
