@@ -86,12 +86,25 @@ public class KeyService {
             .build();
     }
 
+    /**
+     * Читает ключи из запроса SignerRequest
+     *
+     * @param signers Ключи из запроса в формате Base64
+     * @return Прочитанные ключи
+     */
     public List<Signer> read(final List<SignerRequest> signers) {
         return IntStream.range(0, signers.size())
             .mapToObj(i -> tryReadKey(signers, i))
             .collect(Collectors.toList());
     }
 
+    /**
+     * Пытается прочитать ключ. Если ничего не получилось, то этот метод формирует подробное описание ошибки.
+     *
+     * @param signers Ключи из запроса в формате Base64
+     * @param index Индекс текущего ключа
+     * @return Объект Signer
+     */
     private Signer tryReadKey(List<SignerRequest> signers, Integer index) {
         SignerRequest signerRequest = signers.get(index);
 
@@ -104,6 +117,13 @@ public class KeyService {
         }
     }
 
+    /**
+     * Данный метод преобразует текст ошибки из KalkanCrypt в наш текст. Это сделано для того,
+     * чтобы в ответ сервера не записать ничего лишнего, а только ошибку.
+     *
+     * @param e Exception
+     * @return Текст ошибки
+     */
     private String createMessageFromException(Exception e) {
         return switch (e.getMessage()) {
             case "stream does not represent a PKCS12 key store" -> MessageConstants.KEY_INVALID_FORMAT;
