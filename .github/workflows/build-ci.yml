@@ -20,5 +20,12 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+      - name: Install kalkan libraries
+        env:
+          KALKAN_CRYPT_URL: ${{ secrets.KALKAN_CRYPT_URL }}
+          KALKAN_CRYPT_XMLDSIG_URL: ${{ secrets.KALKAN_CRYPT_XMLDSIG_URL }}
+        run: |
+          wget -P ./lib "$KALKAN_CRYPT_URL"
+          wget -P ./lib "$KALKAN_CRYPT_XMLDSIG_URL"
       - name: Build and Run tests
         run: ./gradlew clean test
