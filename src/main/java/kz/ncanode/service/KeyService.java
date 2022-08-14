@@ -32,8 +32,15 @@ public class KeyService {
      * @param password Password
      * @return Ключ ЭЦП
      */
-    public KeyStore read(String key, String password) throws KeyStoreException, KeyException {
-        KeyStore store = KeyStore.getInstance("PKCS12", kalkanProvider);
+    public KeyStore read(String key, String password) throws KeyException {
+        KeyStore store;
+
+        try {
+            store = KeyStore.getInstance("PKCS12", kalkanProvider);
+        } catch (KeyStoreException e) {
+            log.error(MessageConstants.KEY_ENGINE_ERROR, e);
+            throw new KeyException(MessageConstants.KEY_ENGINE_ERROR, e);
+        }
 
         byte[] decodedKey;
 
@@ -43,7 +50,6 @@ public class KeyService {
             log.error(MessageConstants.KEY_INVALID_BASE64, e);
             throw new KeyException(MessageConstants.KEY_INVALID_BASE64, e);
         }
-
 
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(decodedKey)) {
             store.load(inputStream, password.toCharArray());

@@ -7,5 +7,6 @@ public class MessageConstants {
     public final static String KEY_INVALID_FORMAT = "Key reading error: Invalid format.";
     public final static String KEY_INVALID_PASSWORD = "Key reading error: Password incorrect.";
     public final static String KEY_UNKNOWN_ERROR = "Key reading error: Unknown error. Please see logs.";
+    public final static String KEY_ENGINE_ERROR = "Key reading error: Engine error. Please see logs.";
 
 }
