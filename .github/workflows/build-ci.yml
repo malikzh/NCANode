@@ -20,7 +20,14 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
+      - name: Cache Kalkancrypt libraries
+        id: kalkancrypt-cache
+        uses: actions/cache@v3
+        with:
+          path: ./lib
+          key: ${{ runner.os }}-kalkancrypt-libs
       - name: Install kalkan libraries
+        if: steps.kalkancrypt-cache.outputs.cache-hit != 'true'
         env:
           KALKAN_CRYPT_URL: ${{ secrets.KALKAN_CRYPT_URL }}
           KALKAN_CRYPT_XMLDSIG_URL: ${{ secrets.KALKAN_CRYPT_XMLDSIG_URL }}
