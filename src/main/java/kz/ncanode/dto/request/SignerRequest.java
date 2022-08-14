@@ -17,6 +17,4 @@ public class SignerRequest {
 
     private String keyAlias;
 
-    private String keyPassword;
-
 }

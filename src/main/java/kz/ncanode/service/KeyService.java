@@ -17,7 +17,6 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -33,10 +32,9 @@ public class KeyService {
      * @param key Key in Base64 format
      * @param password Пароль к хранилищу ключей
      * @param keyAlias Алиас ключа. Может быть null. Тогда будет выбран первый
-     * @param keyPassword Пароль ключа. Может быть пустым, тогда будет использоваться password
      * @return Ключ ЭЦП
      */
-    public Signer read(String key, String password, String keyAlias, String keyPassword) throws KeyException {
+    public Signer read(String key, String password, String keyAlias) throws KeyException {
         KeyStore store;
 
         try {
@@ -82,7 +80,7 @@ public class KeyService {
         return Signer.builder()
             .key(store)
             .alias(keyAlias)
-            .password(Optional.ofNullable(keyPassword).orElse(password))
+            .password(password)
             .build();
     }
 
@@ -118,10 +116,7 @@ public class KeyService {
 
         try {
             return read(
-                signerRequest.getKey(),
-                signerRequest.getPassword(),
-                signerRequest.getKeyAlias(),
-                signerRequest.getKeyPassword());
+                signerRequest.getKey(), signerRequest.getPassword(), signerRequest.getKeyAlias());
         } catch (KeyException e) {
             final String errorMessage = String.format("signers[%d]: %s", index, e.getMessage());
             log.error(errorMessage, e.getCause());
