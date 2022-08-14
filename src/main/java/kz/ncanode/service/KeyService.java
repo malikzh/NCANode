@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -108,6 +109,21 @@ public class KeyService {
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             log.error(MessageConstants.KEY_CANT_EXTRACT_PRIVATE_KEY, e);
             throw new ServerException(MessageConstants.KEY_CANT_EXTRACT_PRIVATE_KEY, e);
+        }
+    }
+
+    /**
+     * Извлекает сертификат из Signer.
+     *
+     * @param signer Signer object
+     * @return X509 Certificate
+     */
+    public X509Certificate getCertificate(Signer signer) {
+        try {
+            return (X509Certificate) signer.getKey().getCertificate(signer.getAlias());
+        } catch (KeyStoreException e) {
+            log.error(MessageConstants.KEY_CANT_EXTRACT_CERTIFICATE, e);
+            throw new ServerException(MessageConstants.KEY_CANT_EXTRACT_CERTIFICATE, e);
         }
     }
 

@@ -11,5 +11,6 @@ public class MessageConstants {
     public final static String KEY_ALIASES_NOT_FOUND         = "Key reading error: Key does not have aliases.";
     public final static String KEY_ALIAS_NOT_FOUND           = "Key reading error: Key does not have '%s' alias";
     public final static String KEY_CANT_EXTRACT_PRIVATE_KEY  = "Key reading error: Cannot extract private key.";
+    public final static String KEY_CANT_EXTRACT_CERTIFICATE  = "Key reading error: Cannot extract certificate.";
 
 }

@@ -106,6 +106,24 @@ class KeyServiceTest extends SpecificationWithKeys {
         'test for 2004 key' | 1
     }
 
+    @Unroll("#caseName")
+    def "test valid getCertificate"() {
+        given:
+        def signers = [createSigner2015(), createSigner2004Sign()]
+
+        when:
+        def cert = keyService.getCertificate(signers[signerId])
+
+        then:
+        noExceptionThrown()
+        cert != null
+
+        where:
+        caseName            | signerId
+        'test for 2015 key' | 0
+        'test for 2004 key' | 1
+    }
+
     private Signer createSigner2015() {
         return keyService.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_PASSWORD, KEY_INDIVIDUAL_VALID_2015_ALIAS)
     }
