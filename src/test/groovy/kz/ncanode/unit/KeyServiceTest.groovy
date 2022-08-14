@@ -4,14 +4,14 @@ import kz.ncanode.common.SpecificationWithKeys
 import kz.ncanode.constants.MessageConstants
 import kz.ncanode.exception.KeyException
 import kz.ncanode.service.KeyService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.SpyBean
 import spock.lang.Unroll
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class KeyServiceTest extends SpecificationWithKeys {
 
-    @Autowired
+    @SpyBean
     private KeyService keyService
 
     @Unroll('#caseName')
