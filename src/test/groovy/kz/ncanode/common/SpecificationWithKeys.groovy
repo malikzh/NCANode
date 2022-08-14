@@ -17,7 +17,6 @@ abstract class SpecificationWithKeys extends Specification {
     /**
      * Неверный пароль
      */
-
     protected final static String KEY_INVALID_PASSWORD = 'invalidpassword000'
 
     /**
