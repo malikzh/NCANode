@@ -27,7 +27,7 @@ class XmlServiceTest extends Specification {
         noExceptionThrown()
 
         and: 'valid content'
-        xmlIsValid(parsed)
+        xmlIsValid(parsed.getDocument())
     }
 
     def "check parsing invalid xml"() {
