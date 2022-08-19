@@ -7,6 +7,7 @@ import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.exception.KeyException;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.util.KeyUtil;
+import kz.ncanode.wrapper.KalkanCertificate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -118,9 +119,11 @@ public class KeyService {
      * @param signer Signer object
      * @return X509 Certificate
      */
-    public X509Certificate getCertificate(Signer signer) {
+    public KalkanCertificate getCertificate(Signer signer) {
         try {
-            return (X509Certificate) signer.getKey().getCertificate(signer.getAlias());
+            return new KalkanCertificate(
+                (X509Certificate)signer.getKey().getCertificate(signer.getAlias())
+            );
         } catch (KeyStoreException e) {
             log.error(MessageConstants.KEY_CANT_EXTRACT_CERTIFICATE, e);
             throw new ServerException(MessageConstants.KEY_CANT_EXTRACT_CERTIFICATE, e);
