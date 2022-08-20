@@ -1,7 +1,9 @@
 package kz.ncanode.service;
 
+import kz.ncanode.dto.request.XmlSignRequest;
+import kz.ncanode.dto.response.XmlSignResponse;
 import kz.ncanode.wrapper.DocumentWrapper;
-import kz.ncanode.wrapper.KeyStoreWrapper;
+import kz.ncanode.wrapper.KalkanWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class XmlService {
+    private final KalkanWrapper kalkanWrapper;
+
     /**
      * Read XML from String
      *
@@ -26,7 +30,21 @@ public class XmlService {
         return new DocumentWrapper(xml);
     }
 
-    public void sign(DocumentWrapper xml, KeyStoreWrapper keyStoreWrapper) {
-        // todo
+    /**
+     * Подписывание XML
+     *
+     * @param xmlSignRequest Запрос на подпись XML
+     * @return Ответ с подписанным XML
+     */
+    public XmlSignResponse sign(XmlSignRequest xmlSignRequest) {
+        final DocumentWrapper document = read(xmlSignRequest.getXml());
+
+        kalkanWrapper.read(xmlSignRequest.getSignerRequestList()).forEach(keyStore ->
+            document.createXmlSignature(keyStore.getCertificate()).sign(keyStore.getPrivateKey())
+        );
+
+        return XmlSignResponse.builder()
+            .xml(document.toString())
+            .build();
     }
 }
