@@ -14,4 +14,6 @@ public class XmlSignRequest {
 
     @NotEmpty
     private List<SignerRequest> signers;
+
+    private boolean clearSignatures;
 }

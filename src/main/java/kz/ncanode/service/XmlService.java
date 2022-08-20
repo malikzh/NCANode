@@ -7,6 +7,8 @@ import kz.ncanode.wrapper.KalkanWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 
 /**
@@ -24,10 +26,22 @@ public class XmlService {
      * Read XML from String
      *
      * @param xml XML-String
+     * @param removeSignatures Удалять подписи в XML
      * @return Document Object
      */
-    public DocumentWrapper read(String xml) {
-        return new DocumentWrapper(xml);
+    public DocumentWrapper read(String xml, boolean removeSignatures) {
+        final DocumentWrapper document = new DocumentWrapper(xml);
+
+        if (removeSignatures) {
+            final Element root = (Element)document.getDocument().getFirstChild();
+            final NodeList signatures = root.getElementsByTagName("ds:Signature");
+
+            for (int i=0; i< signatures.getLength(); ++i) {
+                root.removeChild(signatures.item(i));
+            }
+        }
+
+        return document;
     }
 
     /**
@@ -37,7 +51,7 @@ public class XmlService {
      * @return Ответ с подписанным XML
      */
     public XmlSignResponse sign(XmlSignRequest xmlSignRequest) {
-        final DocumentWrapper document = read(xmlSignRequest.getXml());
+        final DocumentWrapper document = read(xmlSignRequest.getXml(), xmlSignRequest.isClearSignatures());
 
         kalkanWrapper.read(xmlSignRequest.getSigners()).forEach(keyStore ->
             document.createXmlSignature(keyStore.getCertificate()).sign(keyStore.getPrivateKey())

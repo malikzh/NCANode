@@ -38,7 +38,7 @@ public class DocumentWrapper {
 
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
-            try(ByteArrayInputStream xmlStream = new ByteArrayInputStream(xmlStr.getBytes(StandardCharsets.UTF_8))) {
+            try(ByteArrayInputStream xmlStream = new ByteArrayInputStream(xmlStr.trim().getBytes(StandardCharsets.UTF_8))) {
                 document = documentBuilder.parse(xmlStream);
                 Objects.requireNonNull(document);
             }
