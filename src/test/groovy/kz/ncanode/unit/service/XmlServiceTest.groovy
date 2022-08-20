@@ -1,6 +1,7 @@
 package kz.ncanode.unit.service
 
 import kz.ncanode.common.WithTestData
+import kz.ncanode.dto.request.XmlSignRequest
 import kz.ncanode.exception.ServerException
 import kz.ncanode.service.XmlService
 import org.springframework.beans.factory.annotation.Autowired
@@ -40,10 +41,17 @@ class XmlServiceTest extends Specification implements WithTestData {
         e.getCause() != null
     }
 
-//    def "check xml signing"() {
-//        given: 'create request'
-//        def request = XmlSignRequest.builder().xml(XML_VALID_STRING).signerRequestList([SIGNER])
-//    }
+    def "check xml signing"() {
+        given: 'create request'
+        def request = XmlSignRequest.builder().xml(XML_VALID_STRING).signerRequestList([SIGNER_REQUEST_VALID_2004, SIGNER_REQUEST_VALID_2015]).build()
+
+        when: 'sign'
+        def response = xmlService.sign(request)
+
+        then: 'check'
+        noExceptionThrown()
+        response != null
+    }
 
     private boolean xmlIsValid(Document xml) {
         xml.childNodes.length == 1 && xml.childNodes.item(0).childNodes.item(0).textContent == 'test'

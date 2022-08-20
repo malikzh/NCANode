@@ -13,5 +13,5 @@ public class XmlSignRequest {
     private String xml;
 
     @NotEmpty
-    private List<SignerRequest> signerRequestList;
+    private List<SignerRequest> signers;
 }

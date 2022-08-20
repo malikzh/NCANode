@@ -39,7 +39,7 @@ public class XmlService {
     public XmlSignResponse sign(XmlSignRequest xmlSignRequest) {
         final DocumentWrapper document = read(xmlSignRequest.getXml());
 
-        kalkanWrapper.read(xmlSignRequest.getSignerRequestList()).forEach(keyStore ->
+        kalkanWrapper.read(xmlSignRequest.getSigners()).forEach(keyStore ->
             document.createXmlSignature(keyStore.getCertificate()).sign(keyStore.getPrivateKey())
         );
 
