@@ -1,5 +1,6 @@
 package kz.ncanode.unit.service
 
+import groovy.xml.DOMBuilder
 import kz.ncanode.common.WithTestData
 import kz.ncanode.dto.request.XmlSignRequest
 import kz.ncanode.exception.ServerException
@@ -54,11 +55,15 @@ class XmlServiceTest extends Specification implements WithTestData {
         noExceptionThrown()
         response != null
 
+        and: 'check signatures size'
+        def signed = DOMBuilder.parse(new StringReader(response.xml))
+        signed.documentElement.getElementsByTagName("ds:Signature").getLength() == expectedSignaturesCount
+
         where:
-        caseName              | signers
-        'sign with old key'   | [SIGNER_REQUEST_VALID_2004]
-        'sign with new key'   | [SIGNER_REQUEST_VALID_2015]
-        'sign with both keys' | [SIGNER_REQUEST_VALID_2004, SIGNER_REQUEST_VALID_2015]
+        caseName              | signers                                                || expectedSignaturesCount
+        'sign with old key'   | [SIGNER_REQUEST_VALID_2004]                            || 1
+        'sign with new key'   | [SIGNER_REQUEST_VALID_2015]                            || 1
+        'sign with both keys' | [SIGNER_REQUEST_VALID_2004, SIGNER_REQUEST_VALID_2015] || 2
     }
 
     private boolean xmlIsValid(Document xml) {
