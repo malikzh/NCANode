@@ -105,8 +105,7 @@ public class KalkanWrapper {
         SignerRequest signerRequest = signers.get(index);
 
         try {
-            return read(
-                signerRequest.getKey(), signerRequest.getKeyAlias(), signerRequest.getPassword());
+            return read(signerRequest.getKey(), signerRequest.getKeyAlias(), signerRequest.getPassword());
         } catch (KeyException e) {
             final String errorMessage = String.format("signers[%d]: %s", index, e.getMessage());
             log.error(errorMessage, e.getCause());
