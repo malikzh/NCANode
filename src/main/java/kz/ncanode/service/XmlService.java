@@ -32,9 +32,6 @@ public class XmlService {
     }
 
     public void sign(Document xml, Signer signer) {
-        var privateKey = keyService.getPrivateKey(signer);
-        var certificate = keyService.getCertificate(signer);
-
-        //XMLSignature signature = new XMLSignature(xml, "", certificate.getSignAlgorithmId());
+        // todo
     }
 }

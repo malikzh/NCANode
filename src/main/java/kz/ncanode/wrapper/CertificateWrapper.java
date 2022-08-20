@@ -5,14 +5,14 @@ import lombok.Getter;
 
 import java.security.cert.X509Certificate;
 
-public class KalkanCertificate {
+public class CertificateWrapper {
 
     @Getter
     private final X509Certificate x509Certificate;
 
     private final String[] signAlg;
 
-    public KalkanCertificate(X509Certificate certificate) {
+    public CertificateWrapper(X509Certificate certificate) {
         x509Certificate = certificate;
         signAlg = KalkanUtil.getSignMethodByOID(x509Certificate.getSigAlgOID());
     }

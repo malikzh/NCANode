@@ -1,4 +1,4 @@
-package kz.ncanode.unit
+package kz.ncanode.unit.service
 
 import kz.ncanode.exception.ServerException
 import kz.ncanode.service.XmlService

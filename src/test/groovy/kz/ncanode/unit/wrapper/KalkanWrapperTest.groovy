@@ -1,11 +1,11 @@
-package kz.ncanode.unit
+package kz.ncanode.unit.wrapper
 
 import kz.ncanode.common.SpecificationWithKeys
 import kz.ncanode.constants.MessageConstants
-import kz.ncanode.dto.Signer
 import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
-import kz.ncanode.service.KeyService
+import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.KeyStoreWrapper
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
 import spock.lang.Unroll
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doReturn
 import static org.mockito.Mockito.mock
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class KeyServiceTest extends SpecificationWithKeys {
+class KalkanWrapperTest extends SpecificationWithKeys {
     private final static SignerRequest SIGNER_REQUEST_1 = SignerRequest.builder()
         .key("key1")
         .password("password1")
@@ -28,12 +28,12 @@ class KeyServiceTest extends SpecificationWithKeys {
         .build()
 
     @SpyBean
-    private KeyService keyService
+    private KalkanWrapper kalkanWrapper
 
     @Unroll('#caseName')
     def "read valid key"() {
         when: 'read key'
-        def key = keyService.read(rawKey, password, keyAlias)
+        def key = kalkanWrapper.read(rawKey, keyAlias, password)
 
         then: 'check key'
         key != null
@@ -49,7 +49,7 @@ class KeyServiceTest extends SpecificationWithKeys {
     @Unroll('#caseName')
     def "read invalid key"() {
         when:
-        def key = keyService.read(rawKey, password, keyAlias)
+        def key = kalkanWrapper.read(rawKey, keyAlias, password)
 
         then: 'exception must be thrown'
         def error = thrown(KeyException)
@@ -67,11 +67,11 @@ class KeyServiceTest extends SpecificationWithKeys {
 
     def "read keys from signer request array"() {
         given:
-        def signer1 = mock(Signer)
-        def signer2 = mock(Signer)
+        def keyStoreWrapper1 = mock(KeyStoreWrapper)
+        def keyStoreWrapper2 = mock(KeyStoreWrapper)
 
-        doReturn(signer1).when(keyService).read(SIGNER_REQUEST_1.getKey(), SIGNER_REQUEST_1.getPassword(), SIGNER_REQUEST_1.getKeyAlias())
-        doReturn(signer2).when(keyService).read(SIGNER_REQUEST_2.getKey(), SIGNER_REQUEST_2.getPassword(), SIGNER_REQUEST_2.getKeyAlias())
+        doReturn(keyStoreWrapper1).when(kalkanWrapper).read(SIGNER_REQUEST_1.getKey(), SIGNER_REQUEST_1.getKeyAlias(), SIGNER_REQUEST_1.getPassword())
+        doReturn(keyStoreWrapper2).when(kalkanWrapper).read(SIGNER_REQUEST_2.getKey(), SIGNER_REQUEST_2.getKeyAlias(), SIGNER_REQUEST_2.getPassword())
 
         def signerRequests = [
             SIGNER_REQUEST_1,
@@ -79,56 +79,12 @@ class KeyServiceTest extends SpecificationWithKeys {
         ]
 
         when: 'read requests'
-        def signers = keyService.read(signerRequests)
+        def signers = kalkanWrapper.read(signerRequests)
 
         then: 'check signers'
         signers.size() == 2
-        signer1 != signer2
-        signers[0] == signer1
-        signers[1] == signer2
-    }
-
-    @Unroll("#caseName")
-    def "test valid getPrivateKey"() {
-        given:
-        def signers = [createSigner2015(), createSigner2004Sign()]
-
-        when:
-        def pkey = keyService.getPrivateKey(signers[signerId])
-
-        then:
-        noExceptionThrown()
-        pkey != null
-
-        where:
-        caseName            | signerId
-        'test for 2015 key' | 0
-        'test for 2004 key' | 1
-    }
-
-    @Unroll("#caseName")
-    def "test valid getCertificate"() {
-        given:
-        def signers = [createSigner2015(), createSigner2004Sign()]
-
-        when:
-        def cert = keyService.getCertificate(signers[signerId])
-
-        then:
-        noExceptionThrown()
-        cert != null
-
-        where:
-        caseName            | signerId
-        'test for 2015 key' | 0
-        'test for 2004 key' | 1
-    }
-
-    private Signer createSigner2015() {
-        return keyService.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_PASSWORD, KEY_INDIVIDUAL_VALID_2015_ALIAS)
-    }
-
-    private Signer createSigner2004Sign() {
-        return keyService.read(KEY_INDIVIDUAL_VALID_SIGN_2004, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD, KEY_INDIVIDUAL_VALID_SIGN_2004_ALIAS)
+        keyStoreWrapper1 != keyStoreWrapper2
+        signers[0] == keyStoreWrapper1
+        signers[1] == keyStoreWrapper2
     }
 }

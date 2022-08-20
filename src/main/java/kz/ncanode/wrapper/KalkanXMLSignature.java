@@ -13,7 +13,7 @@ public class KalkanXMLSignature {
     @Getter
     private final XMLSignature xmlSignature;
 
-    public KalkanXMLSignature(Document xml, KalkanCertificate certificate, PrivateKey privateKey) {
+    public KalkanXMLSignature(Document xml, CertificateWrapper certificate, PrivateKey privateKey) {
         try {
             xmlSignature = new XMLSignature(xml, "", certificate.getSignAlgorithmId());
         } catch (XMLSecurityException e) {
