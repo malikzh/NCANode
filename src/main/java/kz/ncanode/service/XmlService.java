@@ -2,7 +2,7 @@ package kz.ncanode.service;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.ncanode.dto.Signer;
-import kz.ncanode.wrapper.XMLDocument;
+import kz.ncanode.wrapper.DocumentWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,8 +27,8 @@ public class XmlService {
      * @param xml XML-String
      * @return Document Object
      */
-    public XMLDocument read(String xml) {
-        return new XMLDocument(xml);
+    public DocumentWrapper read(String xml) {
+        return new DocumentWrapper(xml);
     }
 
     public void sign(Document xml, Signer signer) {

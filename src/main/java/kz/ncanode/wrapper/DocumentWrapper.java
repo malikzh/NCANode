@@ -18,10 +18,10 @@ import java.util.Objects;
 @Slf4j
 @Getter
 @RequiredArgsConstructor
-public class XMLDocument {
+public class DocumentWrapper {
     private final Document document;
 
-    public XMLDocument(String xmlStr) {
+    public DocumentWrapper(String xmlStr) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
