@@ -7,7 +7,7 @@ import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.exception.KeyException;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.util.KeyUtil;
-import kz.ncanode.wrapper.kalkan.KalkanCertificate;
+import kz.ncanode.core.kalkan.KalkanCertificate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
