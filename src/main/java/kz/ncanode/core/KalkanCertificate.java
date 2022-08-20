@@ -1,4 +1,4 @@
-package kz.ncanode.core.kalkan;
+package kz.ncanode.core;
 
 import kz.ncanode.util.KalkanUtil;
 import lombok.Getter;

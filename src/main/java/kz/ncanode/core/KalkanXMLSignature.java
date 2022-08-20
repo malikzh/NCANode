@@ -1,4 +1,4 @@
-package kz.ncanode.core.kalkan;
+package kz.ncanode.core;
 
 import kz.ncanode.exception.ServerException;
 import lombok.Getter;
