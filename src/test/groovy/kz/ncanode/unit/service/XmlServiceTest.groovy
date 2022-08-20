@@ -1,6 +1,6 @@
 package kz.ncanode.unit.service
 
-
+import kz.ncanode.common.WithTestData
 import kz.ncanode.exception.ServerException
 import kz.ncanode.service.XmlService
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,7 +9,7 @@ import org.w3c.dom.Document
 import spock.lang.Specification
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class XmlServiceTest extends Specification {
+class XmlServiceTest extends Specification implements WithTestData {
 
     private final static String XML_VALID_STRING = '<?xml version="1.0" encoding="utf-8"?><a><b>test</b></a>'
     private final static String XML_INVALID_STRING = '<?xml version="1.0" encoding="utf-8"?><a><b>test</b>/a>'
@@ -42,7 +42,7 @@ class XmlServiceTest extends Specification {
 
 //    def "check xml signing"() {
 //        given: 'create request'
-//        def signer1 = SignerRequest.builder().
+//        def request = XmlSignRequest.builder().xml(XML_VALID_STRING).signerRequestList([SIGNER])
 //    }
 
     private boolean xmlIsValid(Document xml) {

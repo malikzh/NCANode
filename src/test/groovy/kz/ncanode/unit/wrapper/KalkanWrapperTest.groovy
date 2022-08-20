@@ -1,13 +1,15 @@
 package kz.ncanode.unit.wrapper
 
-import kz.ncanode.common.WithKeys
-import kz.ncanode.common.WithSignerRequests
+import kz.ncanode.common.WithTestData
+
 import kz.ncanode.constants.MessageConstants
+import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
 import kz.ncanode.wrapper.KalkanWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
+import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -15,7 +17,21 @@ import static org.mockito.Mockito.doReturn
 import static org.mockito.Mockito.mock
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class KalkanWrapperTest extends Specification implements WithSignerRequests, WithKeys {
+class KalkanWrapperTest extends Specification implements WithTestData {
+
+    @Shared
+    final SignerRequest SIGNER_MOCK_REQUEST_1 = SignerRequest.builder()
+        .key("key1")
+        .password("password1")
+        .keyAlias("keyAlias1")
+        .build()
+
+    @Shared
+    final SignerRequest SIGNER_MOCK_REQUEST_2 = SignerRequest.builder()
+        .key("key2")
+        .password("password2")
+        .keyAlias("keyAlias2")
+        .build()
 
     @SpyBean
     private KalkanWrapper kalkanWrapper
@@ -60,12 +76,12 @@ class KalkanWrapperTest extends Specification implements WithSignerRequests, Wit
         def keyStoreWrapper1 = mock(KeyStoreWrapper)
         def keyStoreWrapper2 = mock(KeyStoreWrapper)
 
-        doReturn(keyStoreWrapper1).when(kalkanWrapper).read(SIGNER_REQUEST_1.getKey(), SIGNER_REQUEST_1.getKeyAlias(), SIGNER_REQUEST_1.getPassword())
-        doReturn(keyStoreWrapper2).when(kalkanWrapper).read(SIGNER_REQUEST_2.getKey(), SIGNER_REQUEST_2.getKeyAlias(), SIGNER_REQUEST_2.getPassword())
+        doReturn(keyStoreWrapper1).when(kalkanWrapper).read(SIGNER_MOCK_REQUEST_1.getKey(), SIGNER_MOCK_REQUEST_1.getKeyAlias(), SIGNER_MOCK_REQUEST_1.getPassword())
+        doReturn(keyStoreWrapper2).when(kalkanWrapper).read(SIGNER_MOCK_REQUEST_2.getKey(), SIGNER_MOCK_REQUEST_2.getKeyAlias(), SIGNER_MOCK_REQUEST_2.getPassword())
 
         def signerRequests = [
-            SIGNER_REQUEST_1,
-            SIGNER_REQUEST_2
+            SIGNER_MOCK_REQUEST_1,
+            SIGNER_MOCK_REQUEST_2
         ]
 
         when: 'read requests'
