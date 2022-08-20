@@ -1,14 +1,16 @@
 package kz.ncanode.unit.wrapper
 
-import kz.ncanode.common.SpecificationWithKeys
+import kz.ncanode.common.WithKeys
+import kz.ncanode.common.WithSignerRequests
 import kz.ncanode.wrapper.KalkanWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import spock.lang.Specification
 import spock.lang.Unroll
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class KeyStoreWrapperTest extends SpecificationWithKeys {
+class KeyStoreWrapperTest extends Specification implements WithSignerRequests, WithKeys {
 
     @Autowired
     private KalkanWrapper kalkanWrapper

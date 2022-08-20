@@ -1,5 +1,6 @@
 package kz.ncanode.unit.service
 
+
 import kz.ncanode.exception.ServerException
 import kz.ncanode.service.XmlService
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,6 +39,11 @@ class XmlServiceTest extends Specification {
         def e = thrown(ServerException)
         e.getCause() != null
     }
+
+//    def "check xml signing"() {
+//        given: 'create request'
+//        def signer1 = SignerRequest.builder().
+//    }
 
     private boolean xmlIsValid(Document xml) {
         xml.childNodes.length == 1 && xml.childNodes.item(0).childNodes.item(0).textContent == 'test'

@@ -1,31 +1,21 @@
 package kz.ncanode.unit.wrapper
 
-import kz.ncanode.common.SpecificationWithKeys
+import kz.ncanode.common.WithKeys
+import kz.ncanode.common.WithSignerRequests
 import kz.ncanode.constants.MessageConstants
-import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
 import kz.ncanode.wrapper.KalkanWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
+import spock.lang.Specification
 import spock.lang.Unroll
 
 import static org.mockito.Mockito.doReturn
 import static org.mockito.Mockito.mock
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class KalkanWrapperTest extends SpecificationWithKeys {
-    private final static SignerRequest SIGNER_REQUEST_1 = SignerRequest.builder()
-        .key("key1")
-        .password("password1")
-        .keyAlias("keyAlias1")
-        .build()
-
-    private final static SignerRequest SIGNER_REQUEST_2 = SignerRequest.builder()
-        .key("key2")
-        .password("password2")
-        .keyAlias("keyAlias2")
-        .build()
+class KalkanWrapperTest extends Specification implements WithSignerRequests, WithKeys {
 
     @SpyBean
     private KalkanWrapper kalkanWrapper
