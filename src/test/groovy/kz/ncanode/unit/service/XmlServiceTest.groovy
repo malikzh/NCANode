@@ -15,6 +15,8 @@ import spock.lang.Unroll
 class XmlServiceTest extends Specification implements WithTestData {
 
     private final static String XML_VALID_STRING = '<?xml version="1.0" encoding="utf-8"?><a><b>test</b></a>'
+    private final static String XML_VALID_STRING_WITH_REFERENCE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><!DOCTYPE a [\n" +
+        "<!ATTLIST a id ID #IMPLIED> ]><a id=\"${REFERENCE_URI}\"><b>test</b></a>"
     private final static String XML_SIGNED_VALID_STRING = """
 <?xml version="1.0" encoding="utf-8" standalone="no"?><a><b>test</b><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:SignedInfo>
@@ -78,7 +80,7 @@ cfruSnHhKSYvgmTKB4KqIxdUA+U763u5x37NXK2NR1cJHLaqTfqcDPMMuTK2Fjz7MIs27zQ=
 
     def "check parsing valid xml"() {
         when: 'parse xml from string'
-        def parsed = xmlService.read(XML_VALID_STRING)
+        def parsed = xmlService.read(XML_VALID_STRING, false)
 
         then: 'parsed xml not null'
         parsed != null
@@ -92,7 +94,7 @@ cfruSnHhKSYvgmTKB4KqIxdUA+U763u5x37NXK2NR1cJHLaqTfqcDPMMuTK2Fjz7MIs27zQ=
 
     def "check parsing invalid xml"() {
         when: 'parse xml from string'
-        def parsed = xmlService.read(XML_INVALID_STRING)
+        def parsed = xmlService.read(XML_INVALID_STRING, false)
 
         then: 'check for thrown exception'
         def e = thrown(ServerException)
@@ -142,6 +144,25 @@ cfruSnHhKSYvgmTKB4KqIxdUA+U763u5x37NXK2NR1cJHLaqTfqcDPMMuTK2Fjz7MIs27zQ=
         caseName                   | clearSignatures || expectedSignaturesCount
         'without clear signatures' | false           || 2
         'with clear signatures'    | true            || 1
+    }
+
+    def "check for reference uri"() {
+        given: 'create request'
+        def request = XmlSignRequest.builder().xml(XML_VALID_STRING_WITH_REFERENCE).signers([SIGNER_REQUEST_VALID_2004_WITH_REFERENCE, SIGNER_REQUEST_VALID_2015_WITH_REFERENCE]).build()
+
+        when: 'sign'
+        def response = xmlService.sign(request)
+
+        then: 'check for null'
+        noExceptionThrown()
+        response != null
+
+        and: 'check reference uri'
+        def signed = DOMBuilder.parse(new StringReader(response.xml))
+        def references = signed.documentElement.getElementsByTagName('ds:Reference')
+
+        references.item(0).attributes.getNamedItem("URI").textContent == ('#' + REFERENCE_URI)
+        references.item(1).attributes.getNamedItem("URI").textContent == ('#' + REFERENCE_URI)
     }
 
     private boolean xmlIsValid(Document xml) {

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.Optional;
 
 @Slf4j
 @Getter
@@ -52,15 +53,15 @@ public class DocumentWrapper {
      * Создает и добавляет XMLDSIG подпись
      * @return XML Signature Wrapper
      */
-    public XMLSignatureWrapper createXmlSignature(CertificateWrapper certificateWrapper) {
+    public XMLSignatureWrapper createXmlSignature(CertificateWrapper certificateWrapper, String referenceUri) {
         final XMLSignatureWrapper sig = new XMLSignatureWrapper(getDocument(), certificateWrapper.getSignAlgorithmId());
-        getDocument().getFirstChild().appendChild(sig.getXmlSignature().getElement());
+        getDocument().getDocumentElement().appendChild(sig.getXmlSignature().getElement());
         Transforms transforms = new Transforms(getDocument());
 
         try {
             transforms.addTransform(Transforms.TRANSFORM_ENVELOPED_SIGNATURE);
             transforms.addTransform(XMLCipherParameters.N14C_XML_CMMNTS);
-            sig.getXmlSignature().addDocument("", transforms, certificateWrapper.getHashAlgorithmId());
+            sig.getXmlSignature().addDocument(Optional.ofNullable(referenceUri).orElse(""), transforms, certificateWrapper.getHashAlgorithmId());
             sig.getXmlSignature().addKeyInfo(certificateWrapper.getX509Certificate());
         } catch (XMLSecurityException e) {
             log.error("XMLDSig Signature creation error", e);
@@ -80,7 +81,7 @@ public class DocumentWrapper {
         final XMLSignatureWrapper sig = new XMLSignatureWrapper(getDocument(),
             certificateWrapper.getSignAlgorithmId(), Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
 
-        getDocument().getFirstChild().appendChild(sig.getXmlSignature().getElement());
+        getDocument().getDocumentElement().appendChild(sig.getXmlSignature().getElement());
 
         return sig;
     }

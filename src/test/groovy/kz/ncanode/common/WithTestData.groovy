@@ -45,8 +45,15 @@ interface WithTestData {
     final static String KEY_INDIVIDUAL_VALID_2015_ALIAS = '8ff06211dc82beb00253ffa000f1de84abef454f'
 
     /**
+     * Референсы
+     */
+    final static String REFERENCE_URI = 'testreference1'
+
+    /**
      * Запросы на подпись
      */
     final static SignerRequest SIGNER_REQUEST_VALID_2004 = SignerRequest.builder().key(KEY_INDIVIDUAL_VALID_SIGN_2004).password(KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD).keyAlias(null).build()
     final static SignerRequest SIGNER_REQUEST_VALID_2015 = SignerRequest.builder().key(KEY_INDIVIDUAL_VALID_2015).password(KEY_INDIVIDUAL_VALID_2015_PASSWORD).keyAlias(null).build()
+    final static SignerRequest SIGNER_REQUEST_VALID_2004_WITH_REFERENCE = SignerRequest.builder().referenceUri('#' + REFERENCE_URI).key(KEY_INDIVIDUAL_VALID_SIGN_2004).password(KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD).keyAlias(null).build()
+    final static SignerRequest SIGNER_REQUEST_VALID_2015_WITH_REFERENCE = SignerRequest.builder().referenceUri('#' + REFERENCE_URI).key(KEY_INDIVIDUAL_VALID_2015).password(KEY_INDIVIDUAL_VALID_2015_PASSWORD).keyAlias(null).build()
 }
