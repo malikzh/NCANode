@@ -1,12 +1,10 @@
 package kz.ncanode.service;
 
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
-import kz.ncanode.dto.Signer;
 import kz.ncanode.wrapper.DocumentWrapper;
+import kz.ncanode.wrapper.KeyStoreWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
 
 
 /**
@@ -18,9 +16,6 @@ import org.w3c.dom.Document;
 @Service
 @RequiredArgsConstructor
 public class XmlService {
-    private final KalkanProvider kalkanProvider;
-    private final KeyService keyService;
-
     /**
      * Read XML from String
      *
@@ -31,7 +26,7 @@ public class XmlService {
         return new DocumentWrapper(xml);
     }
 
-    public void sign(Document xml, Signer signer) {
+    public void sign(DocumentWrapper xml, KeyStoreWrapper keyStoreWrapper) {
         // todo
     }
 }
