@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.w3c.dom.Document
 import spock.lang.Specification
+import spock.lang.Unroll
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class XmlServiceTest extends Specification implements WithTestData {
@@ -41,9 +42,10 @@ class XmlServiceTest extends Specification implements WithTestData {
         e.getCause() != null
     }
 
+    @Unroll("#caseName")
     def "check xml signing"() {
         given: 'create request'
-        def request = XmlSignRequest.builder().xml(XML_VALID_STRING).signerRequestList([SIGNER_REQUEST_VALID_2004, SIGNER_REQUEST_VALID_2015]).build()
+        def request = XmlSignRequest.builder().xml(XML_VALID_STRING).signers(signers).build()
 
         when: 'sign'
         def response = xmlService.sign(request)
@@ -51,6 +53,12 @@ class XmlServiceTest extends Specification implements WithTestData {
         then: 'check'
         noExceptionThrown()
         response != null
+
+        where:
+        caseName              | signers
+        'sign with old key'   | [SIGNER_REQUEST_VALID_2004]
+        'sign with new key'   | [SIGNER_REQUEST_VALID_2015]
+        'sign with both keys' | [SIGNER_REQUEST_VALID_2004, SIGNER_REQUEST_VALID_2015]
     }
 
     private boolean xmlIsValid(Document xml) {

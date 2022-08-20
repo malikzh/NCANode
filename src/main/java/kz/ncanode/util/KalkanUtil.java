@@ -10,6 +10,9 @@ import org.apache.xml.security.utils.Constants;
  * Вспомогательные методы для работы с KalkanCrypt
  */
 public class KalkanUtil {
+    public final static String GOST3410_256_2015 = "1.2.398.3.10.1.1.2.3.1";
+    public final static String GOST3410_512_2015 = "1.2.398.3.10.1.1.2.3.2";
+
     /**
      * Метод возвращает алгоритм подписи по OID.
      *
@@ -20,13 +23,18 @@ public class KalkanUtil {
 
         String[] ret = new String[2];
 
-
         if (oid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
             ret[0] = Constants.MoreAlgorithmsSpecNS + "rsa-sha1";
             ret[1] = Constants.MoreAlgorithmsSpecNS + "sha1";
         } else if (oid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
             ret[0] = Constants.MoreAlgorithmsSpecNS + "rsa-sha256";
             ret[1] = XMLCipherParameters.SHA256;
+        } else if (oid.equals(GOST3410_512_2015)) { // GOST3410-2015 512
+            ret[0] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34102015-gostr34112015-512";
+            ret[1] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34112015-512";
+        } else if (oid.equals(GOST3410_256_2015)) { // GOST3410-2015 256
+            ret[0] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34102015-gostr34112015-256";
+            ret[1] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34112015-256";
         } else {
             ret[0] = Constants.MoreAlgorithmsSpecNS + "gost34310-gost34311";
             ret[1] = Constants.MoreAlgorithmsSpecNS + "gost34311";
@@ -44,11 +52,9 @@ public class KalkanUtil {
     public static String getDigestAlgorithmOidBYSignAlgorithmOid(String signOid) {
         if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
             return CMSSignedDataGenerator.DIGEST_SHA1;
-        }
-        else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
+        } else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
             return CMSSignedDataGenerator.DIGEST_SHA256;
-        }
-        else {
+        } else {
             return CMSSignedDataGenerator.DIGEST_GOST34311_95;
         }
     }
