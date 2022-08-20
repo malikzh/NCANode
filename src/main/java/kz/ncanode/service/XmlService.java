@@ -2,7 +2,7 @@ package kz.ncanode.service;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.ncanode.dto.Signer;
-import kz.ncanode.core.XMLDocument;
+import kz.ncanode.wrapper.XMLDocument;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
