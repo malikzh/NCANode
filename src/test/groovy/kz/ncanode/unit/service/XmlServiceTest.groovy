@@ -94,7 +94,7 @@ cfruSnHhKSYvgmTKB4KqIxdUA+U763u5x37NXK2NR1cJHLaqTfqcDPMMuTK2Fjz7MIs27zQ=
 
     def "check parsing invalid xml"() {
         when: 'parse xml from string'
-        def parsed = xmlService.read(XML_INVALID_STRING, false)
+        xmlService.read(XML_INVALID_STRING, false)
 
         then: 'check for thrown exception'
         def e = thrown(ServerException)
