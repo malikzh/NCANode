@@ -3,7 +3,7 @@ package kz.ncanode.common
 import kz.ncanode.constants.MessageConstants
 import spock.lang.Specification
 
-abstract class SpecificationWithTestData extends Specification {
+abstract class SpecificationWithKeys extends Specification {
 
     /**
      * Невалидный ключ, с невалидным Base64

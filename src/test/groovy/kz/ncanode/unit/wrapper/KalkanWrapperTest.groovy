@@ -1,6 +1,6 @@
 package kz.ncanode.unit.wrapper
 
-import kz.ncanode.common.SpecificationWithTestData
+import kz.ncanode.common.SpecificationWithKeys
 import kz.ncanode.constants.MessageConstants
 import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doReturn
 import static org.mockito.Mockito.mock
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class KalkanWrapperTest extends SpecificationWithTestData {
+class KalkanWrapperTest extends SpecificationWithKeys {
     private final static SignerRequest SIGNER_REQUEST_1 = SignerRequest.builder()
         .key("key1")
         .password("password1")
