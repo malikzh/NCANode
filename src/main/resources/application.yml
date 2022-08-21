@@ -12,8 +12,8 @@ ncanode:
     ttl: ${NCANODE_CRL_TTL:1440}
   http-client:
     connectionTtl: ${NCANODE_HTTP_CLIENT_CONNECTION_TTL:10}
-    userAgent: ${NCANODE_HTTP_CLIENT_USER_AGENT}
+    userAgent: ${NCANODE_HTTP_CLIENT_USER_AGENT:}
     proxy:
-      url: ${NCANODE_PROXY_URL}
-      username: ${NCANODE_PROXY_USERNAME}
-      password: ${NCANODE_PROXY_PASSWORD}
+      url: ${NCANODE_PROXY_URL:}
+      username: ${NCANODE_PROXY_USERNAME:}
+      password: ${NCANODE_PROXY_PASSWORD:}
