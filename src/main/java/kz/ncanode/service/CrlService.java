@@ -209,7 +209,7 @@ public class CrlService {
     }
 
     private Path getCrlCacheFilePathFor(URL url) {
-        return getCrlCacheFilePathFor(Util.sha1(url.toString()));
+        return getCrlCacheFilePathFor(Util.sha1(url.toString()) + CRL_FILE_EXTENSION);
     }
 
     private File getCacheDirectory() {
