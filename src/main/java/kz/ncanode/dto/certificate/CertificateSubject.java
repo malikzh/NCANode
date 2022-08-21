@@ -13,7 +13,7 @@ public class CertificateSubject {
     private final String commonName;
     private final String lastName;
     private final String surName;
-    private final String gender;
+    private final CertificateGender gender;
     private final LocalDateTime birthDate;
     private final String iin;
     private final String country;
