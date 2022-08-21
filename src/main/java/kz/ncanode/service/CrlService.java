@@ -58,6 +58,18 @@ public class CrlService {
      * @return Статус проверки
      */
     public CrlStatus verify(CertificateWrapper cert) {
+        // Догружаем CRL из сертификата
+        for (URL crlUrl : cert.getCrlList()) {
+            File crlFile = getCrlCacheFilePathFor(crlUrl).toFile();
+
+            if (crlFile.exists()) {
+                continue;
+            }
+
+            downloadCrl(crlUrl);
+        }
+
+        // Проверяем в CRL
         for (var crlEntry : getLoadedCrlEntries().entrySet()) {
             if (crlEntry.getValue().isRevoked(cert.getX509Certificate())) {
 
@@ -148,7 +160,12 @@ public class CrlService {
         }
     }
 
-    private void downloadCrl(URL url) {
+    /**
+     * Скачивает CRL файл в директорию
+     *
+     * @param url
+     */
+    public void downloadCrl(URL url) {
         try {
             String crlUrl = url.toString();
             String crlFileName = Util.sha1(crlUrl) + CRL_FILE_EXTENSION;
@@ -189,6 +206,10 @@ public class CrlService {
 
     private Path getCrlCacheFilePathFor(String fileName) {
         return Paths.get(systemConfigurationProperties.getCacheDir(), CRL_CACHE_DIR_NAME, fileName);
+    }
+
+    private Path getCrlCacheFilePathFor(URL url) {
+        return getCrlCacheFilePathFor(Util.sha1(url.toString()));
     }
 
     private File getCacheDirectory() {

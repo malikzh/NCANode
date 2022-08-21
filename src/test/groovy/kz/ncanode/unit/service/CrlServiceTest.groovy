@@ -5,7 +5,6 @@ import kz.ncanode.dto.crl.CrlResult
 import kz.ncanode.service.CrlService
 import kz.ncanode.wrapper.KalkanWrapper
 import org.apache.http.impl.client.CloseableHttpClient
-import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -16,6 +15,9 @@ import spock.lang.Unroll
 
 import java.security.cert.CertificateFactory
 import java.security.cert.X509CRL
+
+import static org.mockito.ArgumentMatchers.isNotNull
+import static org.mockito.Mockito.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class CrlServiceTest extends Specification implements WithTestData {
@@ -40,7 +42,8 @@ class CrlServiceTest extends Specification implements WithTestData {
     @Unroll("#caseName")
     def "check certificate 2004 verification in CRL"() {
         given: 'load cert and crls'
-        Mockito.doReturn(CRLS).when(crlService).getLoadedCrlEntries()
+        doReturn(CRLS).when(crlService).getLoadedCrlEntries()
+        doNothing().when(crlService).downloadCrl(isNotNull())
 
         def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
 
@@ -53,6 +56,9 @@ class CrlServiceTest extends Specification implements WithTestData {
 
         and: 'check crl result'
         status.getResult() == expectedStatus
+
+        and: 'check crl downloading'
+        verify(crlService, atLeast(1)).downloadCrl(isNotNull())
 
         where:
         caseName                          | keyStr                           || expectedStatus
