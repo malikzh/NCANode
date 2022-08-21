@@ -97,5 +97,6 @@ class CrlServiceTest extends Specification implements WithTestData {
         where:
         caseName                 | keyStr                      || expectedStatus
         'check revoked 2015 key' | KEY_INDIVIDUAL_REVOKED_2015 || CrlResult.REVOKED
+        'check active 2015 key'  | KEY_INDIVIDUAL_VALID_2015   || CrlResult.ACTIVE
     }
 }
