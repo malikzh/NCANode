@@ -6,10 +6,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "ncanode.system")
+@ConfigurationProperties(prefix = "ncanode.crl")
 @Getter
 @Setter
-public class SystemConfigurationProperties {
-    private boolean detailedErrors;
-    private String cacheDir;
+public class CrlConfigurationProperties {
+    private boolean enabled;
+    private Integer ttl;
 }

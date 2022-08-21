@@ -5,4 +5,8 @@ server:
   port: ${NCANODE_PORT:14579}
 ncanode:
   system:
-    detailedErrors: ${NCANODE_DETAILED_ERRORS:false}
+    detailedErrors: ${NCANODE_DEBUG:false}
+    cacheDir: ${NCANODE_CACHE_DIR:./cache}
+  crl:
+    enabled: ${NCANODE_CRL_ENABLED:true}
+    ttl: ${NCANODE_CRL_TTL:1440}
