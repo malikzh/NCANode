@@ -1,5 +1,7 @@
 package kz.ncanode.util;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,5 +36,13 @@ public class Util {
             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
         }
         return new String(hexChars);
+    }
+
+    public static URL createNewUrl(String url) {
+        try {
+            return new URL(url);
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 }

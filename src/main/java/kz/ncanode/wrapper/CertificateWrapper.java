@@ -1,22 +1,26 @@
 package kz.ncanode.wrapper;
 
+import kz.gov.pki.kalkan.asn1.DERIA5String;
+import kz.gov.pki.kalkan.asn1.x509.*;
+import kz.gov.pki.kalkan.x509.extension.X509ExtensionUtil;
 import kz.ncanode.dto.certificate.CertificateInfo;
 import kz.ncanode.dto.certificate.CertificateKeyUsage;
 import kz.ncanode.dto.certificate.CertificateKeyUser;
 import kz.ncanode.dto.certificate.CertificateSubject;
 import kz.ncanode.util.KalkanUtil;
+import kz.ncanode.util.Util;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.asn1.x509.Extension;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import java.io.IOException;
+import java.net.URL;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -72,6 +76,42 @@ public class CertificateWrapper {
             .issuer(createCertificateSubjectFromDn(cert.getIssuerX500Principal().toString()).orElse(null))
             .build();
 
+    }
+
+    /**
+     * Получает список CRL из сертификата
+     *
+     * @return
+     */
+    public List<URL> getCrlList() {
+        byte[] crlDistributionPoint = getX509Certificate().getExtensionValue(Extension.cRLDistributionPoints.getId());
+        CRLDistPoint distPoint = null;
+        try {
+            distPoint = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(crlDistributionPoint));
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+
+        List<String> crls = new ArrayList<>();
+
+        for (DistributionPoint dp : distPoint.getDistributionPoints()) {
+            DistributionPointName dpn = dp.getDistributionPoint();
+
+            if (dpn != null) {
+                if (dpn.getType() == DistributionPointName.FULL_NAME) {
+                    GeneralName[] genNames = GeneralNames.getInstance(dpn.getName()).getNames();
+                    // Look for an URI
+                    for (int j = 0; j < genNames.length; j++) {
+                        if (genNames[j].getTagNo() == GeneralName.uniformResourceIdentifier) {
+                            String url = DERIA5String.getInstance(genNames[j].getName()).getString();
+                            crls.add(url);
+                        }
+                    }
+                }
+            }
+        }
+
+        return crls.stream().map(Util::createNewUrl).toList();
     }
 
     private Set<CertificateKeyUser> getKeyUser() {

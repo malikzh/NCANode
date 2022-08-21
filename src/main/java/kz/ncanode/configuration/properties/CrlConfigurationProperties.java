@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
@@ -27,20 +26,11 @@ public class CrlConfigurationProperties {
 
     public Map<String, URL> getUrlList() {
         return Arrays.stream(url.split("\\s+"))
-            .map(CrlConfigurationProperties::createNewUrl)
+            .map(Util::createNewUrl)
             .filter(Objects::nonNull)
             .collect(Collectors.toMap(
                 url -> Util.sha1(url.toString()),
                 Function.identity()
             ));
-    }
-
-    private static URL createNewUrl(String url) {
-        try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
-            log.error("Cannot parse CRL url: {}", url, e);
-            return null;
-        }
     }
 }
