@@ -8,7 +8,7 @@ ncanode:
     detailedErrors: false
     cacheDir: ./cache
   crl:
-    enabled: true
+    enabled: false
     ttl: 10
     url: http://test.pki.gov.kz/crl/nca_gost_test.crl http://test.pki.gov.kz/crl/nca_rsa_test.crl http://test.pki.gov.kz/crl/nca_d_gost_test.crl http://test.pki.gov.kz/crl/nca_d_rsa_test.crl
   http-client:

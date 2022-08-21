@@ -3,6 +3,7 @@ package kz.ncanode.unit.service
 import kz.ncanode.common.WithTestData
 import kz.ncanode.dto.crl.CrlResult
 import kz.ncanode.service.CrlService
+import kz.ncanode.util.Util
 import kz.ncanode.wrapper.KalkanWrapper
 import org.apache.http.impl.client.CloseableHttpClient
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.util.ResourceUtils
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -37,6 +39,7 @@ class CrlServiceTest extends Specification implements WithTestData {
     def CRLS = [
         "nca_gost_test.crl": CRL_GOST,
         "nca_rsa_test.crl": CRL_RSA,
+        "http://test.pki.gov.kz/crl/nca_gost2022_test.crl": CRL_GOST,
     ]
 
     @Unroll("#caseName")
@@ -66,5 +69,33 @@ class CrlServiceTest extends Specification implements WithTestData {
         'check revoked sign 2004 key'     | KEY_INDIVIDUAL_SIGN_REVOKED_2004 || CrlResult.REVOKED
         'check revoked ceo sign 2004 key' | KEY_CEO_SIGN_REVOKED_2004        || CrlResult.REVOKED
         'check active sign key'           | KEY_INDIVIDUAL_VALID_SIGN_2004   || CrlResult.ACTIVE
+    }
+
+    @Ignore
+    def "check certificate 2015 verification in CRL"() {
+        given:
+        Map<String, X509CRL> downloadedCrls = new HashMap<>()
+        doReturn(downloadedCrls).when(crlService).getLoadedCrlEntries()
+
+        doAnswer(inv -> {
+            URL url = inv.getArgument(0, URL.class)
+            downloadedCrls.put(Util.sha1(url.toString()), CRLS.get(url.toString()))
+        }).when(crlService).downloadCrl(isNotNull())
+
+        def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+
+        when:
+        def status = crlService.verify(key.getCertificate())
+
+        then:
+        noExceptionThrown()
+        status != null
+
+        and: 'check crl result'
+        status.getResult() == expectedStatus
+
+        where:
+        caseName                 | keyStr                      || expectedStatus
+        'check revoked 2015 key' | KEY_INDIVIDUAL_REVOKED_2015 || CrlResult.REVOKED
     }
 }

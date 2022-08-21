@@ -103,7 +103,7 @@ public class CrlService {
      */
     @CacheEvict("crls")
     public void updateCache(boolean force) {
-        if (!crlConfigurationProperties.isEnabled()) {
+        if (!crlConfigurationProperties.isEnabled() || crlConfigurationProperties.getTtl() <= 0) {
             return;
         }
 
