@@ -28,10 +28,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -61,7 +58,7 @@ public class CrlService {
      * @return Статус проверки
      */
     public CrlStatus verify(CertificateWrapper cert) {
-        for (var crlEntry : getCrlFiles().stream().collect(Collectors.toMap(File::getName, this::loadCrl)).entrySet()) {
+        for (var crlEntry : getLoadedCrlEntries().entrySet()) {
             if (crlEntry.getValue().isRevoked(cert.getX509Certificate())) {
 
                 return Optional.ofNullable(crlEntry.getValue().getRevokedCertificate(cert.getX509Certificate()))
@@ -81,6 +78,10 @@ public class CrlService {
         return CrlStatus.builder()
             .result(CrlResult.ACTIVE)
             .build();
+    }
+
+    public Map<String, X509CRL> getLoadedCrlEntries() {
+        return getCrlFiles().stream().collect(Collectors.toMap(File::getName, this::loadCrl));
     }
 
     /**
