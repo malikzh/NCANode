@@ -1,0 +1,20 @@
+spring:
+  main:
+    banner-mode: off
+server:
+  port: 14579
+ncanode:
+  system:
+    detailedErrors: false
+    cacheDir: ./cache
+  crl:
+    enabled: true
+    ttl: 10
+    url: http://test.pki.gov.kz/crl/nca_gost_test.crl http://test.pki.gov.kz/crl/nca_rsa_test.crl http://test.pki.gov.kz/crl/nca_d_gost_test.crl http://test.pki.gov.kz/crl/nca_d_rsa_test.crl
+  http-client:
+    connectionTtl: 30
+    userAgent:
+    proxy:
+      url:
+      username:
+      password:
