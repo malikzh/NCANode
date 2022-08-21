@@ -53,6 +53,8 @@ public class CrlService {
         log.info("Updating CRL cache...");
         long currentTime = System.currentTimeMillis();
 
+        int updatedCount = 0;
+
         // Удаляем старые файлы CRL
         for (var crlFile : getCrlFiles()) {
             if (!force && crlFile.exists() && crlFile.isFile() && crlFile.canRead() && (currentTime - crlFile.lastModified()) <= (long)crlConfigurationProperties.getTtl() * 60000L) {
@@ -74,6 +76,13 @@ public class CrlService {
             }
 
             downloadCrl(crlEntry.getValue());
+            updatedCount++;
+        }
+
+        if (updatedCount == 0) {
+            log.info("Nothing to update in CRL cache.");
+        } else {
+            log.info("{} files updated in CRL cache", updatedCount);
         }
     }
 
