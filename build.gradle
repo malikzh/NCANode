@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'kz'
-version '3.0.0-SNAPSHOT'
+version project.hasProperty('version') ? version : '3.0.0-SNAPSHOT'
 sourceCompatibility = '17'
 
 configurations {
