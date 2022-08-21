@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 public class HttpClientConfiguration {
     private HttpProxyConfig proxy;
     private Integer connectionTtl;
-    private String userAgent;
+    private String userAgent = "NCANode/" + HttpClientConfiguration.class.getPackage().getImplementationVersion();
 
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Bean
@@ -57,6 +57,7 @@ public class HttpClientConfiguration {
         }
 
         customClient.setConnectionTimeToLive(connectionTtl, TimeUnit.SECONDS);
+
         customClient.setUserAgent(userAgent);
         customClient.setRedirectStrategy(new LaxRedirectStrategy());
         customClient.disableCookieManagement();
