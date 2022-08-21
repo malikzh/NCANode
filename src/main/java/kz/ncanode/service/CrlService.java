@@ -2,27 +2,36 @@ package kz.ncanode.service;
 
 import kz.ncanode.configuration.properties.CrlConfigurationProperties;
 import kz.ncanode.configuration.properties.SystemConfigurationProperties;
+import kz.ncanode.dto.crl.CrlResult;
+import kz.ncanode.dto.crl.CrlStatus;
 import kz.ncanode.exception.CrlException;
+import kz.ncanode.exception.ServerException;
 import kz.ncanode.util.Util;
+import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.cert.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -45,6 +54,41 @@ public class CrlService {
         updateCache(false);
     }
 
+    /**
+     * Проверка сертификата в CRL
+     *
+     * @param cert Сертификат
+     * @return Статус проверки
+     */
+    public CrlStatus verify(CertificateWrapper cert) {
+        for (var crlEntry : getCrlFiles().stream().collect(Collectors.toMap(File::getName, this::loadCrl)).entrySet()) {
+            if (crlEntry.getValue().isRevoked(cert.getX509Certificate())) {
+
+                return Optional.ofNullable(crlEntry.getValue().getRevokedCertificate(cert.getX509Certificate()))
+                    .map( entry -> CrlStatus.builder()
+                        .result(CrlResult.REVOKED)
+                        .file(crlEntry.getKey())
+                        .revocationDate(entry.getRevocationDate())
+                        .reason(Optional.ofNullable(entry.getRevocationReason()).map(CRLReason::toString).orElse(""))
+                        .build()
+                    ).orElse(CrlStatus.builder()
+                        .result(CrlResult.REVOKED)
+                        .build()
+                    );
+            }
+        }
+
+        return CrlStatus.builder()
+            .result(CrlResult.ACTIVE)
+            .build();
+    }
+
+    /**
+     * Обновляет кэш CRL
+     *
+     * @param force
+     */
+    @CacheEvict("crls")
     public void updateCache(boolean force) {
         if (!crlConfigurationProperties.isEnabled()) {
             return;
@@ -83,6 +127,23 @@ public class CrlService {
             log.info("Nothing to update in CRL cache.");
         } else {
             log.info("{} files updated in CRL cache", updatedCount);
+        }
+    }
+
+
+    /**
+     * Загружает CRL файл
+     *
+     * @param file
+     * @return
+     */
+    @Cacheable(value = "crls", key = "#file.absolutePath")
+    public X509CRL loadCrl(File file) {
+        try (FileInputStream in = new FileInputStream(file)) {
+            return (X509CRL) CertificateFactory.getInstance("X.509").generateCRL(in);
+        } catch (IOException | CRLException | CertificateException e) {
+            log.error("Cannot load CRL file \"{}\"", file, e);
+            throw new ServerException(String.format("Cannot load CRL file \"%s\"", file.getName()), e);
         }
     }
 
