@@ -99,7 +99,7 @@ public class CrlService {
     /**
      * Обновляет кэш CRL
      *
-     * @param force
+     * @param force Если true, то кэш будет обновлен в любом случае
      */
     @CacheEvict("crls")
     public void updateCache(boolean force) {
