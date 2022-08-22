@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.util.ResourceUtils
-import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -34,12 +33,13 @@ class CrlServiceTest extends Specification implements WithTestData {
     CrlService crlService
 
     def CRL_GOST = (X509CRL)CertificateFactory.getInstance("X.509").generateCRL(new FileInputStream(ResourceUtils.getFile("classpath:crl/nca_gost_test.crl")))
+    def CRL_GOST_2015 = (X509CRL)CertificateFactory.getInstance("X.509").generateCRL(new FileInputStream(ResourceUtils.getFile("classpath:crl/nca_gost2022_test.crl")))
     def CRL_RSA = (X509CRL)CertificateFactory.getInstance("X.509").generateCRL(new FileInputStream(ResourceUtils.getFile("classpath:crl/nca_rsa_test.crl")))
 
     def CRLS = [
         "nca_gost_test.crl": CRL_GOST,
         "nca_rsa_test.crl": CRL_RSA,
-        "http://test.pki.gov.kz/crl/nca_gost2022_test.crl": CRL_GOST,
+        "http://test.pki.gov.kz/crl/nca_gost2022_test.crl": CRL_GOST_2015,
     ]
 
     @Unroll("#caseName")
@@ -71,7 +71,6 @@ class CrlServiceTest extends Specification implements WithTestData {
         'check active sign key'           | KEY_INDIVIDUAL_VALID_SIGN_2004   || CrlResult.ACTIVE
     }
 
-    @Ignore
     def "check certificate 2015 verification in CRL"() {
         given:
         Map<String, X509CRL> downloadedCrls = new HashMap<>()
@@ -96,7 +95,7 @@ class CrlServiceTest extends Specification implements WithTestData {
 
         where:
         caseName                 | keyStr                      || expectedStatus
-        'check revoked 2015 key' | KEY_INDIVIDUAL_REVOKED_2015 || CrlResult.REVOKED
+        'check revoked 2015 key' | KEY_CEO_REVOKED_2015        || CrlResult.REVOKED
         'check active 2015 key'  | KEY_INDIVIDUAL_VALID_2015   || CrlResult.ACTIVE
     }
 }
