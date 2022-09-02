@@ -18,3 +18,5 @@ ncanode:
       url:
       username:
       password:
+  ocsp:
+    url: ${NCANODE_OCSP_URL:http://test.pki.gov.kz/ocsp/}

@@ -18,3 +18,5 @@ ncanode:
       url: ${NCANODE_PROXY_URL:}
       username: ${NCANODE_PROXY_USERNAME:}
       password: ${NCANODE_PROXY_PASSWORD:}
+  ocsp:
+    url: ${NCANODE_OCSP_URL:http://ocsp.pki.gov.kz/}
