@@ -1,10 +1,13 @@
 package kz.ncanode.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.util.ArrayList;
 import java.util.List;
 
+@UtilityClass
 public class KeyUtil {
 
     /**

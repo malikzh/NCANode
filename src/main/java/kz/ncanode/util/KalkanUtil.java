@@ -3,12 +3,14 @@ package kz.ncanode.util;
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
 import kz.gov.pki.kalkan.tsp.TSPAlgorithms;
+import lombok.experimental.UtilityClass;
 import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.utils.Constants;
 
 /**
  * Вспомогательные методы для работы с KalkanCrypt
  */
+@UtilityClass
 public class KalkanUtil {
     public final static String GOST3410_256_2015 = "1.2.398.3.10.1.1.2.3.1";
     public final static String GOST3410_512_2015 = "1.2.398.3.10.1.1.2.3.2";

@@ -1,11 +1,14 @@
 package kz.ncanode.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+@UtilityClass
 public class Util {
 
     public static String sha1(String data)
