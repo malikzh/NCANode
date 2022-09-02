@@ -11,5 +11,6 @@ public class OcspStatus {
     private OcspResult result;
     private Date revocationTime;
     private int revocationReason;
+    private String message;
     private String url;
 }
