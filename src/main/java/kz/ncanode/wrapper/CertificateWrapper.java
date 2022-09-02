@@ -111,7 +111,7 @@ public class CertificateWrapper {
             }
         }
 
-        return crls.stream().map(Util::createNewUrl).filter(Objects::nonNull).toList();
+        return crls.stream().map(u -> Util.createNewUrl(u, log)).filter(Objects::nonNull).toList();
     }
 
     private Set<CertificateKeyUser> getKeyUser() {

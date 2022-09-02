@@ -1,12 +1,18 @@
 package kz.ncanode.util;
 
 import lombok.experimental.UtilityClass;
+import org.slf4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class Util {
@@ -41,11 +47,22 @@ public class Util {
         return new String(hexChars);
     }
 
-    public static URL createNewUrl(String url) {
+    public static URL createNewUrl(String url, Logger log) {
         try {
             return new URL(url);
         } catch (MalformedURLException e) {
+            log.warn("Cannot parse url '{}'", url, e);
             return null;
         }
+    }
+
+    public static Map<String, URL> urlMap(final String url, Logger log) {
+        return Arrays.stream(url.split("\\s+"))
+            .map(u -> createNewUrl(u, log))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(
+                u -> Util.sha1(u.toString()),
+                Function.identity()
+            ));
     }
 }

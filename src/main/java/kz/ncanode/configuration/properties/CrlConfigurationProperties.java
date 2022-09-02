@@ -21,6 +21,6 @@ public class CrlConfigurationProperties {
     private String url;
 
     public Map<String, URL> getUrlList() {
-        return Util.urlMap(getUrl());
+        return Util.urlMap(getUrl(), log);
     }
 }
