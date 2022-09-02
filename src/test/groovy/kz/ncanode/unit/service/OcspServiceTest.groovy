@@ -35,6 +35,8 @@ class OcspServiceTest extends Specification implements WithTestData {
     private static File OCSP_RESPONSE_INDIVIDUAL_SIGN_2004 = ResourceUtils.getFile("classpath:ocsp/ocsp_response_individual_sign_2004.bin")
     private static byte[] OCSP_RESPONSE_INDIVIDUAL_SIGN_2004_NONCE = [-75, -27, -55, -75, 82, -53, -54, -60]
 
+    private static byte[] OCSP_INVALID_NONCE = [-1, 2, -3, 4, -5, 6, -7, 8]
+
     @Autowired
     KalkanWrapper kalkanWrapper
 
@@ -72,7 +74,7 @@ class OcspServiceTest extends Specification implements WithTestData {
         'ceo 2015 cert revoked' | KEY_CEO_REVOKED_2015           | KEY_INDIVIDUAL_VALID_2015_PASSWORD      | NCA_2015_CERT      | OCSP_RESPONSE_CEO_2015_REVOKED      | OCSP_RESPONSE_CEO_2015_REVOKED_NONCE      || OcspResult.REVOKED
         'ceo 2004 cert revoked' | KEY_CEO_SIGN_REVOKED_2004      | KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD | NCA_2004_GOST_CERT | OCSP_RESPONSE_CEO_SIGN_2004_REVOKED | OCSP_RESPONSE_CEO_SIGN_2004_REVOKED_NONCE || OcspResult.REVOKED
         'individual 2004 sign'  | KEY_INDIVIDUAL_VALID_SIGN_2004 | KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD | NCA_2004_RSA_CERT  | OCSP_RESPONSE_INDIVIDUAL_SIGN_2004  | OCSP_RESPONSE_INDIVIDUAL_SIGN_2004_NONCE  || OcspResult.ACTIVE
-//        'individual 2015 cert'  | KEY_INDIVIDUAL_VALID_2015      | KEY_INDIVIDUAL_VALID_2015_PASSWORD      | NCA_2015_CERT      | OCSP_RESPONSE_INDIVIDUAL_2015       | OCSP_RESPONSE_INDIVIDUAL_2015_NONCE       || OcspResult.ACTIVE
+        'invalid nonce'         | KEY_INDIVIDUAL_VALID_2015      | KEY_INDIVIDUAL_VALID_2015_PASSWORD      | NCA_2015_CERT      | OCSP_RESPONSE_INDIVIDUAL_2015       | OCSP_INVALID_NONCE                        || OcspResult.UNKOWN
     }
 
     def "generateOcspNonce test"() {
