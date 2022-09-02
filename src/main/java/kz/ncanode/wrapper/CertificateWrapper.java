@@ -2,6 +2,7 @@ package kz.ncanode.wrapper;
 
 import kz.gov.pki.kalkan.asn1.DERIA5String;
 import kz.gov.pki.kalkan.asn1.x509.*;
+import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.x509.extension.X509ExtensionUtil;
 import kz.ncanode.dto.certificate.CertificateInfo;
 import kz.ncanode.dto.certificate.CertificateKeyUsage;
@@ -16,8 +17,13 @@ import org.bouncycastle.asn1.x509.Extension;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -124,6 +130,26 @@ public class CertificateWrapper {
         } catch (CertificateParsingException e) {
             log.error("Certificate key user extracting error", e);
             return Collections.emptySet();
+        }
+    }
+
+    public static Optional<CertificateWrapper> fromBase64(final String encodedCert) {
+        return fromBytes(Base64.getDecoder().decode(encodedCert.replaceAll("\\s", "")));
+    }
+
+    public static Optional<CertificateWrapper> fromBytes(final byte[] encodedCert) {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(encodedCert)) {
+            return fromInputStream(inputStream);
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<CertificateWrapper> fromInputStream(final InputStream inputStream) {
+        try {
+            return Optional.of(new CertificateWrapper((X509Certificate) CertificateFactory.getInstance("X.509", KalkanProvider.PROVIDER_NAME).generateCertificate(inputStream)));
+        } catch (CertificateException|NoSuchProviderException e) {
+            return Optional.empty();
         }
     }
 

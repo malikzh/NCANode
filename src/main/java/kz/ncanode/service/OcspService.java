@@ -54,13 +54,13 @@ public class OcspService {
                 byte[] nonce = generateOcspNonce();
                 OCSPReq request = buildOcspRequest(cert.getX509Certificate().getSerialNumber(), issuer.getX509Certificate(), nonce);
 
-                try (CloseableHttpResponse response = makeRequest(entry.getKey(), request.getEncoded())) {
+                try (CloseableHttpResponse response = makeRequest(entry.getValue().toString(), request.getEncoded())) {
                     statuses.add(processOcspResponse(response.getEntity().getContent(), nonce));
                 }
             } catch (Exception e) {
                 statuses.add(OcspStatus.builder()
                     .result(OcspResult.UNKOWN)
-                    .url(entry.getKey())
+                    .url(entry.getValue().toString())
                     .message(e.getMessage())
                     .build()
                 );
@@ -80,7 +80,7 @@ public class OcspService {
         return ocspReqGenerator.generate();
     }
 
-    private byte[] generateOcspNonce() {
+    public byte[] generateOcspNonce() {
         byte[] nonce = new byte[8];
         SecureRandom sr = new SecureRandom();
         sr.nextBytes(nonce);
