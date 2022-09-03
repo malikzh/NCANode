@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class CaService {
     private final CloseableHttpClient client;
 
 
+    @Retryable(value = CaException.class)
     @Scheduled(fixedRateString = "${ncanode.ca.ttl}", initialDelay = 0, timeUnit = TimeUnit.MINUTES)
     public void updateCache() {
         updateCache(false);
@@ -91,7 +93,7 @@ public class CaService {
         }
     }
 
-    public void download(URL url, File file) throws CaException {
+    public void download(URL url, File file) {
         try (CloseableHttpResponse response = client.execute(new HttpGet(url.toString()))) {
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 throw new CaException(String.format("Cannot download file: %s", url));

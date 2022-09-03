@@ -1,6 +1,6 @@
 package kz.ncanode.exception;
 
-public class CaException extends Exception {
+public class CaException extends RuntimeException {
     public CaException(String message) {
         super(message);
     }

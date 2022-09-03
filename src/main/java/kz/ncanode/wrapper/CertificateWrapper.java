@@ -123,7 +123,7 @@ public class CertificateWrapper {
     }
 
     public boolean isDateValid(Date date) {
-        return date.after(x509Certificate.getNotBefore()) && date.before(toCertificateInfo().getNotAfter());
+        return date.after(x509Certificate.getNotBefore()) && date.before(x509Certificate.getNotAfter());
     }
 
     private Set<CertificateKeyUser> getKeyUser() {
