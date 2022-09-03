@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -57,6 +58,10 @@ public class Util {
     }
 
     public static Map<String, URL> urlMap(final String url, Logger log) {
+        if (url == null || url.isBlank()) {
+            return Collections.emptyMap();
+        }
+
         return Arrays.stream(url.split("\\s+"))
             .map(u -> createNewUrl(u, log))
             .filter(Objects::nonNull)

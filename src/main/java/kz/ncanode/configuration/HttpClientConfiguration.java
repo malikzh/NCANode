@@ -1,4 +1,4 @@
-package kz.ncanode.configuration.properties;
+package kz.ncanode.configuration;
 
 import kz.ncanode.dto.http.HttpProxyConfig;
 import lombok.Getter;

@@ -10,7 +10,7 @@ ncanode:
   crl:
     enabled: ${NCANODE_CRL_ENABLED:true}
     ttl: ${NCANODE_CRL_TTL:1440}
-    url: ${NCANODE_CRL_URLS:https://crl.pki.gov.kz/nca_gost.crl https://crl.pki.gov.kz/nca_d_gost.crl https://crl.pki.gov.kz/nca_rsa.crl https://crl.pki.gov.kz/nca_d_rsa.crl}
+    url: ${NCANODE_CRL_URL:https://crl.pki.gov.kz/nca_gost.crl https://crl.pki.gov.kz/nca_d_gost.crl https://crl.pki.gov.kz/nca_rsa.crl https://crl.pki.gov.kz/nca_d_rsa.crl}
   http-client:
     connectionTtl: ${NCANODE_HTTP_CLIENT_CONNECTION_TTL:10}
     userAgent: ${NCANODE_HTTP_CLIENT_USER_AGENT:}
@@ -20,3 +20,6 @@ ncanode:
       password: ${NCANODE_PROXY_PASSWORD:}
   ocsp:
     url: ${NCANODE_OCSP_URL:http://ocsp.pki.gov.kz/}
+  ca:
+    url: ${NCANODE_CA_URL:http://root.gov.kz/cert/root_gost.cer http://root.gov.kz/cert/root_rsa.cer http://root.gov.kz/cert/root_gost_2020.cer http://root.gov.kz/cert/root_rsa_2020.cer http://root.gov.kz/cert/root_gost2015_2022.cer}
+    ttl: ${NCANODE_CA_TTL:1440}

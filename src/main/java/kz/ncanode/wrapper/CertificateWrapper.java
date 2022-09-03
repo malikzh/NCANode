@@ -17,9 +17,7 @@ import org.bouncycastle.asn1.x509.Extension;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
@@ -120,6 +118,14 @@ public class CertificateWrapper {
         return crls.stream().map(u -> Util.createNewUrl(u, log)).filter(Objects::nonNull).toList();
     }
 
+    public boolean isDateValid() {
+        return isDateValid(new Date());
+    }
+
+    public boolean isDateValid(Date date) {
+        return date.after(x509Certificate.getNotBefore()) && date.before(toCertificateInfo().getNotAfter());
+    }
+
     private Set<CertificateKeyUser> getKeyUser() {
         try {
             return getX509Certificate().getExtendedKeyUsage().stream()
@@ -149,6 +155,14 @@ public class CertificateWrapper {
         try {
             return Optional.of(new CertificateWrapper((X509Certificate) CertificateFactory.getInstance("X.509", KalkanProvider.PROVIDER_NAME).generateCertificate(inputStream)));
         } catch (CertificateException|NoSuchProviderException e) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<CertificateWrapper> fromFile(final File file) {
+        try {
+            return fromInputStream(new FileInputStream(file));
+        } catch (FileNotFoundException e) {
             return Optional.empty();
         }
     }
