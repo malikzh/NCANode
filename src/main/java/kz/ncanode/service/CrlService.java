@@ -170,7 +170,7 @@ public class CrlService {
             String crlUrl = url.toString();
             String crlFileName = Util.sha1(crlUrl) + CRL_FILE_EXTENSION;
 
-            log.info("Downloading CRL file from: {}", crlFileName);
+            log.info("Downloading CRL file from: {}", crlUrl);
             final File downloadedFile = download(crlUrl, getCrlCacheFilePathFor(crlFileName));
             log.info("CRL file \"{}\" successfully downloaded. Size: {} bytes", crlFileName, downloadedFile.length());
         } catch (CrlException e) {
