@@ -10,7 +10,10 @@ ncanode:
   crl:
     enabled: false
     ttl: 10
-    url: http://test.pki.gov.kz/crl/nca_gost_test.crl http://test.pki.gov.kz/crl/nca_rsa_test.crl http://test.pki.gov.kz/crl/nca_d_gost_test.crl http://test.pki.gov.kz/crl/nca_d_rsa_test.crl
+    url: http://test.pki.gov.kz/crl/nca_gost_test.crl http://test.pki.gov.kz/crl/nca_rsa_test.crl
+    delta:
+      url: http://test.pki.gov.kz/crl/nca_d_gost_test.crl http://test.pki.gov.kz/crl/nca_d_rsa_test.crl
+      ttl: 60
   http-client:
     connectionTtl: 30
     userAgent:
@@ -20,3 +23,13 @@ ncanode:
       password:
   ocsp:
     url: http://test.pki.gov.kz/ocsp/
+  ca:
+    url: ${NCANODE_CA_URL:http://root.gov.kz/cert/root_gost.cer http://root.gov.kz/cert/root_rsa.cer http://root.gov.kz/cert/root_gost_2020.cer http://root.gov.kz/cert/root_rsa_2020.cer http://root.gov.kz/cert/root_gost2015_2022.cer}
+    ttl: ${NCANODE_CA_TTL:1440}
+    crl:
+      enabled: ${NCANODE_CA_CRL_ENABLED:true}
+      ttl: ${NCANODE_CA_CRL_TTL:1440}
+      url: ${NCANODE_CA_CRL_URL:https://crl.pki.gov.kz/nca_gost.crl https://crl.pki.gov.kz/nca_rsa.crl}
+      delta:
+        url: ${NCANODE_CA_CRL_DELTA_URL:}
+        ttl: ${NCANODE_CA_CRL_DELTA_TTL:60}

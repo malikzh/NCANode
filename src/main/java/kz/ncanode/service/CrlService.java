@@ -1,7 +1,7 @@
 package kz.ncanode.service;
 
-import kz.ncanode.configuration.CrlConfiguration;
 import kz.ncanode.configuration.SystemConfiguration;
+import kz.ncanode.configuration.crl.CrlConfiguration;
 import kz.ncanode.dto.crl.CrlResult;
 import kz.ncanode.dto.crl.CrlStatus;
 import kz.ncanode.exception.CrlException;
@@ -10,6 +10,7 @@ import kz.ncanode.util.Util;
 import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -17,9 +18,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.support.PeriodicTrigger;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -36,19 +38,26 @@ import java.util.stream.Collectors;
  * Сервис для реализоции механизма проверки сертификатов в CRL
  */
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class CrlService {
+    public final static String CRL_DEFAULT = "default";
+    public final static String CRL_CA      = "ca-crl";
     private final static String CRL_CACHE_DIR_NAME = "crl";
     private final static String CRL_FILE_EXTENSION = ".crl";
 
     private final SystemConfiguration systemConfiguration;
     private final CrlConfiguration crlConfiguration;
     private final CloseableHttpClient client;
+    private final TaskScheduler taskScheduler;
+    private final String crlServiceType;
 
-    @Scheduled(fixedRateString = "${ncanode.crl.ttl}", initialDelay = 0, timeUnit = TimeUnit.MINUTES)
-    public void updateCache() {
-        updateCache(false);
+    @PostConstruct
+    private void initializeScheduler() {
+        log.info("Initializing '{}' CRL Service...", crlServiceType);
+        val periodicTrigger = new PeriodicTrigger(crlConfiguration.getTtl(), TimeUnit.MINUTES);
+        periodicTrigger.setInitialDelay(0);
+        periodicTrigger.setFixedRate(true);
+        taskScheduler.schedule(() -> updateCache(false), periodicTrigger);
     }
 
     /**
