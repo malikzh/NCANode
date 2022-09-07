@@ -2,6 +2,7 @@ package kz.ncanode.service;
 
 import kz.ncanode.configuration.CaConfiguration;
 import kz.ncanode.configuration.SystemConfiguration;
+import kz.ncanode.dto.crl.CrlResult;
 import kz.ncanode.exception.CaException;
 import kz.ncanode.exception.CrlException;
 import kz.ncanode.wrapper.CertificateWrapper;
@@ -25,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,23 +69,20 @@ public class CaService {
             File caFile = getCacheFilePathFor(urlEntry.getKey() + CA_FILE_EXTENSION);
             CertificateWrapper cert;
 
-
-            if (!caFile.exists() || !caFile.canRead()) {
+            if (force || !caFile.exists() || !caFile.canRead()) {
                 cert = downloadCert(urlEntry.getValue(), caFile);
             } else {
                 cert = CertificateWrapper.fromFile(caFile).orElseThrow();
             }
 
-            if (cert == null) {
-                log.error("Cannot open CA certificate from: '{}'. File name: {}", urlEntry.getValue().toString(), caFile.getAbsolutePath());
-                shutdown();
-                return;
-            }
+            checkCertForNull(urlEntry, cert, caFile);
 
-            if (!cert.isDateValid()) {
+            if (!cert.isDateValid() || caCrlService.verify(cert).getResult() == CrlResult.REVOKED) {
                 downloadCert(urlEntry.getValue(), caFile);
                 cert = downloadCert(urlEntry.getValue(), caFile);
             }
+
+            checkCertForNull(urlEntry, cert, caFile);
         }
     }
 
@@ -137,5 +136,13 @@ public class CaService {
         }
 
         return cacheDir;
+    }
+
+    private void checkCertForNull(final Map.Entry<String, URL> urlEntry, final CertificateWrapper cert, final File caFile) {
+        if (cert == null) {
+            log.error("Cannot open CA certificate from: '{}'. File name: {}", urlEntry.getValue().toString(), caFile.getAbsolutePath());
+            shutdown();
+            return;
+        }
     }
 }
