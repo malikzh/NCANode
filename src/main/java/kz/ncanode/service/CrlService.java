@@ -1,7 +1,7 @@
 package kz.ncanode.service;
 
-import kz.ncanode.configuration.properties.CrlConfigurationProperties;
-import kz.ncanode.configuration.properties.SystemConfigurationProperties;
+import kz.ncanode.configuration.CrlConfiguration;
+import kz.ncanode.configuration.SystemConfiguration;
 import kz.ncanode.dto.crl.CrlResult;
 import kz.ncanode.dto.crl.CrlStatus;
 import kz.ncanode.exception.CrlException;
@@ -42,8 +42,8 @@ public class CrlService {
     private final static String CRL_CACHE_DIR_NAME = "crl";
     private final static String CRL_FILE_EXTENSION = ".crl";
 
-    private final SystemConfigurationProperties systemConfigurationProperties;
-    private final CrlConfigurationProperties crlConfigurationProperties;
+    private final SystemConfiguration systemConfiguration;
+    private final CrlConfiguration crlConfiguration;
     private final CloseableHttpClient client;
 
     @Scheduled(fixedRateString = "${ncanode.crl.ttl}", initialDelay = 0, timeUnit = TimeUnit.MINUTES)
@@ -103,7 +103,7 @@ public class CrlService {
      */
     @CacheEvict("crls")
     public void updateCache(boolean force) {
-        if (!crlConfigurationProperties.isEnabled() || crlConfigurationProperties.getTtl() <= 0) {
+        if (!crlConfiguration.isEnabled() || crlConfiguration.getTtl() <= 0) {
             return;
         }
 
@@ -112,7 +112,7 @@ public class CrlService {
 
         // Удаляем старые файлы CRL
         for (var crlFile : getCrlFiles()) {
-            if (!force && crlFile.exists() && crlFile.isFile() && crlFile.canRead() && (currentTime - crlFile.lastModified()) <= (long)crlConfigurationProperties.getTtl() * 60000L) {
+            if (!force && crlFile.exists() && crlFile.isFile() && crlFile.canRead() && (currentTime - crlFile.lastModified()) <= (long) crlConfiguration.getTtl() * 60000L) {
                 log.debug("CRL file {} is actual. This file will not be removed", crlFile);
                 continue;
             }
@@ -125,7 +125,7 @@ public class CrlService {
         int updatedCount = 0;
 
         // Скачиваем новые CRL файлы
-        for (var crlEntry : crlConfigurationProperties.getUrlList().entrySet()) {
+        for (var crlEntry : crlConfiguration.getUrlList().entrySet()) {
             var crlFile = new File(getCacheDirectory(), crlEntry.getKey() + CRL_FILE_EXTENSION);
 
             if (crlFile.exists()) {
@@ -205,7 +205,7 @@ public class CrlService {
     }
 
     private Path getCrlCacheFilePathFor(String fileName) {
-        return Paths.get(systemConfigurationProperties.getCacheDir(), CRL_CACHE_DIR_NAME, fileName);
+        return Paths.get(systemConfiguration.getCacheDir(), CRL_CACHE_DIR_NAME, fileName);
     }
 
     private Path getCrlCacheFilePathFor(URL url) {
@@ -213,7 +213,7 @@ public class CrlService {
     }
 
     private File getCacheDirectory() {
-        return Paths.get(systemConfigurationProperties.getCacheDir(), CRL_CACHE_DIR_NAME).toFile();
+        return Paths.get(systemConfiguration.getCacheDir(), CRL_CACHE_DIR_NAME).toFile();
     }
 
     private List<File> getCrlFiles() {

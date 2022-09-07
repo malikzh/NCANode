@@ -1,6 +1,6 @@
 package kz.ncanode.controller.advice;
 
-import kz.ncanode.configuration.properties.SystemConfigurationProperties;
+import kz.ncanode.configuration.SystemConfiguration;
 import kz.ncanode.dto.response.ErrorResponse;
 import kz.ncanode.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.Objects;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class ExceptionHandlerControllerAdvice {
-    private final SystemConfigurationProperties systemConfigurationProperties;
+    private final SystemConfiguration systemConfiguration;
 
 
     @ExceptionHandler(RuntimeException.class)
@@ -28,7 +28,7 @@ public class ExceptionHandlerControllerAdvice {
 
         String details = null;
 
-        if (systemConfigurationProperties.isDetailedErrors() && Objects.nonNull(e.getCause())) {
+        if (systemConfiguration.isDetailedErrors() && Objects.nonNull(e.getCause())) {
             details = e.getCause().getMessage();
         }
 

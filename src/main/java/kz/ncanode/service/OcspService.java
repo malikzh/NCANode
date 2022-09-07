@@ -8,7 +8,7 @@ import kz.gov.pki.kalkan.asn1.x509.X509Extension;
 import kz.gov.pki.kalkan.asn1.x509.X509Extensions;
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.ocsp.*;
-import kz.ncanode.configuration.properties.OcspConfiguraitonProperties;
+import kz.ncanode.configuration.OcspConfiguration;
 import kz.ncanode.dto.ocsp.OcspResult;
 import kz.ncanode.dto.ocsp.OcspStatus;
 import kz.ncanode.wrapper.CertificateWrapper;
@@ -36,7 +36,7 @@ import java.util.*;
 @Service
 public class OcspService {
     private final KalkanProvider kalkanProvider;
-    private final OcspConfiguraitonProperties ocspConfiguraitonProperties;
+    private final OcspConfiguration ocspConfiguration;
     private final CloseableHttpClient client;
 
     /**
@@ -49,7 +49,7 @@ public class OcspService {
     public List<OcspStatus> verify(CertificateWrapper cert, CertificateWrapper issuer) {
         List<OcspStatus> statuses = new ArrayList<>();
 
-        for (Map.Entry<String, URL> entry : ocspConfiguraitonProperties.getUrlList().entrySet()) {
+        for (Map.Entry<String, URL> entry : ocspConfiguration.getUrlList().entrySet()) {
             try {
                 byte[] nonce = generateOcspNonce();
                 OCSPReq request = buildOcspRequest(cert.getX509Certificate().getSerialNumber(), issuer.getX509Certificate(), nonce);

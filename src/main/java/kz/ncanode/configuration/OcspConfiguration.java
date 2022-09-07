@@ -1,4 +1,4 @@
-package kz.ncanode.configuration.properties;
+package kz.ncanode.configuration;
 
 import kz.ncanode.util.Util;
 import lombok.Getter;
@@ -12,12 +12,11 @@ import java.util.Map;
 
 @Slf4j
 @Configuration
-@ConfigurationProperties(prefix = "ncanode.ca")
+@ConfigurationProperties(prefix = "ncanode.ocsp")
 @Getter
 @Setter
-public class CaConfigurationProperties {
+public class OcspConfiguration {
     private String url;
-    private Integer ttl;
 
     public Map<String, URL> getUrlList() {
         return Util.urlMap(getUrl(), log);

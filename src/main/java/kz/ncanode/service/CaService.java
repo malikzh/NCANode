@@ -1,7 +1,7 @@
 package kz.ncanode.service;
 
-import kz.ncanode.configuration.properties.CaConfigurationProperties;
-import kz.ncanode.configuration.properties.SystemConfigurationProperties;
+import kz.ncanode.configuration.CaConfiguration;
+import kz.ncanode.configuration.SystemConfiguration;
 import kz.ncanode.exception.CaException;
 import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.retry.annotation.Retryable;
@@ -37,9 +38,12 @@ public class CaService {
     private final static String CA_FILE_EXTENSION = ".cer";
 
     private final ApplicationContext applicationContext;
-    private final CaConfigurationProperties caConfigurationProperties;
-    private final SystemConfigurationProperties systemConfigurationProperties;
+    private final CaConfiguration caConfiguration;
+    private final SystemConfiguration systemConfiguration;
     private final CloseableHttpClient client;
+
+    @Qualifier("caCrlService")
+    private final CrlService caCrlService;
 
 
     @Retryable(value = CaException.class)
@@ -49,7 +53,7 @@ public class CaService {
     }
 
     public void updateCache(boolean force) {
-        var urls = caConfigurationProperties.getUrlList();
+        var urls = caConfiguration.getUrlList();
 
         if (urls.isEmpty()) {
             log.error("CA certificates urls is empty. Please set NCANODE_CA_URL environment variable.");
@@ -70,7 +74,7 @@ public class CaService {
             }
 
             if (cert == null) {
-                log.error("Cannot open CA certificate from: '{}'. FIle name: {}", urlEntry.getValue().toString(), caFile.getAbsolutePath());
+                log.error("Cannot open CA certificate from: '{}'. File name: {}", urlEntry.getValue().toString(), caFile.getAbsolutePath());
                 shutdown();
                 return;
             }
@@ -119,6 +123,6 @@ public class CaService {
     }
 
     private Path getCacheFilePathFor(String fileName) {
-        return Paths.get(systemConfigurationProperties.getCacheDir(), CA_CACHE_DIR_NAME, fileName);
+        return Paths.get(systemConfiguration.getCacheDir(), CA_CACHE_DIR_NAME, fileName);
     }
 }

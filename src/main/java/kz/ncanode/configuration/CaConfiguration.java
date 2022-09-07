@@ -1,4 +1,4 @@
-package kz.ncanode.configuration.properties;
+package kz.ncanode.configuration;
 
 import kz.ncanode.util.Util;
 import lombok.Getter;
@@ -12,13 +12,12 @@ import java.util.Map;
 
 @Slf4j
 @Configuration
-@ConfigurationProperties(prefix = "ncanode.crl")
+@ConfigurationProperties(prefix = "ncanode.ca")
 @Getter
 @Setter
-public class CrlConfigurationProperties {
-    private boolean enabled;
-    private Integer ttl;
+public class CaConfiguration {
     private String url;
+    private Integer ttl;
 
     public Map<String, URL> getUrlList() {
         return Util.urlMap(getUrl(), log);
