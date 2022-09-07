@@ -3,9 +3,11 @@ package kz.ncanode.service;
 import kz.ncanode.configuration.CaConfiguration;
 import kz.ncanode.configuration.SystemConfiguration;
 import kz.ncanode.exception.CaException;
+import kz.ncanode.exception.CrlException;
 import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -22,7 +24,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +64,7 @@ public class CaService {
         log.info("Updating CA certificates cache...");
 
         for (var urlEntry : urls.entrySet()) {
-            File caFile = getCacheFilePathFor(urlEntry.getKey() + CA_FILE_EXTENSION).toFile();
+            File caFile = getCacheFilePathFor(urlEntry.getKey() + CA_FILE_EXTENSION);
             CertificateWrapper cert;
 
 
@@ -122,7 +123,19 @@ public class CaService {
         System.exit(EXIT_CODE);
     }
 
-    private Path getCacheFilePathFor(String fileName) {
-        return Paths.get(systemConfiguration.getCacheDir(), CA_CACHE_DIR_NAME, fileName);
+    private File getCacheFilePathFor(String fileName) {
+        return new File(getCacheDir(), fileName);
+    }
+
+    private File getCacheDir() {
+        val cacheDir = Paths.get(systemConfiguration.getCacheDir(), CA_CACHE_DIR_NAME).toFile();
+
+        if ((!cacheDir.exists() || !cacheDir.isDirectory()) && !cacheDir.mkdirs()) {
+            var err = String.format("Cannot create CA cache directory for: %s", cacheDir.getAbsolutePath());
+            log.error(err);
+            throw new CrlException(err);
+        }
+
+        return cacheDir;
     }
 }

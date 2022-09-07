@@ -13,7 +13,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class CrlBaseConfiguration implements CrlConfiguration {
-    private boolean enabled;
+    private boolean enabled = true;
     @Min(1)
     private Integer ttl;
     private String url;

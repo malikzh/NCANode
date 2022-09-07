@@ -231,7 +231,15 @@ public class CrlService {
     }
 
     private File getCacheDirectory(String cacheDirName) {
-        return Paths.get(systemConfiguration.getCacheDir(), cacheDirName).toFile();
+        val cacheDir = Paths.get(systemConfiguration.getCacheDir(), cacheDirName).toFile();
+
+        if ((!cacheDir.exists() || !cacheDir.isDirectory()) && !cacheDir.mkdirs()) {
+            var err = String.format("Cannot create CRL cache directory for: %s", cacheDir.getAbsolutePath());
+            log.error(err);
+            throw new CrlException(err);
+        }
+
+        return cacheDir;
     }
 
     private Path getCrlCacheFilePathFor(String cacheDirName, URL url) {
