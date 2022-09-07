@@ -45,8 +45,8 @@ class CrlServiceTest extends Specification implements WithTestData {
     @Unroll("#caseName")
     def "check certificate 2004 verification in CRL"() {
         given: 'load cert and crls'
-        doReturn(CRLS).when(crlService).getLoadedCrlEntries()
-        doNothing().when(crlService).downloadCrl(isNotNull())
+        doReturn(CRLS).when(crlService).getLoadedCrlEntries(anyString())
+        doNothing().when(crlService).downloadCrl(anyString(), isNotNull())
 
         def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
 
@@ -61,7 +61,7 @@ class CrlServiceTest extends Specification implements WithTestData {
         status.getResult() == expectedStatus
 
         and: 'check crl downloading'
-        verify(crlService, atLeast(1)).downloadCrl(isNotNull())
+        verify(crlService, atLeast(1)).downloadCrl(anyString(), isNotNull())
 
         where:
         caseName                          | keyStr                           || expectedStatus
@@ -74,12 +74,12 @@ class CrlServiceTest extends Specification implements WithTestData {
     def "check certificate 2015 verification in CRL"() {
         given:
         Map<String, X509CRL> downloadedCrls = new HashMap<>()
-        doReturn(downloadedCrls).when(crlService).getLoadedCrlEntries()
+        doReturn(downloadedCrls).when(crlService).getLoadedCrlEntries(anyString())
 
         doAnswer(inv -> {
-            URL url = inv.getArgument(0, URL.class)
+            URL url = inv.getArgument(1, URL.class)
             downloadedCrls.put(Util.sha1(url.toString()), CRLS.get(url.toString()))
-        }).when(crlService).downloadCrl(isNotNull())
+        }).when(crlService).downloadCrl(anyString(), isNotNull())
 
         def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
 

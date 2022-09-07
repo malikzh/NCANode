@@ -12,7 +12,7 @@ import java.util.Map;
 @Slf4j
 @Getter
 @Setter
-public class CrlBaseConfiguration {
+public class CrlBaseConfiguration implements CrlConfiguration {
     private boolean enabled;
     @Min(1)
     private Integer ttl;
