@@ -1,6 +1,5 @@
 package kz.ncanode.service;
 
-import kz.ncanode.configuration.SystemConfiguration;
 import kz.ncanode.configuration.crl.CrlConfiguration;
 import kz.ncanode.dto.crl.CrlResult;
 import kz.ncanode.dto.crl.CrlStatus;
@@ -28,7 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.cert.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +44,7 @@ public class CrlService {
     private final static String CRL_CACHE_DELTA_DIR_NAME = "crl/delta";
     private final static String CRL_FILE_EXTENSION = ".crl";
 
-    private final SystemConfiguration systemConfiguration;
+    private final DirectoryService directoryService;
     private final CrlConfiguration crlConfiguration;
     private final CloseableHttpClient client;
     private final TaskScheduler taskScheduler;
@@ -54,6 +52,10 @@ public class CrlService {
 
     @PostConstruct
     private void initializeScheduler() {
+        if (crlConfiguration.getTtl() == null || crlConfiguration.getTtl() < 1) {
+            return;
+        }
+
         log.info("Initializing '{}' CRL Service...", crlServiceType);
         val periodicTrigger = new PeriodicTrigger(crlConfiguration.getTtl(), TimeUnit.MINUTES);
         periodicTrigger.setInitialDelay(0);
@@ -63,6 +65,10 @@ public class CrlService {
 
     @PostConstruct
     private void initializeDeltaScheduler() {
+        if (crlConfiguration.getDelta().getTtl() == null || crlConfiguration.getDelta().getTtl() < 1) {
+            return;
+        }
+
         log.info("Initializing '{}' CRL Delta Service...", crlServiceType);
         val periodicTrigger = new PeriodicTrigger(crlConfiguration.getDelta().getTtl(), TimeUnit.MINUTES);
         periodicTrigger.setInitialDelay(0);
@@ -80,7 +86,7 @@ public class CrlService {
         for (final String cacheDirectory : List.of(CRL_CACHE_DELTA_DIR_NAME, CRL_CACHE_FULL_DIR_NAME)) {
             // Догружаем CRL из сертификата
             for (URL crlUrl : cert.getCrlList()) {
-                File crlFile = getCrlCacheFilePathFor(cacheDirectory, crlUrl).toFile();
+                File crlFile = getCrlCacheFilePathFor(cacheDirectory, crlUrl);
 
                 if (crlFile.exists()) {
                     continue;
@@ -123,44 +129,46 @@ public class CrlService {
      * @param force Если true, то кэш будет обновлен в любом случае
      */
     @CacheEvict("crls")
-    public void updateCache(boolean force, CrlConfiguration crlConfiguration, String cacheDirectory) {
-        if (!crlConfiguration.isEnabled() || crlConfiguration.getTtl() <= 0) {
-            return;
-        }
-
-        log.info("Updating CRL cache...");
-        long currentTime = System.currentTimeMillis();
-
-        // Удаляем старые файлы CRL
-        for (var crlFile : getCrlFiles(cacheDirectory)) {
-            if (!force && crlFile.exists() && crlFile.isFile() && crlFile.canRead() && (currentTime - crlFile.lastModified()) <= (long) crlConfiguration.getTtl() * 60000L) {
-                log.debug("CRL file {} is actual. This file will not be removed", crlFile);
-                continue;
+    public synchronized void updateCache(boolean force, CrlConfiguration crlConfiguration, String cacheDirectory) {
+        synchronized (directoryService) {
+            if (!crlConfiguration.isEnabled() || crlConfiguration.getTtl() <= 0) {
+                return;
             }
 
-            if (!crlFile.delete()) {
-                log.error("Cannot delete CRL cache file: {}", crlFile);
+            log.info("Updating CRL cache...");
+            long currentTime = System.currentTimeMillis();
+
+            // Удаляем старые файлы CRL
+            for (var crlFile : getCrlFiles(cacheDirectory)) {
+                if (!force && crlFile.exists() && crlFile.isFile() && crlFile.canRead() && (currentTime - crlFile.lastModified()) <= (long) crlConfiguration.getTtl() * 60000L) {
+                    log.debug("CRL file {} is actual. This file will not be removed", crlFile);
+                    continue;
+                }
+
+                if (!crlFile.delete()) {
+                    log.error("Cannot delete CRL cache file: {}", crlFile);
+                }
             }
-        }
 
-        int updatedCount = 0;
+            int updatedCount = 0;
 
-        // Скачиваем новые CRL файлы
-        for (var crlEntry : crlConfiguration.getUrlList().entrySet()) {
-            var crlFile = new File(getCacheDirectory(cacheDirectory), crlEntry.getKey() + CRL_FILE_EXTENSION);
+            // Скачиваем новые CRL файлы
+            for (var crlEntry : crlConfiguration.getUrlList().entrySet()) {
+                var crlFile = new File(directoryService.getCachePathFor(cacheDirectory).orElseThrow(), crlEntry.getKey() + CRL_FILE_EXTENSION);
 
-            if (crlFile.exists()) {
-                continue;
+                if (crlFile.exists()) {
+                    continue;
+                }
+
+                downloadCrl(cacheDirectory, crlEntry.getValue());
+                updatedCount++;
             }
 
-            downloadCrl(cacheDirectory, crlEntry.getValue());
-            updatedCount++;
-        }
-
-        if (updatedCount == 0) {
-            log.info("Nothing to update in CRL cache.");
-        } else {
-            log.info("{} files updated in CRL cache", updatedCount);
+            if (updatedCount == 0) {
+                log.info("Nothing to update in CRL cache.");
+            } else {
+                log.info("{} files updated in CRL cache", updatedCount);
+            }
         }
     }
 
@@ -193,7 +201,7 @@ public class CrlService {
             String crlFileName = Util.sha1(crlUrl) + CRL_FILE_EXTENSION;
 
             log.info("Downloading CRL file from: {}", crlUrl);
-            final File downloadedFile = download(crlUrl, getCrlCacheFilePathFor(cacheDirName, crlFileName));
+            final File downloadedFile = download(crlUrl, getCrlCacheFilePathFor(cacheDirName, crlFileName).toPath());
             log.info("CRL file \"{}\" successfully downloaded. Size: {} bytes", crlFileName, downloadedFile.length());
         } catch (CrlException e) {
             log.error("CRL File download failure", e.getCause());
@@ -226,28 +234,16 @@ public class CrlService {
         }
     }
 
-    private Path getCrlCacheFilePathFor(String cacheDirName, String fileName) {
-        return Paths.get(systemConfiguration.getCacheDir(), cacheDirName, fileName);
+    private File getCrlCacheFilePathFor(String cacheDirName, String fileName) {
+        return new File(directoryService.getCachePathFor(cacheDirName).orElseThrow(), fileName);
     }
 
-    private File getCacheDirectory(String cacheDirName) {
-        val cacheDir = Paths.get(systemConfiguration.getCacheDir(), cacheDirName).toFile();
-
-        if ((!cacheDir.exists() || !cacheDir.isDirectory()) && !cacheDir.mkdirs()) {
-            var err = String.format("Cannot create CRL cache directory for: %s", cacheDir.getAbsolutePath());
-            log.error(err);
-            throw new CrlException(err);
-        }
-
-        return cacheDir;
-    }
-
-    private Path getCrlCacheFilePathFor(String cacheDirName, URL url) {
+    private File getCrlCacheFilePathFor(String cacheDirName, URL url) {
         return getCrlCacheFilePathFor(cacheDirName, Util.sha1(url.toString()) + CRL_FILE_EXTENSION);
     }
 
     private List<File> getCrlFiles(String cacheDirName) {
-        return Arrays.stream(Objects.requireNonNull(getCacheDirectory(cacheDirName).listFiles()))
+        return Arrays.stream(Objects.requireNonNull(directoryService.getCachePathFor(cacheDirName).orElseThrow().listFiles()))
             .filter(file -> file.isFile() && file.canRead() && file.getName().endsWith(CRL_FILE_EXTENSION))
             .collect(Collectors.toList());
     }

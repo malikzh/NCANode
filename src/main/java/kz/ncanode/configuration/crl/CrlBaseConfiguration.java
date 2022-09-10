@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.validation.constraints.Min;
 import java.net.URL;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ import java.util.Map;
 @Setter
 public class CrlBaseConfiguration implements CrlConfiguration {
     private boolean enabled = true;
-    @Min(1)
     private Integer ttl;
     private String url;
     private CrlBaseConfiguration delta;

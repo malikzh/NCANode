@@ -90,6 +90,11 @@ public class CertificateWrapper {
     public List<URL> getCrlList() {
         byte[] crlDistributionPoint = getX509Certificate().getExtensionValue(Extension.cRLDistributionPoints.getId());
         CRLDistPoint distPoint = null;
+
+        if (crlDistributionPoint == null) {
+            return Collections.emptyList();
+        }
+
         try {
             distPoint = CRLDistPoint.getInstance(X509ExtensionUtil.fromExtensionValue(crlDistributionPoint));
         } catch (IOException e) {
@@ -124,6 +129,13 @@ public class CertificateWrapper {
 
     public boolean isDateValid(Date date) {
         return date.after(x509Certificate.getNotBefore()) && date.before(x509Certificate.getNotAfter());
+    }
+
+    public List<CertificateWrapper> getCertificatesChain() {
+        var chain = new ArrayList<CertificateWrapper>();
+
+        chain.add(this);
+        return chain;
     }
 
     private Set<CertificateKeyUser> getKeyUser() {

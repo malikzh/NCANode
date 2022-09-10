@@ -29,7 +29,8 @@ ncanode:
     crl:
       enabled: ${NCANODE_CA_CRL_ENABLED:true}
       ttl: ${NCANODE_CA_CRL_TTL:1440}
-      url: ${NCANODE_CA_CRL_URL:https://crl.pki.gov.kz/nca_gost.crl https://crl.pki.gov.kz/nca_rsa.crl}
+      url: ${NCANODE_CA_CRL_URL:http://crl.root.gov.kz/gost.crl http://crl.root.gov.kz/rsa.crl http://crl.root.gov.kz/gost2020.crl http://crl.root.gov.kz/rsa2020.crl}
       delta:
-        url: ${NCANODE_CA_CRL_DELTA_URL:}
-        ttl: ${NCANODE_CA_CRL_DELTA_TTL:60}
+        enabled: false
+        url:
+        ttl:
