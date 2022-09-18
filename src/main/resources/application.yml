@@ -34,3 +34,6 @@ ncanode:
         enabled: false
         url:
         ttl:
+  tsp:
+    url: ${NCANODE_TSP_URL:http://tsp.pki.gov.kz/}
+    retries: 3

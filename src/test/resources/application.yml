@@ -33,3 +33,6 @@ ncanode:
       delta:
         url: ${NCANODE_CA_CRL_DELTA_URL:}
         ttl: ${NCANODE_CA_CRL_DELTA_TTL:60}
+  tsp:
+    url: http://test.pki.gov.kz/tsp/
+    retries: 3

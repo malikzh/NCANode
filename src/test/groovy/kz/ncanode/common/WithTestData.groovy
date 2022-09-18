@@ -3,6 +3,7 @@ package kz.ncanode.common
 import kz.ncanode.constants.MessageConstants
 import kz.ncanode.dto.request.SignerRequest
 import org.apache.http.HttpEntity
+import org.apache.http.StatusLine
 import org.apache.http.client.methods.CloseableHttpResponse
 
 import static org.mockito.Mockito.doReturn
@@ -86,12 +87,16 @@ interface WithTestData {
     final static String NCA_2015_CERT = 'MIID/TCCA2WgAwIBAgIUetJLG6OgyWH+HKhQPmqiu0UNuKMwDgYKKoMOAwoBAQIDAgUAMF8xUDBOBgNVBAMMR9Cd0JXQk9CG0JfQk9CGINCa0KPTmNCb0JDQndCU0KvQoNCj0KjQqyDQntCg0KLQkNCb0KvSmiAoR09TVCkgVEVTVCAyMDIyMQswCQYDVQQGEwJLWjAeFw0yMjA3MDcwOTU1MjNaFw0zMjA3MDQwOTU1MjNaMF0xTjBMBgNVBAMMRdKw0JvQotCi0KvSmiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpIFRFU1QgMjAyMjELMAkGA1UEBhMCS1owgawwIwYJKoMOAwoBAQICMBYGCiqDDgMKAQECAgEGCCqDDgMKAQMDA4GEAASBgLg6ffxI/sxPLaDh3hLsK8f9P7PMFjc56V21F+SDFKNkURgSXG93YnmPUuKv6NqP8flHGTFV+gpGiM4p3XPRbdE3sg0hQ8SaoHXR2h6hofM3OycgAFJHIBHDsrM5McqfgkuVVgnP/FnUkzmEG3/sC0Z9c7Ux27UsnudfeVvVEBhro4IBpzCCAaMwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAQYwOgYDVR0fBDMwMTAvoC2gK4YpaHR0cDovL2NybC5yb290Lmdvdi5rei9nb3N0X3Rlc3RfMjAyMi5jcmwwHQYDVR0OBBYEFPrSSxujoMlh/hyoUD5qortFDbijMIGcBgNVHSMEgZQwgZGAFKfTq3eQNy5baYFw3eYMzKOLw6SyoWOkYTBfMVAwTgYDVQQDDEfQndCV0JPQhtCX0JPQhiDQmtCj05jQm9CQ0J3QlNCr0KDQo9Co0Ksg0J7QoNCi0JDQm9Cr0pogKEdPU1QpIFRFU1QgMjAyMjELMAkGA1UEBhMCS1qCFCfTq3eQNy5baYFw3eYMzKOLw6SyMEsGCCsGAQUFBwEBBD8wPTA7BggrBgEFBQcwAoYvaHR0cDovL3Jvb3QuZ292Lmt6L2NlcnQvcm9vdF90ZXN0X2dvc3RfMjAyMi5jZXIwOQYDVR0gBDIwMDAuBgYqgw4DAwIwJDAiBggrBgEFBQcCARYWIGh0dHA6Ly9wa2kuZ292Lmt6L2NwczAOBgoqgw4DCgEBAgMCBQADgYEAF1XLtw6Fcdzrl33J2DaP125p+nQviyEddDJxb0mUlxbWUTAZlKsAqphfN/SxEd2w0pJL39hTysG0rAC6Lp5bdMdmsclPZqdn22SqiCluNXUpTj84jh8hdT9QVB6Ll4yYlBf9WlZUFqzWF6oR151h1xL1D1wcq8c2SQpMUZFOKHU='
 
 
-    default CloseableHttpResponse createMockedResponse(InputStream inputStream) {
+    default CloseableHttpResponse createMockedResponse(InputStream inputStream, Integer statusCode = 200) {
         def entity = mock(HttpEntity)
         doReturn(inputStream).when(entity).getContent()
 
+        def statusLine = mock(StatusLine)
+        doReturn(statusCode).when(statusLine).getStatusCode()
+
         def response = mock(CloseableHttpResponse)
         doReturn(entity).when(response).getEntity()
+        doReturn(statusLine).when(response).getStatusLine()
 
         return response
     }
