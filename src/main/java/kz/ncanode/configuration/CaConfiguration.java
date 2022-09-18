@@ -16,6 +16,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class CaConfiguration {
+    private boolean enabled = true;
     private String url;
     private Integer ttl;
 

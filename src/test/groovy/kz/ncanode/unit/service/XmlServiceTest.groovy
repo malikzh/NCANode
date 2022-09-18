@@ -11,11 +11,16 @@ import org.w3c.dom.Document
 import spock.lang.Specification
 import spock.lang.Unroll
 
+import static kz.ncanode.common.SignerRequestTestData.SIGNER_REQUEST_VALID_2004
+import static kz.ncanode.common.SignerRequestTestData.SIGNER_REQUEST_VALID_2004_WITH_REFERENCE
+import static kz.ncanode.common.SignerRequestTestData.SIGNER_REQUEST_VALID_2015
+import static kz.ncanode.common.SignerRequestTestData.SIGNER_REQUEST_VALID_2015_WITH_REFERENCE
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class XmlServiceTest extends Specification implements WithTestData {
 
     private final static String XML_VALID_STRING = '<?xml version="1.0" encoding="utf-8"?><a><b>test</b></a>'
-    private final static String XML_VALID_STRING_WITH_REFERENCE = "<?xml version=\"1.0\" encoding=\"utf-8\"?><!DOCTYPE a [\n" +
+    private final static Closure<String> XML_VALID_STRING_WITH_REFERENCE = () -> "<?xml version=\"1.0\" encoding=\"utf-8\"?><!DOCTYPE a [\n" +
         "<!ATTLIST a id ID #IMPLIED> ]><a id=\"${REFERENCE_URI}\"><b>test</b></a>"
     private final static String XML_SIGNED_VALID_STRING = """
 <?xml version="1.0" encoding="utf-8" standalone="no"?><a><b>test</b><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
@@ -119,15 +124,15 @@ cfruSnHhKSYvgmTKB4KqIxdUA+U763u5x37NXK2NR1cJHLaqTfqcDPMMuTK2Fjz7MIs27zQ=
 
         where:
         caseName              | signers                                                || expectedSignaturesCount
-        'sign with old key'   | [SIGNER_REQUEST_VALID_2004]                            || 1
-        'sign with new key'   | [SIGNER_REQUEST_VALID_2015]                            || 1
-        'sign with both keys' | [SIGNER_REQUEST_VALID_2004, SIGNER_REQUEST_VALID_2015] || 2
+        'sign with old key'   | [SIGNER_REQUEST_VALID_2004()]                            || 1
+        'sign with new key'   | [SIGNER_REQUEST_VALID_2015()]                            || 1
+        'sign with both keys' | [SIGNER_REQUEST_VALID_2004(), SIGNER_REQUEST_VALID_2015()] || 2
     }
 
     @Unroll("#caseName")
     def "check xml signature appending"() {
         given: 'create request'
-        def request = XmlSignRequest.builder().xml(XML_SIGNED_VALID_STRING).signers([SIGNER_REQUEST_VALID_2015]).clearSignatures(clearSignatures).build()
+        def request = XmlSignRequest.builder().xml(XML_SIGNED_VALID_STRING).signers([SIGNER_REQUEST_VALID_2015()]).clearSignatures(clearSignatures).build()
 
         when: 'sign'
         def response = xmlService.sign(request)
@@ -148,7 +153,7 @@ cfruSnHhKSYvgmTKB4KqIxdUA+U763u5x37NXK2NR1cJHLaqTfqcDPMMuTK2Fjz7MIs27zQ=
 
     def "check for reference uri"() {
         given: 'create request'
-        def request = XmlSignRequest.builder().xml(XML_VALID_STRING_WITH_REFERENCE).signers([SIGNER_REQUEST_VALID_2004_WITH_REFERENCE, SIGNER_REQUEST_VALID_2015_WITH_REFERENCE]).build()
+        def request = XmlSignRequest.builder().xml(XML_VALID_STRING_WITH_REFERENCE()).signers([SIGNER_REQUEST_VALID_2004_WITH_REFERENCE(), SIGNER_REQUEST_VALID_2015_WITH_REFERENCE()]).build()
 
         when: 'sign'
         def response = xmlService.sign(request)

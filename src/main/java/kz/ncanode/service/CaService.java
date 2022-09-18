@@ -48,6 +48,10 @@ public class CaService {
     @Retryable(value = CaException.class)
     @Scheduled(fixedRateString = "${ncanode.ca.ttl}", initialDelay = 0, timeUnit = TimeUnit.MINUTES)
     public void updateCache() {
+        if (!caConfiguration.isEnabled()) {
+            return;
+        }
+
         updateCache(false);
     }
 
