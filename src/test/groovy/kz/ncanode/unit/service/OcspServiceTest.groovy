@@ -5,8 +5,6 @@ import kz.ncanode.dto.ocsp.OcspResult
 import kz.ncanode.service.OcspService
 import kz.ncanode.wrapper.CertificateWrapper
 import kz.ncanode.wrapper.KalkanWrapper
-import org.apache.http.HttpEntity
-import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.impl.client.CloseableHttpClient
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +17,6 @@ import spock.lang.Unroll
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.doReturn
-import static org.mockito.Mockito.mock
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class OcspServiceTest extends Specification implements WithTestData {
@@ -85,15 +82,5 @@ class OcspServiceTest extends Specification implements WithTestData {
         noExceptionThrown()
         nonce != null
         nonce.size() == OCSP_RESPONSE_CEO_2015_REVOKED_NONCE.size()
-    }
-
-    private CloseableHttpResponse createMockedResponse(InputStream inputStream) {
-        def entity = mock(HttpEntity)
-        doReturn(inputStream).when(entity).getContent()
-
-        def response = mock(CloseableHttpResponse)
-        doReturn(entity).when(response).getEntity()
-
-        return response
     }
 }
