@@ -13,8 +13,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -46,6 +44,7 @@ public class CaService {
     @Qualifier("caCrlService")
     private final CrlService caCrlService;
 
+    private final List<CertificateWrapper> certificates = new ArrayList<>();
 
     @Retryable(value = CaException.class)
     @Scheduled(fixedRateString = "${ncanode.ca.ttl}", initialDelay = 0, timeUnit = TimeUnit.MINUTES)
@@ -57,36 +56,39 @@ public class CaService {
         updateCache(false);
     }
 
-    @CacheEvict("ca-certs")
     public void updateCache(boolean force) {
         synchronized (directoryService) {
-            var urls = caConfiguration.getUrlList();
+            synchronized (certificates) {
+                certificates.clear();
 
-            if (urls.isEmpty()) {
-                log.error("CA certificates urls is empty. Please set NCANODE_CA_URL environment variable.");
-                shutdown();
-            }
+                var urls = caConfiguration.getUrlList();
 
-            log.info("Updating CA certificates cache...");
-
-            for (var urlEntry : urls.entrySet()) {
-                File caFile = new File(directoryService.getCachePathFor(CA_CACHE_DIR_NAME).orElseThrow(), urlEntry.getKey() + CA_FILE_EXTENSION);
-                CertificateWrapper cert;
-
-                if (force || !caFile.exists() || !caFile.canRead()) {
-                    cert = downloadCert(urlEntry.getValue(), caFile);
-                } else {
-                    cert = CertificateWrapper.fromFile(caFile).orElseThrow();
+                if (urls.isEmpty()) {
+                    log.error("CA certificates urls is empty. Please set NCANODE_CA_URL environment variable.");
+                    shutdown();
                 }
 
-                checkCertForNull(urlEntry, cert, caFile);
+                log.info("Updating CA certificates cache...");
 
-                if (!cert.isDateValid() || caCrlService.verify(cert).getResult() == CrlResult.REVOKED) {
-                    downloadCert(urlEntry.getValue(), caFile);
-                    cert = downloadCert(urlEntry.getValue(), caFile);
+                for (var urlEntry : urls.entrySet()) {
+                    File caFile = new File(directoryService.getCachePathFor(CA_CACHE_DIR_NAME).orElseThrow(), urlEntry.getKey() + CA_FILE_EXTENSION);
+                    CertificateWrapper cert;
+
+                    if (force || !caFile.exists() || !caFile.canRead()) {
+                        cert = downloadCert(urlEntry.getValue(), caFile);
+                    } else {
+                        cert = CertificateWrapper.fromFile(caFile).orElseThrow();
+                    }
+
+                    checkCertForNull(urlEntry, cert, caFile);
+
+                    if (!cert.isDateValid() || caCrlService.verify(cert).getResult() == CrlResult.REVOKED) {
+                        downloadCert(urlEntry.getValue(), caFile);
+                        cert = downloadCert(urlEntry.getValue(), caFile);
+                    }
+
+                    checkCertForNull(urlEntry, cert, caFile);
                 }
-
-                checkCertForNull(urlEntry, cert, caFile);
             }
         }
     }
@@ -119,14 +121,25 @@ public class CaService {
             .findFirst();
     }
 
-    @Cacheable("ca-certs")
     public List<CertificateWrapper> getRootCertificates() {
         synchronized (directoryService) {
-            return Arrays.stream(Objects.requireNonNull(directoryService.getCachePathFor(CA_CACHE_DIR_NAME).orElseThrow().listFiles()))
-                .filter(f -> f.isFile() && f.canRead() && f.getName().endsWith(CA_FILE_EXTENSION))
-                .map(CertificateWrapper::fromFile)
-                .map(Optional::orElseThrow)
-                .toList();
+            synchronized (certificates) {
+                List<CertificateWrapper> certs;
+
+                if (!certificates.isEmpty()) {
+                    certs = certificates;
+                } else {
+                    certs = Arrays.stream(Objects.requireNonNull(directoryService.getCachePathFor(CA_CACHE_DIR_NAME).orElseThrow().listFiles()))
+                        .filter(f -> f.isFile() && f.canRead() && f.getName().endsWith(CA_FILE_EXTENSION))
+                        .map(CertificateWrapper::fromFile)
+                        .map(Optional::orElseThrow)
+                        .toList();
+
+                    certificates.addAll(certs);
+                }
+
+                return certs;
+            }
         }
     }
 

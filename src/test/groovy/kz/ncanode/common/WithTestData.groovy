@@ -1,9 +1,13 @@
 package kz.ncanode.common
 
+import kz.gov.pki.kalkan.jce.provider.KalkanProvider
+import kz.gov.pki.kalkan.xmldsig.KncaXS
 import kz.ncanode.constants.MessageConstants
 import org.apache.http.HttpEntity
 import org.apache.http.StatusLine
 import org.apache.http.client.methods.CloseableHttpResponse
+
+import java.security.Security
 
 import static org.mockito.Mockito.doReturn
 import static org.mockito.Mockito.mock
@@ -90,5 +94,10 @@ interface WithTestData {
         doReturn(statusLine).when(response).getStatusLine()
 
         return response
+    }
+
+    default void initializeKalkanLibrary() {
+        Security.addProvider(new KalkanProvider());
+        KncaXS.loadXMLSecurity();
     }
 }
