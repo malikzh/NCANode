@@ -36,9 +36,6 @@ class CaServiceTest extends Specification implements WithTestData {
     @Shared
     def CEO_VALID_SIGN_2004_GOST = () -> CertificateWrapper.fromFile(ResourceUtils.getFile("classpath:certs/ceo_valid_sign_2004_gost.cer")).get()
 
-    @Shared
-    def INDIVIDUAL_VALID_2015 = () -> kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD).getCertificate()
-
     @SpyBean
     CaService caService
 
@@ -70,5 +67,23 @@ class CaServiceTest extends Specification implements WithTestData {
         'check rsa 2004'      | [NCA_GOST(), NCA_RSA()] | INDIVIDUAL_VALID_SIGN_2004_RSA()  || NCA_RSA()
         'check rsa auth 2004' | [NCA_GOST(), NCA_RSA()] | INDIVIDUAL_VALID_SIGN_2004_AUTH() || NCA_RSA()
         'check ceo gost 2004' | [NCA_RSA(), NCA_GOST()] | CEO_VALID_SIGN_2004_GOST()        || NCA_GOST()
+    }
+
+    def "check ca for gost-2015"() {
+        given:
+        def rootCert = NCA_GOST2015()
+        doReturn([NCA_GOST(), NCA_RSA(), rootCert]).when(caService).getRootCertificates()
+
+        def cert = kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD).getCertificate()
+
+        when:
+        def result = caService.getRootCertificateFor(cert)
+
+        then:
+        noExceptionThrown()
+        result.isPresent()
+
+        and:
+        result.get() == rootCert
     }
 }
