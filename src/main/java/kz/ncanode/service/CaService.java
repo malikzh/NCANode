@@ -13,6 +13,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,7 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,6 +57,7 @@ public class CaService {
         updateCache(false);
     }
 
+    @CacheEvict("ca-certs")
     public void updateCache(boolean force) {
         synchronized (directoryService) {
             var urls = caConfiguration.getUrlList();
@@ -97,6 +100,33 @@ public class CaService {
         } catch (CaException e) {
             log.error(e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Возвращает доверенный корневой сертификат для сертификата ЭЦП
+     *
+     * @param cert Сертификат из ЭЦП
+     * @return Сертификат Удостоверяющего центра, либо ничего
+     */
+    public Optional<CertificateWrapper> getRootCertificateFor(CertificateWrapper cert) {
+        if (cert.getIssuerX500Principal().equals(cert.getSubjectX500Principal())) {
+            return Optional.empty();
+        }
+
+        return getRootCertificates().stream()
+            .filter(root -> cert.getIssuerX500Principal().equals(root.getSubjectX500Principal()) && cert.verify(root.getPublicKey()))
+            .findFirst();
+    }
+
+    @Cacheable("ca-certs")
+    public List<CertificateWrapper> getRootCertificates() {
+        synchronized (directoryService) {
+            return Arrays.stream(Objects.requireNonNull(directoryService.getCachePathFor(CA_CACHE_DIR_NAME).orElseThrow().listFiles()))
+                .filter(f -> f.isFile() && f.canRead() && f.getName().endsWith(CA_FILE_EXTENSION))
+                .map(CertificateWrapper::fromFile)
+                .map(Optional::orElseThrow)
+                .toList();
         }
     }
 

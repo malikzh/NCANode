@@ -17,9 +17,10 @@ import org.bouncycastle.asn1.x509.Extension;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.net.URL;
-import java.security.NoSuchProviderException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
@@ -131,11 +132,25 @@ public class CertificateWrapper {
         return date.after(x509Certificate.getNotBefore()) && date.before(x509Certificate.getNotAfter());
     }
 
-    public List<CertificateWrapper> getCertificatesChain() {
-        var chain = new ArrayList<CertificateWrapper>();
+    public X500Principal getIssuerX500Principal() {
+        return x509Certificate.getIssuerX500Principal();
+    }
 
-        chain.add(this);
-        return chain;
+    public X500Principal getSubjectX500Principal() {
+        return x509Certificate.getSubjectX500Principal();
+    }
+
+    public boolean verify(PublicKey key) {
+        try {
+            x509Certificate.verify(key);
+            return true;
+        } catch (CertificateException|NoSuchAlgorithmException|SignatureException|InvalidKeyException|NoSuchProviderException e) {
+            return false;
+        }
+    }
+
+    public PublicKey getPublicKey() {
+        return x509Certificate.getPublicKey();
     }
 
     private Set<CertificateKeyUser> getKeyUser() {
