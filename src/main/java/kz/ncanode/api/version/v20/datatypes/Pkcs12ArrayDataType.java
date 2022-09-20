@@ -35,7 +35,8 @@ public class Pkcs12ArrayDataType extends ApiDependencies implements InputType {
 
     @Override
     public void input(Object data) {
-        p12array = (JSONArray)data;
+        p12array = new JSONArray();
+        p12array.add(data);
     }
 
     public int size() {
