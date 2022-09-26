@@ -1,6 +1,7 @@
 package kz.ncanode.service;
 
 import kz.ncanode.dto.request.XmlSignRequest;
+import kz.ncanode.dto.response.VerificationResponse;
 import kz.ncanode.dto.response.XmlSignResponse;
 import kz.ncanode.wrapper.DocumentWrapper;
 import kz.ncanode.wrapper.KalkanWrapper;
@@ -34,7 +35,7 @@ public class XmlService {
         final DocumentWrapper document = new DocumentWrapper(xml);
 
         if (removeSignatures) {
-            final Element root = (Element)document.getDocument().getFirstChild();
+            final Element root = document.getDocumentElement();
             final NodeList signatures = root.getElementsByTagName("ds:Signature");
 
             for (int i=0; i< signatures.getLength(); ++i) {
@@ -64,5 +65,13 @@ public class XmlService {
         return XmlSignResponse.builder()
             .xml(document.toString())
             .build();
+    }
+
+    public VerificationResponse verify(String xml) {
+        final DocumentWrapper document = read(xml, false);
+        final Element root = (Element)document.getDocument().getFirstChild();
+        final NodeList signatures = root.getElementsByTagName("ds:Signature");
+
+        return null;
     }
 }

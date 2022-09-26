@@ -9,6 +9,7 @@ import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.transforms.Transforms;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -47,6 +48,10 @@ public class DocumentWrapper {
             log.error("XML parsing error", e);
             throw new ServerException("Cannot read XML", e);
         }
+    }
+
+    public Element getDocumentElement() {
+        return document.getDocumentElement();
     }
 
     /**
