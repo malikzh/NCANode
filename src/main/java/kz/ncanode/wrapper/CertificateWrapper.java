@@ -4,14 +4,16 @@ import kz.gov.pki.kalkan.asn1.DERIA5String;
 import kz.gov.pki.kalkan.asn1.x509.*;
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.x509.extension.X509ExtensionUtil;
-import kz.ncanode.dto.certificate.CertificateInfo;
-import kz.ncanode.dto.certificate.CertificateKeyUsage;
-import kz.ncanode.dto.certificate.CertificateKeyUser;
-import kz.ncanode.dto.certificate.CertificateSubject;
+import kz.ncanode.dto.certificate.*;
+import kz.ncanode.dto.crl.CrlResult;
+import kz.ncanode.dto.crl.CrlStatus;
+import kz.ncanode.dto.ocsp.OcspStatus;
 import kz.ncanode.util.KalkanUtil;
 import kz.ncanode.util.Util;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.bouncycastle.asn1.x509.Extension;
 
 import javax.naming.InvalidNameException;
@@ -34,9 +36,22 @@ public class CertificateWrapper {
     @Getter
     private final X509Certificate x509Certificate;
 
+    @Getter
+    @Setter
+    private CertificateWrapper issuerCertificate;
+
+    @Getter
+    @Setter
+    private List<OcspStatus> ocspStatus;
+
+    @Getter
+    @Setter
+    private CrlStatus crlStatus;
+
     private final String[] signAlg;
 
     public CertificateWrapper(X509Certificate certificate) {
+        Objects.requireNonNull(certificate);
         x509Certificate = certificate;
         signAlg = KalkanUtil.getSignMethodByOID(x509Certificate.getSigAlgOID());
     }
@@ -63,12 +78,17 @@ public class CertificateWrapper {
      * Создает объект CertificateInfo
      * @return CertificateInfo
      */
-    public CertificateInfo toCertificateInfo() {
+    public CertificateInfo toCertificateInfo(boolean checkOcsp, boolean checkCrl) {
         final X509Certificate cert = getX509Certificate();
 
+        val revocations = new ArrayList<CertificateRevocationStatus>();
+
+        revocations.add(crlStatus.toCertificateRevocationStatus());
+        revocations.addAll(ocspStatus.stream().map(OcspStatus::toCertificateRevocationStatus).toList());
+
         return CertificateInfo.builder()
-            .valid(false)
-            .revokedBy(Collections.emptySet())
+            .valid(isValid(checkOcsp, checkCrl))
+            .revocations(revocations)
             .notBefore(cert.getNotBefore())
             .notAfter(cert.getNotAfter())
             .keyUsage(CertificateKeyUsage.fromKeyUsageBits(cert.getKeyUsage()))
@@ -122,6 +142,21 @@ public class CertificateWrapper {
         }
 
         return crls.stream().map(u -> Util.createNewUrl(u, log)).filter(Objects::nonNull).toList();
+    }
+
+    /**
+     * Метод для валидации сертификата
+     *
+     * @param checkOcsp
+     * @param checkCrl
+     * @return
+     */
+    public boolean isValid(boolean checkOcsp, boolean checkCrl) {
+        return isDateValid()
+            && issuerCertificate != null
+            && issuerCertificate.isDateValid()
+            && (!checkOcsp || (ocspStatus != null && ocspStatus.stream().allMatch(OcspStatus::isActive)))
+            && (!checkCrl || (crlStatus != null && crlStatus.getResult().equals(CrlResult.ACTIVE)));
     }
 
     public boolean isDateValid() {

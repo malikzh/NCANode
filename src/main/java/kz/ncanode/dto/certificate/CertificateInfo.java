@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -12,7 +13,7 @@ import java.util.Set;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class CertificateInfo {
     private final boolean valid;
-    private final Set<CertificateRevocation> revokedBy;
+    private final List<CertificateRevocationStatus> revocations;
     private final Date notBefore;
     private final Date notAfter;
     private final CertificateKeyUsage keyUsage;

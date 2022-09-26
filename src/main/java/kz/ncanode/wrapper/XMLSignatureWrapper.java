@@ -4,6 +4,7 @@ import kz.ncanode.exception.ServerException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.xml.security.exceptions.XMLSecurityException;
+import org.apache.xml.security.keys.keyresolver.KeyResolverException;
 import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.signature.XMLSignatureException;
 import org.apache.xml.security.utils.XMLUtils;
@@ -11,12 +12,22 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.security.PrivateKey;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
 public class XMLSignatureWrapper {
 
     @Getter
     private final XMLSignature xmlSignature;
+
+    public XMLSignatureWrapper(Element signature) {
+        try {
+            xmlSignature = new XMLSignature(signature, "");
+        } catch (XMLSecurityException e) {
+            throw new ServerException("XML Signature creation error", e);
+        }
+    }
 
     public XMLSignatureWrapper(Document document, String signAlgorithmId) {
         try {
@@ -47,6 +58,22 @@ public class XMLSignatureWrapper {
         } catch (XMLSignatureException e) {
             log.error("XML Signing error", e);
             throw new ServerException("XML Signing error", e);
+        }
+    }
+
+    public Optional<CertificateWrapper> getCertificate() {
+        try {
+            return Optional.of(new CertificateWrapper(xmlSignature.getKeyInfo().getX509Certificate()));
+        } catch (KeyResolverException e) {
+            return Optional.empty();
+        }
+    }
+
+    public boolean check() {
+        try {
+            return xmlSignature.checkSignatureValue(getCertificate().orElseThrow().getX509Certificate());
+        } catch (XMLSignatureException|NoSuchElementException e) {
+            return false;
         }
     }
 }
