@@ -100,9 +100,15 @@ public class CmsService {
         }
     }
 
-    public CmsVerificationResponse verify(String signedCms, boolean checkOcsp, boolean checkCrl) {
+    public CmsVerificationResponse verify(String signedCms, String detachedData, boolean checkOcsp, boolean checkCrl) {
         try {
             CMSSignedData cms = new CMSSignedData(Base64.getDecoder().decode(signedCms.getBytes(StandardCharsets.UTF_8)));
+
+            if (detachedData != null && cms.getSignedContent() == null) {
+                cms = new CMSSignedData(new CMSProcessableByteArray(Base64.getDecoder().decode(detachedData)),
+                    Base64.getDecoder().decode(signedCms));
+            }
+
             CertStore certStore = cms.getCertificatesAndCRLs("Collection", KalkanProvider.PROVIDER_NAME);
             val signerIt = cms.getSignerInfos().getSigners().iterator();
 
@@ -123,6 +129,8 @@ public class CmsService {
 
                 while (certIt.hasNext()) {
                     CertificateWrapper cert = new CertificateWrapper((X509Certificate) certIt.next());
+
+                    certificateService.attachValidationData(cert, checkOcsp, checkCrl);
 
                     if (!signer.verify(cert.getPublicKey(), KalkanProvider.PROVIDER_NAME) || !cert.isValid(currentDate, checkOcsp, checkCrl)) {
                         valid = false;
