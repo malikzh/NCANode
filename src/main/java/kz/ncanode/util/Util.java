@@ -1,8 +1,11 @@
 package kz.ncanode.util;
 
+import kz.gov.pki.kalkan.asn1.ASN1InputStream;
+import kz.gov.pki.kalkan.asn1.DERObject;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -69,5 +72,12 @@ public class Util {
                 u -> Util.sha1(u.toString()),
                 Function.identity()
             ));
+    }
+
+    public static DERObject byteToASN1(byte[] data) throws IOException {
+        try (ASN1InputStream in = new ASN1InputStream(data))
+        {
+            return in.readObject();
+        }
     }
 }

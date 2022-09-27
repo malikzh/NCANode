@@ -1,11 +1,20 @@
 package kz.ncanode.service;
 
+import kz.gov.pki.kalkan.asn1.ASN1Encodable;
+import kz.gov.pki.kalkan.asn1.ASN1EncodableVector;
+import kz.gov.pki.kalkan.asn1.DERSet;
+import kz.gov.pki.kalkan.asn1.cms.Attribute;
+import kz.gov.pki.kalkan.asn1.cms.AttributeTable;
+import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSException;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData;
+import kz.gov.pki.kalkan.jce.provider.cms.SignerInformation;
 import kz.gov.pki.kalkan.tsp.*;
 import kz.ncanode.configuration.TspConfiguration;
 import kz.ncanode.exception.TspException;
+import kz.ncanode.util.Util;
+import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
@@ -95,6 +104,22 @@ public class TspService {
 
     public BigInteger generateNonce() {
         return BigInteger.valueOf(System.currentTimeMillis());
+    }
+
+    public SignerInformation addTspToSigner(SignerInformation signer, X509Certificate cert, String useTsaPolicy) throws NoSuchAlgorithmException, NoSuchProviderException, TSPException, IOException {
+        AttributeTable unsignedAttributes = signer.getUnsignedAttributes();
+        ASN1EncodableVector vector = new ASN1EncodableVector();
+
+        if (unsignedAttributes != null) {
+            vector = unsignedAttributes.toASN1EncodableVector();
+        }
+
+        TimeStampToken tsp = create(signer.getSignature(), new CertificateWrapper(cert).getHashAlgorithmId(), useTsaPolicy);
+        byte[] ts = tsp.getEncoded();
+        ASN1Encodable signatureTimeStamp = new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, new DERSet(Util.byteToASN1(ts)));
+        vector.add(signatureTimeStamp);
+
+        return SignerInformation.replaceUnsignedAttributes(signer, new AttributeTable(vector));
     }
 
     private TimeStampResponse makeRequest(byte[] request) {

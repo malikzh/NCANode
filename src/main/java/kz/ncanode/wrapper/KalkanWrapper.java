@@ -6,6 +6,7 @@ import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.exception.KeyException;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.util.KeyUtil;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ import java.util.stream.IntStream;
 @Component
 @RequiredArgsConstructor
 public class KalkanWrapper {
+    @Getter
     private final KalkanProvider kalkanProvider;
 
     /**
