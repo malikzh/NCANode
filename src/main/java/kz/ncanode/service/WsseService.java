@@ -1,6 +1,7 @@
 package kz.ncanode.service;
 
 import kz.ncanode.dto.request.WsseSignRequest;
+import kz.ncanode.dto.response.VerificationResponse;
 import kz.ncanode.dto.response.XmlSignResponse;
 import kz.ncanode.exception.ClientException;
 import kz.ncanode.exception.KeyException;
@@ -11,17 +12,18 @@ import kz.ncanode.wrapper.KeyStoreWrapper;
 import kz.ncanode.wrapper.XMLSignatureWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+import org.apache.ws.security.components.crypto.CertificateStore;
 import org.apache.ws.security.message.token.SecurityTokenReference;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.message.WSSecHeader;
 import org.apache.xml.security.c14n.Canonicalizer;
+import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.transforms.Transforms;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
@@ -32,8 +34,9 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.Set;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -46,6 +49,7 @@ public class WsseService {
 
     private final KalkanWrapper kalkanWrapper;
     private final XmlService xmlService;
+    private final CertificateService certificateService;
 
     /**
      * Подписывает Wsse XML
@@ -61,10 +65,7 @@ public class WsseService {
 
             // sign a soap request according to a reference implementation from smartbridge
             SOAPMessage msg = MessageFactory.newInstance().createMessage(null, new ByteArrayInputStream(
-                (wsseSignRequest.isTrimXml() ?
-                    removeWhitespace(wsseSignRequest.getXml()) :
-                    wsseSignRequest.getXml()
-                ).trim().getBytes(StandardCharsets.UTF_8)
+                xmlService.prepare(wsseSignRequest.getXml(), wsseSignRequest.isTrimXml()).getBytes(StandardCharsets.UTF_8)
             ));
             SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
             SOAPBody body = env.getBody();
@@ -112,30 +113,54 @@ public class WsseService {
             }
         } catch (KeyException e) {
             throw new ClientException(e.getMessage(), e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ServerException(e.getMessage(), e);
         }
     }
 
-    private String removeWhitespace(String xml) {
-        val document = xmlService.read(xml, false);
+    /**
+     * Проверяет подписанный SOAP-конверт
+     *
+     * @param xml soap envelope
+     * @param checkOcsp Проверять в OCSP
+     * @param checkCrl Проверять в CRL
+     * @return Результат проверки
+     */
+    public VerificationResponse verify(String xml, boolean checkOcsp, boolean checkCrl) {
+        try {
+            SOAPMessage msg = MessageFactory.newInstance().createMessage(null, new ByteArrayInputStream(
+                xmlService.prepare(xml, false).getBytes(StandardCharsets.UTF_8)
+            ));
+            SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
+            Document doc = env.getOwnerDocument();
 
-        Set<org.w3c.dom.Node> toRemove = new HashSet<>();
-        DocumentTraversal t = (DocumentTraversal) document.getDocument();
-        NodeIterator it = t.createNodeIterator(document.getDocument(),
-            NodeFilter.SHOW_TEXT, null, true);
+            Element root = (Element) doc.getFirstChild();
+            NodeList signatures = root.getElementsByTagName("ds:Signature");
 
-        for (org.w3c.dom.Node n = it.nextNode(); n != null; n = it.nextNode()) {
-            if (n.getNodeValue().trim().isEmpty()) {
-                toRemove.add(n);
-            }
+            boolean valid = true;
+
+            final ArrayList<CertificateWrapper> certs = new ArrayList<>();
+
+            final Date currentDate = certificateService.getCurrentDate();
+
+            Node sigNode = signatures.item(0);
+            XMLSignature signature = new XMLSignature((Element) sigNode, "");
+            NodeList securityRef = root.getElementsByTagName("wsse:SecurityTokenReference");
+            SecurityTokenReference ref = new SecurityTokenReference((Element) securityRef.item(0));
+            CertificateWrapper cert = new CertificateWrapper(ref.getKeyIdentifier(new CertificateStore(new X509Certificate[]{}))[0]);
+
+            certificateService.attachValidationData(cert, checkOcsp, checkCrl);
+
+            valid = signature.checkSignatureValue(cert.getPublicKey()) && cert.isValid(currentDate, checkOcsp, checkCrl);
+
+            certs.add(cert);
+
+            return VerificationResponse.builder()
+                .valid(valid)
+                .signers(certs.stream().map(c -> c.toCertificateInfo(currentDate, checkOcsp, checkCrl)).toList())
+                .build();
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage(), e);
         }
-
-        for (org.w3c.dom.Node n : toRemove) {
-            n.getParentNode().removeChild(n);
-        }
-
-        return document.toString();
     }
 }

@@ -10,11 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
 
 
 /**
@@ -123,5 +125,30 @@ public class XmlService {
             .valid(valid)
             .signers(certs.stream().map(c -> c.toCertificateInfo(currentDate, checkOcsp, checkCrl)).toList())
             .build();
+    }
+
+    public String prepare(String xml, boolean trimXml) {
+        return (trimXml ? removeWhitespace(xml) : xml).trim();
+    }
+
+    public String removeWhitespace(String xml) {
+        val document = read(xml, false);
+
+        Set<Node> toRemove = new HashSet<>();
+        DocumentTraversal t = (DocumentTraversal) document.getDocument();
+        NodeIterator it = t.createNodeIterator(document.getDocument(),
+            NodeFilter.SHOW_TEXT, null, true);
+
+        for (org.w3c.dom.Node n = it.nextNode(); n != null; n = it.nextNode()) {
+            if (n.getNodeValue().trim().isEmpty()) {
+                toRemove.add(n);
+            }
+        }
+
+        for (org.w3c.dom.Node n : toRemove) {
+            n.getParentNode().removeChild(n);
+        }
+
+        return document.toString();
     }
 }
