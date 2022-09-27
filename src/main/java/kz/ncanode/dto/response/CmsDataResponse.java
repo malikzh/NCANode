@@ -7,6 +7,6 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
-public class CmsResponse extends StatusResponse {
-    private String cms;
+public class CmsDataResponse extends StatusResponse {
+    private String data;
 }

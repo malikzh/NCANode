@@ -8,6 +8,7 @@ import kz.gov.pki.kalkan.tsp.TimeStampTokenInfo;
 import kz.gov.pki.kalkan.util.encoders.Hex;
 import kz.ncanode.dto.cms.CmsSignerInfo;
 import kz.ncanode.dto.request.CmsCreateRequest;
+import kz.ncanode.dto.response.CmsDataResponse;
 import kz.ncanode.dto.response.CmsResponse;
 import kz.ncanode.dto.response.CmsVerificationResponse;
 import kz.ncanode.dto.tsp.TsaPolicy;
@@ -24,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Signature;
 import java.security.cert.CertStore;
@@ -41,6 +44,12 @@ public class CmsService {
     private final TspService tspService;
     private final  CertificateService certificateService;
 
+    /**
+     * Создает подписанный CMS
+     *
+     * @param cmsCreateRequest
+     * @return
+     */
     public CmsResponse create(CmsCreateRequest cmsCreateRequest) {
         try {
             CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
@@ -100,6 +109,15 @@ public class CmsService {
         }
     }
 
+    /**
+     * Проверяет подписанный CMS
+     *
+     * @param signedCms
+     * @param detachedData
+     * @param checkOcsp
+     * @param checkCrl
+     * @return
+     */
     public CmsVerificationResponse verify(String signedCms, String detachedData, boolean checkOcsp, boolean checkCrl) {
         try {
             CMSSignedData cms = new CMSSignedData(Base64.getDecoder().decode(signedCms.getBytes(StandardCharsets.UTF_8)));
@@ -176,6 +194,31 @@ public class CmsService {
                 .build();
         } catch (Exception e) {
             throw new ClientException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Извлекает данные из CMS если они есть
+     *
+     * @param signedCms
+     * @return
+     */
+    public CmsDataResponse extract(String signedCms) {
+        try {
+            val cms = new CMSSignedData(Base64.getDecoder().decode(signedCms));
+
+            if (cms.getSignedContent() == null) {
+                throw new ClientException("CMS doesn't have signed content");
+            }
+
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                cms.getSignedContent().write(out);
+                return CmsDataResponse.builder()
+                    .data(Base64.getEncoder().encodeToString(out.toByteArray()))
+                    .build();
+            }
+        } catch (CMSException|IOException e) {
+            throw new ServerException(e.getMessage(), e);
         }
     }
 }
