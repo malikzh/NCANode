@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 
@@ -89,8 +90,10 @@ public class XmlService {
 
         final ArrayList<CertificateWrapper> certs = new ArrayList<>();
 
+        final Date currentDate = certificateService.getCurrentDate();
+
         for (int i = 0; i<signaturesLength; ++i) {
-            final Element signature = (Element)signatures.item(i);
+            final Element signature = (Element)signatures.item(signatures.getLength() - 1);
 
             if (Objects.isNull(signature)) {
                 throw new ClientException("Bad signature: Element 'ds:Reference' is not found in XML document");
@@ -108,16 +111,17 @@ public class XmlService {
 
             certificateService.attachValidationData(cert, checkOcsp, checkCrl);
 
-            if (!xmlSignature.check() || !cert.isValid(checkOcsp, checkCrl)) {
+            if (!xmlSignature.check() || !cert.isValid(currentDate, checkOcsp, checkCrl)) {
                 valid = false;
             }
+            root.removeChild(signature);
 
             certs.add(cert);
         }
 
         return VerificationResponse.builder()
             .valid(valid)
-            .signers(certs.stream().map(c -> c.toCertificateInfo(checkOcsp, checkCrl)).toList())
+            .signers(certs.stream().map(c -> c.toCertificateInfo(currentDate, checkOcsp, checkCrl)).toList())
             .build();
     }
 }

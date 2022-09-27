@@ -51,7 +51,7 @@ dependencies {
     // KalkanCrypt
     implementation name: 'kalkancrypt-0.7'
     implementation name: 'kalkancrypt_xmldsig-0.4'
-    implementation 'org.apache.santuario:xmlsec:2.3.0'
+    implementation 'org.apache.santuario:xmlsec:2.1.7'
 
     // SOAP/WSSE
     implementation 'org.apache.ws.security:wss4j:1.6.19'

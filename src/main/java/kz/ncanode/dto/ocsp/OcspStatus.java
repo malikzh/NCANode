@@ -17,7 +17,7 @@ public class OcspStatus {
     private String url;
 
     public boolean isActive() {
-        return result.equals(OcspResult.ACTIVE);
+        return getResult().equals(OcspResult.ACTIVE);
     }
 
     public CertificateRevocationStatus toCertificateRevocationStatus() {

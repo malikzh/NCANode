@@ -78,16 +78,21 @@ public class CertificateWrapper {
      * Создает объект CertificateInfo
      * @return CertificateInfo
      */
-    public CertificateInfo toCertificateInfo(boolean checkOcsp, boolean checkCrl) {
+    public CertificateInfo toCertificateInfo(Date date ,boolean checkOcsp, boolean checkCrl) {
         final X509Certificate cert = getX509Certificate();
 
         val revocations = new ArrayList<CertificateRevocationStatus>();
 
-        revocations.add(crlStatus.toCertificateRevocationStatus());
-        revocations.addAll(ocspStatus.stream().map(OcspStatus::toCertificateRevocationStatus).toList());
+        if (crlStatus != null) {
+            revocations.add(crlStatus.toCertificateRevocationStatus());
+        }
+
+        if (ocspStatus != null) {
+            revocations.addAll(ocspStatus.stream().map(OcspStatus::toCertificateRevocationStatus).toList());
+        }
 
         return CertificateInfo.builder()
-            .valid(isValid(checkOcsp, checkCrl))
+            .valid(isValid(date, checkOcsp, checkCrl))
             .revocations(revocations)
             .notBefore(cert.getNotBefore())
             .notAfter(cert.getNotAfter())
@@ -151,10 +156,10 @@ public class CertificateWrapper {
      * @param checkCrl
      * @return
      */
-    public boolean isValid(boolean checkOcsp, boolean checkCrl) {
-        return isDateValid()
+    public boolean isValid(Date date, boolean checkOcsp, boolean checkCrl) {
+        return isDateValid(date)
             && issuerCertificate != null
-            && issuerCertificate.isDateValid()
+            && issuerCertificate.isDateValid(date)
             && (!checkOcsp || (ocspStatus != null && ocspStatus.stream().allMatch(OcspStatus::isActive)))
             && (!checkCrl || (crlStatus != null && crlStatus.getResult().equals(CrlResult.ACTIVE)));
     }

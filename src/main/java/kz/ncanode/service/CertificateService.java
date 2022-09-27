@@ -4,6 +4,8 @@ import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 @RequiredArgsConstructor
 public class CertificateService {
@@ -15,5 +17,9 @@ public class CertificateService {
         cert.setIssuerCertificate(caService.getRootCertificateFor(cert).orElseThrow());
         cert.setOcspStatus(checkOcsp ? ocspService.verify(cert, cert.getIssuerCertificate()) : null);
         cert.setCrlStatus(checkCrl ? crlService.verify(cert) : null);
+    }
+
+    public Date getCurrentDate() {
+        return new Date();
     }
 }
