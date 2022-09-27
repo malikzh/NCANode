@@ -7,6 +7,8 @@ import lombok.experimental.UtilityClass;
 import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.utils.Constants;
 
+import java.util.HashMap;
+
 /**
  * Вспомогательные методы для работы с KalkanCrypt
  */
@@ -77,5 +79,23 @@ public class KalkanUtil {
         else {
             return TSPAlgorithms.GOST34311;
         }
+    }
+
+    public static String getHashingAlgorithmByOID(String oid) {
+        HashMap<String, String> algos = new HashMap<>();
+
+        algos.put(TSPAlgorithms.MD5,"MD5");
+        algos.put(TSPAlgorithms.SHA1,"SHA1");
+        algos.put(TSPAlgorithms.SHA224,"SHA224");
+        algos.put(TSPAlgorithms.SHA256,"SHA256");
+        algos.put(TSPAlgorithms.SHA384,"SHA384");
+        algos.put(TSPAlgorithms.SHA512,"SHA512");
+        algos.put(TSPAlgorithms.RIPEMD128,"RIPEMD128");
+        algos.put(TSPAlgorithms.RIPEMD160,"RIPEMD160");
+        algos.put(TSPAlgorithms.RIPEMD256,"RIPEMD256");
+        algos.put(TSPAlgorithms.GOST34311GT,"GOST34311GT");
+        algos.put(TSPAlgorithms.GOST34311,"GOST34311");
+
+        return algos.get(oid);
     }
 }
