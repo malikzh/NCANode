@@ -24,6 +24,7 @@ class CmsServiceTest extends Specification implements WithTestData {
         request.setData(TEST_DATA)
         request.setSigners([
             new SignerRequest(KEY_INDIVIDUAL_VALID_SIGN_2004, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD, null, null),
+            new SignerRequest(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_PASSWORD, null, null),
         ])
 
         when:
