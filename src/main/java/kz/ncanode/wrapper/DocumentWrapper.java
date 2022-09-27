@@ -4,7 +4,6 @@ import kz.ncanode.exception.ServerException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.exceptions.XMLSecurityException;
 import org.apache.xml.security.transforms.Transforms;
@@ -72,21 +71,6 @@ public class DocumentWrapper {
             log.error("XMLDSig Signature creation error", e);
             throw new ServerException("XMLDSig Signature creation error", e);
         }
-
-        return sig;
-    }
-
-    /**
-     * Создает и добавляет подпись WSSE
-     *
-     * @param certificateWrapper Сертификат
-     * @return
-     */
-    public XMLSignatureWrapper createWsseSignature(CertificateWrapper certificateWrapper) {
-        final XMLSignatureWrapper sig = new XMLSignatureWrapper(getDocument(),
-            certificateWrapper.getSignAlgorithmId(), Canonicalizer.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-
-        getDocument().getDocumentElement().appendChild(sig.getXmlSignature().getElement());
 
         return sig;
     }

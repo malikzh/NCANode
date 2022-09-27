@@ -11,6 +11,7 @@ import kz.ncanode.wrapper.KeyStoreWrapper;
 import kz.ncanode.wrapper.XMLSignatureWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.ws.security.message.token.SecurityTokenReference;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.message.WSSecHeader;
@@ -18,6 +19,9 @@ import org.apache.xml.security.c14n.Canonicalizer;
 import org.apache.xml.security.transforms.Transforms;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+import org.w3c.dom.traversal.DocumentTraversal;
+import org.w3c.dom.traversal.NodeFilter;
+import org.w3c.dom.traversal.NodeIterator;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
@@ -28,6 +32,8 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -39,6 +45,7 @@ import java.util.UUID;
 public class WsseService {
 
     private final KalkanWrapper kalkanWrapper;
+    private final XmlService xmlService;
 
     /**
      * Подписывает Wsse XML
@@ -53,7 +60,12 @@ public class WsseService {
             final CertificateWrapper cert = keystore.getCertificate();
 
             // sign a soap request according to a reference implementation from smartbridge
-            SOAPMessage msg = MessageFactory.newInstance().createMessage(null, new ByteArrayInputStream(wsseSignRequest.getXml().getBytes(StandardCharsets.UTF_8)));
+            SOAPMessage msg = MessageFactory.newInstance().createMessage(null, new ByteArrayInputStream(
+                (wsseSignRequest.isTrimXml() ?
+                    removeWhitespace(wsseSignRequest.getXml()) :
+                    wsseSignRequest.getXml()
+                ).trim().getBytes(StandardCharsets.UTF_8)
+            ));
             SOAPEnvelope env = msg.getSOAPPart().getEnvelope();
             SOAPBody body = env.getBody();
 
@@ -102,7 +114,28 @@ public class WsseService {
             throw new ClientException(e.getMessage(), e);
         }
         catch (Exception e) {
-            throw new ServerException("Cannot create SOAP Envelope. Please see logs");
+            throw new ServerException(e.getMessage(), e);
         }
+    }
+
+    private String removeWhitespace(String xml) {
+        val document = xmlService.read(xml, false);
+
+        Set<org.w3c.dom.Node> toRemove = new HashSet<>();
+        DocumentTraversal t = (DocumentTraversal) document.getDocument();
+        NodeIterator it = t.createNodeIterator(document.getDocument(),
+            NodeFilter.SHOW_TEXT, null, true);
+
+        for (org.w3c.dom.Node n = it.nextNode(); n != null; n = it.nextNode()) {
+            if (n.getNodeValue().trim().isEmpty()) {
+                toRemove.add(n);
+            }
+        }
+
+        for (org.w3c.dom.Node n : toRemove) {
+            n.getParentNode().removeChild(n);
+        }
+
+        return document.toString();
     }
 }

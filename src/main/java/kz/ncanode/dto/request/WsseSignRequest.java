@@ -16,4 +16,6 @@ public class WsseSignRequest {
     private String password;
 
     private String alias;
+
+    private boolean trimXml = false;
 }
