@@ -1,5 +1,6 @@
 package kz.ncanode.unit.service
 
+
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData
 import kz.ncanode.common.WithTestData
 import kz.ncanode.dto.request.CmsCreateRequest
@@ -43,6 +44,16 @@ class CmsServiceTest extends Specification implements WithTestData {
 
         and: 'check content in cms'
         checkOriginalData(cms, detached)
+
+        and: 'check signers quantity'
+        def it = cms.getSignerInfos().getSigners().iterator()
+        def signersQuantity = 0
+        while (it.hasNext()) {
+            signersQuantity++;
+            it.next()
+        }
+
+        signersQuantity == request.getSigners().size()
 
         where:
         caseName   | detached
