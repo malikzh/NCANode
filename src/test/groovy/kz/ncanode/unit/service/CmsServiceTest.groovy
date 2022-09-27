@@ -34,6 +34,5 @@ class CmsServiceTest extends Specification implements WithTestData {
         then:
         response != null
         cms != null
-
     }
 }
