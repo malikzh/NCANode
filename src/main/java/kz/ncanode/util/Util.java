@@ -2,6 +2,8 @@ package kz.ncanode.util;
 
 import kz.gov.pki.kalkan.asn1.ASN1InputStream;
 import kz.gov.pki.kalkan.asn1.DERObject;
+import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
+import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
 import lombok.experimental.UtilityClass;
 import org.slf4j.Logger;
 
@@ -78,6 +80,18 @@ public class Util {
         try (ASN1InputStream in = new ASN1InputStream(data))
         {
             return in.readObject();
+        }
+    }
+
+    public static String getDigestAlgorithmOidBYSignAlgorithmOid(String signOid) {
+        if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
+            return CMSSignedDataGenerator.DIGEST_SHA1;
+        }
+        else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
+            return CMSSignedDataGenerator.DIGEST_SHA256;
+        }
+        else {
+            return CMSSignedDataGenerator.DIGEST_GOST34311_95;
         }
     }
 }

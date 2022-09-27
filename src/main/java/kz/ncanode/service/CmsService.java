@@ -6,6 +6,7 @@ import kz.ncanode.dto.request.CmsCreateRequest;
 import kz.ncanode.dto.response.CmsResponse;
 import kz.ncanode.dto.tsp.TsaPolicy;
 import kz.ncanode.exception.ServerException;
+import kz.ncanode.util.Util;
 import kz.ncanode.wrapper.CertificateWrapper;
 import kz.ncanode.wrapper.KalkanWrapper;
 import kz.ncanode.wrapper.KeyStoreWrapper;
@@ -43,11 +44,11 @@ public class CmsService {
                 CertificateWrapper cert = ks.getCertificate();
                 val privateKey = ks.getPrivateKey();
 
-                Signature sig = Signature.getInstance(cert.getSignAlgorithmId(), kalkanWrapper.getKalkanProvider());
+                Signature sig = Signature.getInstance(cert.getX509Certificate().getSigAlgName(), kalkanWrapper.getKalkanProvider());
                 sig.initSign(privateKey);
                 sig.update(data);
 
-                generator.addSigner(privateKey, cert.getX509Certificate(), cert.getHashAlgorithmId());
+                generator.addSigner(privateKey, cert.getX509Certificate(), Util.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getX509Certificate().getSigAlgOID()));
                 certificates.add(cert.getX509Certificate());
             }
 
