@@ -63,7 +63,7 @@ public class CmsService {
             );
 
             generator.addCertificatesAndCRLs(chainStore);
-            CMSSignedData signed = generator.generate(cmsData, true, KalkanProvider.PROVIDER_NAME);
+            CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), KalkanProvider.PROVIDER_NAME);
 
             // TSP
             if (cmsCreateRequest.isWithTsp()) {
