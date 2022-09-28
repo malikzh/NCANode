@@ -11,6 +11,7 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/malikzh/ncanode)
 [![Build CI and Test](https://github.com/malikzh/NCANode/actions/workflows/build-ci.yml/badge.svg)](https://github.com/malikzh/NCANode/actions/workflows/build-ci.yml)
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/malikzh/NCANode)
+[![codecov](https://codecov.io/gh/malikzh/NCANode/branch/master/graph/badge.svg?token=yk6ln3mlTB)](https://codecov.io/gh/malikzh/NCANode)
 
 ---
 
