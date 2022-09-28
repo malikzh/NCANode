@@ -5,6 +5,7 @@ import kz.gov.pki.kalkan.asn1.DERObject;
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -13,11 +14,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -99,5 +98,18 @@ public class Util {
         else {
             return CMSSignedDataGenerator.DIGEST_GOST34311_95;
         }
+    }
+
+    public static List<String> findAllUrls(String str) {
+        Pattern p = Pattern.compile("https?://[^\s]+", Pattern.CASE_INSENSITIVE);
+        val matcher = p.matcher(str);
+
+        List<String> urls = new ArrayList<>();
+
+        while (matcher.find()) {
+            urls.add(str.substring(matcher.start(), matcher.end()));
+        }
+
+        return urls;
     }
 }

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.security.cert.*;
@@ -92,7 +93,13 @@ public class CrlService {
                     continue;
                 }
 
-                downloadCrl(cacheDirectory, crlUrl);
+                Util.findAllUrls(crlUrl.toString()).forEach(url -> {
+                    try {
+                        downloadCrl(cacheDirectory, new URL(url));
+                    } catch (MalformedURLException e) {
+                        log.warn("Invalid CRL url: {}. Certificate: {}", crlUrl, cert.getSubjectX500Principal().toString());
+                    }
+                });
             }
 
             // Проверяем в CRL
