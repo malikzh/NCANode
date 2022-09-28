@@ -4,6 +4,7 @@ plugins {
     id 'java'
     id 'groovy'
     id 'war'
+    id 'jacoco'
 }
 
 group 'kz'
@@ -62,4 +63,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
 }
