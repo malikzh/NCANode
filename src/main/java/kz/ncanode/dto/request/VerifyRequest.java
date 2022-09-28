@@ -12,6 +12,6 @@ import java.util.Set;
 public abstract class VerifyRequest {
 
     @Builder.Default
-    private Set<CertificateRevocation> revocationCheck = Set.of(CertificateRevocation.CRL);
+    private Set<CertificateRevocation> revocationCheck = Set.of();
 
 }
