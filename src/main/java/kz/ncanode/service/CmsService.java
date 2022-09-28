@@ -1,6 +1,6 @@
 package kz.ncanode.service;
 
-import kz.gov.pki.kalkan.asn1.pkcs.Attribute;
+import kz.gov.pki.kalkan.asn1.cms.Attribute;
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.jce.provider.cms.*;
@@ -240,16 +240,21 @@ public class CmsService {
                         CMSSignedData tspCms = new CMSSignedData(attr.getAttrValues().getObjectAt(0).getDERObject().getEncoded());
                         TimeStampTokenInfo tspi = tspService.info(tspCms).orElseThrow();
 
-                        TspInfo tspInfo = TspInfo.builder()
-                            .serialNumber(new String(Hex.encode(tspi.getSerialNumber().toByteArray())))
-                            .genTime(tspi.getGenTime())
-                            .policy(tspi.getPolicy())
-                            .tsa(tspi.getTsa().toString())
-                            .tspHashAlgorithm(KalkanUtil.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()))
-                            .hash(new String(Hex.encode(tspi.getMessageImprintDigest())))
-                            .build();
+                        try {
+                            TspInfo tspInfo = TspInfo.builder()
+                                .serialNumber(new String(Hex.encode(tspi.getSerialNumber().toByteArray())))
+                                .genTime(tspi.getGenTime())
+                                .policy(tspi.getPolicy())
+                                .tsa(Optional.ofNullable(tspi.getTsa()).map(Object::toString).orElse(null))
+                                .tspHashAlgorithm(KalkanUtil.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()))
+                                .hash(new String(Hex.encode(tspi.getMessageImprintDigest())))
+                                .build();
 
-                        signerInfoBuilder.tsp(tspInfo);
+                            signerInfoBuilder.tsp(tspInfo);
+                        } catch (Exception e) {
+                            log.warn(e.getMessage(), e);
+                        }
+
                     }
                 }
 
