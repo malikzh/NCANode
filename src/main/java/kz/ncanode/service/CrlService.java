@@ -87,15 +87,14 @@ public class CrlService {
         for (final String cacheDirectory : List.of(CRL_CACHE_DELTA_DIR_NAME, CRL_CACHE_FULL_DIR_NAME)) {
             // Догружаем CRL из сертификата
             for (URL crlUrl : cert.getCrlList()) {
-                File crlFile = getCrlCacheFilePathFor(cacheDirectory, crlUrl);
-
-                if (crlFile.exists()) {
-                    continue;
-                }
-
                 Util.findAllUrls(crlUrl.toString()).forEach(url -> {
                     try {
-                        downloadCrl(cacheDirectory, new URL(url));
+                        URL u = new URL(url);
+                        File crlFile = getCrlCacheFilePathFor(cacheDirectory, u);
+
+                        if (!crlFile.exists()) {
+                            downloadCrl(cacheDirectory, u);
+                        }
                     } catch (MalformedURLException e) {
                         log.warn("Invalid CRL url: {}. Certificate: {}", crlUrl, cert.getSubjectX500Principal().toString());
                     }
