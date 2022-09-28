@@ -1,0 +1,65 @@
+plugins {
+    id 'org.springframework.boot' version '2.7.2'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    id 'java'
+    id 'groovy'
+    id 'war'
+}
+
+group 'kz'
+version project.hasProperty('version') ? version : '3.0.0-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'lib'
+    }
+
+    mavenCentral()
+}
+
+dependencies {
+    // Spring
+    implementation 'org.codehaus.groovy:groovy-all:3.0.12'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    implementation 'org.springframework:spring-aspects:5.3.22'
+    implementation 'org.springframework.retry:spring-retry:1.3.3'
+
+    // Spock/Mockito
+    testImplementation 'org.spockframework:spock-core:2.1-groovy-3.0'
+    testImplementation 'org.spockframework:spock-spring:2.1-groovy-3.0'
+    testImplementation 'org.mockito:mockito-core:4.6.1'
+
+    // Lombok
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    // KalkanCrypt
+    implementation name: 'kalkancrypt-0.7'
+    implementation name: 'kalkancrypt_xmldsig-0.4'
+    implementation 'org.apache.santuario:xmlsec:2.1.7'
+
+    // SOAP/WSSE
+    implementation 'org.apache.ws.security:wss4j:1.6.19'
+    implementation 'org.apache.wss4j:wss4j-ws-security-dom:2.4.1'
+    implementation 'jakarta.xml.ws:jakarta.xml.ws-api:3.0.1'
+    implementation 'com.sun.xml.ws:jaxws-rt:3.0.2'
+}
+
+test {
+    useJUnitPlatform()
+}
