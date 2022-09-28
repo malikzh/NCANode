@@ -76,7 +76,10 @@ jacocoTestReport {
             fileTree(dir: it, exclude: [
                     "kz/ncanode/NCANode.class",
                     "kz/ncanode/constants/*",
-                    "kz/ncanode/exception/*"
+                    "kz/ncanode/exception/*",
+                    "kz/ncanode/configuration/**",
+                    "kz/ncanode/dto/**",
+                    "kz/ncanode/util/*",
             ])
         }))
     }
