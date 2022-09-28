@@ -35,4 +35,6 @@ jobs:
           wget -P ./lib "$KALKAN_CRYPT_URL"
           wget -P ./lib "$KALKAN_CRYPT_XMLDSIG_URL"
       - name: Build and Run tests
-        run: ./gradlew clean test
+        run: ./gradlew clean build test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
