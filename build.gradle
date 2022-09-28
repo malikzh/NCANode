@@ -70,6 +70,16 @@ jacocoTestReport {
         xml.enabled true
         html.enabled false
     }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "kz/ncanode/NCANode.class",
+                    "kz/ncanode/constants/*",
+                    "kz/ncanode/exception/*"
+            ])
+        }))
+    }
 }
 
 check.dependsOn jacocoTestReport
