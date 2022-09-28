@@ -13,8 +13,8 @@ import kz.gov.pki.kalkan.jce.provider.cms.SignerInformation;
 import kz.gov.pki.kalkan.tsp.*;
 import kz.ncanode.configuration.TspConfiguration;
 import kz.ncanode.exception.TspException;
+import kz.ncanode.util.KalkanUtil;
 import kz.ncanode.util.Util;
-import kz.ncanode.wrapper.CertificateWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
@@ -114,7 +114,7 @@ public class TspService {
             vector = unsignedAttributes.toASN1EncodableVector();
         }
 
-        TimeStampToken tsp = create(signer.getSignature(), new CertificateWrapper(cert).getHashAlgorithmId(), useTsaPolicy);
+        TimeStampToken tsp = create(signer.getSignature(), KalkanUtil.getTspHashAlgorithmByOid(cert.getSigAlgOID()), useTsaPolicy);
         byte[] ts = tsp.getEncoded();
         ASN1Encodable signatureTimeStamp = new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, new DERSet(Util.byteToASN1(ts)));
         vector.add(signatureTimeStamp);
