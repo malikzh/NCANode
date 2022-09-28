@@ -8,6 +8,7 @@ import kz.gov.pki.kalkan.tsp.TimeStampTokenInfo;
 import kz.gov.pki.kalkan.util.encoders.Hex;
 import kz.ncanode.dto.cms.CmsSignerInfo;
 import kz.ncanode.dto.request.CmsCreateRequest;
+import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.dto.response.CmsDataResponse;
 import kz.ncanode.dto.response.CmsResponse;
 import kz.ncanode.dto.response.CmsVerificationResponse;
@@ -28,12 +29,12 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Signature;
-import java.security.cert.CertStore;
-import java.security.cert.CollectionCertStoreParameters;
-import java.security.cert.X509CertSelector;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,17 +59,7 @@ public class CmsService {
             CMSProcessable cmsData = new CMSProcessableByteArray(data);
             List<X509Certificate> certificates = new ArrayList<>();
 
-            for (KeyStoreWrapper ks : kalkanWrapper.read(cmsCreateRequest.getSigners())) {
-                CertificateWrapper cert = ks.getCertificate();
-                val privateKey = ks.getPrivateKey();
-
-                Signature sig = Signature.getInstance(cert.getX509Certificate().getSigAlgName(), kalkanWrapper.getKalkanProvider());
-                sig.initSign(privateKey);
-                sig.update(data);
-
-                generator.addSigner(privateKey, cert.getX509Certificate(), Util.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getX509Certificate().getSigAlgOID()));
-                certificates.add(cert.getX509Certificate());
-            }
+            addSignersToCmsGenerator(generator, data, certificates, cmsCreateRequest.getSigners());
 
             CertStore chainStore = CertStore.getInstance(
                 "Collection",
@@ -80,6 +71,83 @@ public class CmsService {
                 KalkanProvider.PROVIDER_NAME
             );
 
+            generator.addCertificatesAndCRLs(chainStore);
+            CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), KalkanProvider.PROVIDER_NAME);
+
+            // TSP
+            if (cmsCreateRequest.isWithTsp()) {
+                String useTsaPolicy = Optional.ofNullable(cmsCreateRequest.getTsaPolicy()).map(TsaPolicy::getPolicyId)
+                    .orElse(TsaPolicy.TSA_GOST_POLICY.getPolicyId());
+
+                SignerInformationStore signerStore = signed.getSignerInfos();
+                List<SignerInformation> signers = new ArrayList<>();
+
+                int i = 0;
+
+                for (Object signer : signerStore.getSigners()) {
+                    X509Certificate cert = certificates.get(i++);
+                    signers.add(tspService.addTspToSigner((SignerInformation) signer, cert, useTsaPolicy));
+                }
+
+                signed = CMSSignedData.replaceSigners(signed, new SignerInformationStore(signers));
+            }
+
+            return CmsResponse.builder()
+                .cms(Base64.getEncoder().encodeToString(signed.getEncoded()))
+                .build();
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Добавляет подписи уже в существующий CMS
+     *
+     * @param cmsCreateRequest
+     * @return
+     */
+    public CmsResponse addSigners(CmsCreateRequest cmsCreateRequest) {
+        try {
+            if (cmsCreateRequest.getCms() == null || cmsCreateRequest.getCms().isEmpty()) {
+                throw new ClientException("CMS argument not specified");
+            }
+
+            val decodedCms = Base64.getDecoder().decode(cmsCreateRequest.getCms());
+
+            var cms = new CMSSignedData(decodedCms);
+            byte[] decodedData = null;
+
+            if (cms.getSignedContent() == null) {
+                if (cmsCreateRequest.getData() == null || cmsCreateRequest.getData().isEmpty()) {
+                    throw new ClientException("Data must be specifieed for detached CMS");
+                }
+
+                decodedData = Base64.getDecoder().decode(cmsCreateRequest.getData());
+
+                cms = new CMSSignedData(new CMSProcessableByteArray(decodedData), decodedCms);
+            } else {
+                try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                    cms.getSignedContent().write(out);
+                    decodedData = out.toByteArray();
+                }
+            }
+
+            CMSProcessable cmsData = new CMSProcessableByteArray(decodedData);
+
+            CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+            generator.addSigners(cms.getSignerInfos());
+
+            val certificates = getCertificatesFromCmsSignedData(cms);
+
+            addSignersToCmsGenerator(generator, decodedData, certificates, cmsCreateRequest.getSigners());
+
+            CertStore chainStore = CertStore.getInstance(
+                "Collection",
+                new CollectionCertStoreParameters(
+                    certificates.stream().distinct().collect(Collectors.toList())
+                ),
+                KalkanProvider.PROVIDER_NAME
+            );
             generator.addCertificatesAndCRLs(chainStore);
             CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), KalkanProvider.PROVIDER_NAME);
 
@@ -218,6 +286,48 @@ public class CmsService {
                     .build();
             }
         } catch (CMSException|IOException e) {
+            throw new ServerException(e.getMessage(), e);
+        }
+    }
+
+    private List<X509Certificate> getCertificatesFromCmsSignedData(CMSSignedData cms) throws
+        NoSuchAlgorithmException,
+        NoSuchProviderException,
+        CMSException,
+        CertStoreException
+    {
+        List<X509Certificate> certs = new ArrayList<>();
+        SignerInformationStore signers = cms.getSignerInfos();
+        CertStore clientCerts = cms.getCertificatesAndCRLs("Collection", KalkanProvider.PROVIDER_NAME);
+
+        for (var signerObj : signers.getSigners()) {
+            SignerInformation signer = (SignerInformation) signerObj;
+            X509CertSelector signerConstraints = signer.getSID();
+            Collection<? extends Certificate> certCollection = clientCerts.getCertificates(signerConstraints);
+
+            for (Certificate certificate : certCollection) {
+                X509Certificate cert = (X509Certificate) certificate;
+                certs.add(cert);
+            }
+        }
+
+        return certs;
+    }
+
+    private void addSignersToCmsGenerator(CMSSignedDataGenerator generator, byte[] decodedData, List<X509Certificate> certificates, List<SignerRequest> signers) {
+        try {
+            for (KeyStoreWrapper ks : kalkanWrapper.read(signers)) {
+                CertificateWrapper cert = ks.getCertificate();
+                val privateKey = ks.getPrivateKey();
+
+                Signature sig = Signature.getInstance(cert.getX509Certificate().getSigAlgName(), kalkanWrapper.getKalkanProvider());
+                sig.initSign(privateKey);
+                sig.update(decodedData);
+
+                generator.addSigner(privateKey, cert.getX509Certificate(), Util.getDigestAlgorithmOidBYSignAlgorithmOid(cert.getX509Certificate().getSigAlgOID()));
+                certificates.add(cert.getX509Certificate());
+            }
+        } catch (Exception e) {
             throw new ServerException(e.getMessage(), e);
         }
     }

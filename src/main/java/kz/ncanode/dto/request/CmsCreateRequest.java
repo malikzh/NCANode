@@ -8,6 +8,7 @@ import java.util.List;
 
 @Data
 public class CmsCreateRequest {
+    private String cms;
     private String data;
 
     @NotEmpty
