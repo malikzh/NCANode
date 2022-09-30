@@ -1,0 +1,281 @@
+openapi: 3.0.3
+info:
+  title: NCANode 3.x HTTP API
+  description: Документация API для NCANode 3.x
+  version: 3.0.0
+  license:
+    name: MIT
+    url: https://github.com/malikzh/NCANode/blob/master/LICENSE
+  contact:
+    name: Malik Zharykov
+    url: https://github.com/malikzh
+    email: cmalikz.h@gmail.com
+
+servers:
+  - url: http://localhost:14579/
+    description: Локальный сервер
+
+tags:
+  - name: Info
+    description: Методы для получения информации
+
+paths:
+  /pkcs12/info:
+    post:
+      tags:
+        - Info
+      summary: Возвращает информацию о ключе, его владельце и т.д.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keys:
+                  type: array
+                  minItems: 1
+                  items:
+                    $ref: '#/components/schemas/SignerRequest'
+      responses:
+        '200':
+          description: Информация о ключах.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseStatus'
+                  - properties:
+                      valid:
+                        type: boolean
+                        example: true
+                        description: Если все сертификаты в списке валидны, то будет true, иначе false.
+                      signers:
+                        type: array
+                        description: Информация о сертификате
+                        items:
+                          $ref: '#/components/schemas/CertificateInfo'
+
+components:
+  schemas:
+    ### COMMON ###
+    SignerRequest:
+      type: object
+      description: Формат запроса на получение информации о ключах
+      required:
+        - key
+        - password
+      properties:
+        key:
+          type: string
+          description: Ключ закодированный в формате Base64
+          example: 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
+        password:
+          type: string
+          description: Пароль от ключа
+          example: Qwerty12
+        keyAlias:
+          type: string
+          description: Алиас ключа в хранилище PKCS12
+          example: e3fe35adda3b45cbea3a3f1ed48f263dc55c556e
+
+    ## certificate info
+
+    CertificateRevocation:
+      type: string
+      example: OCSP
+      enum:
+        - OCSP
+        - CRL
+
+    CertificateRevocationStatus:
+      type: object
+      description: Статус отозванности в OCSP/CRL
+      properties:
+        revoked:
+          type: boolean
+          description: Отозван ли сертификат
+          example: false
+        by:
+          $ref: '#/components/schemas/CertificateRevocation'
+
+    CertificateKeyUser:
+      type: string
+      enum:
+        - INDIVIDUAL
+        - ORGANIZATION
+        - CEO
+        - CAN_SIGN
+        - CAN_SIGN_FINANCIAL
+        - HR
+        - EMPLOYEE
+        - NCA_PRIVILEGES
+        - NCA_ADMIN
+        - NCA_MANAGER
+        - NCA_OPERATOR
+        - IDENTIFICATION
+        - IDENTIFICATION_CON
+        - IDENTIFICATION_REMOTE
+        - IDENTIFICATION_REMOTE_DIGITAL_ID
+      example: INDIVIDUAL
+      description: >
+        Пользователь ключа. По этому полю можно узнать к какой "роли" принадлежит ключ, физ.лицо или компания и т.д.
+        
+        * `INDIVIDUAL` - Физ. лицо
+        * `ORGANIZATION` - Организация
+        * `CEO` - Первый руководитель
+        * `CAN_SIGN` - Сотрудник с правом подписи
+        * `CAN_SIGN_FINANCIAL` - Сотрудник с правом подписи финансовых документов
+        * `HR` - Сотрудник отдела кадров
+        * `EMPLOYEE` - Сотрудник организации
+        * `NCA_PRIVILEGES` - Полномочия в информационной системе НУЦ РК
+        * `NCA_ADMIN` - Администратор НУЦ РК
+        * `NCA_MANAGER` - Менеджер НУЦ РК
+        * `NCA_OPERATOR` - Оператор НУЦ РК
+        * `IDENTIFICATION` - Ключ прошел идентификацию
+        * `IDENTIFICATION_CON` - Идентификация через оператора ЦОН
+        * `IDENTIFICATION_REMOTE` - Удаленная идентификация
+        * `IDENTIFICATION_REMOTE_DIGITAL_ID` - Владелец ключа прошел идентификацию с помощью DigitalID.
+
+    CertificateSubject:
+      type: object
+      description: Информация о сертификате. Не все поля могут присутствовать.
+      properties:
+        commonName:
+          type: string
+          example: ТЕСТОВ ТЕСТ
+          description: Имя и фамилия
+        lastName:
+          type: string
+          example: ТЕСТОВИЧ
+          description: Обычно отчество. Но это не точно.
+        surName:
+          type: string
+          example: ТЕСТОВ
+          description: Фамилия
+        email:
+          type: string
+          example: test@example.com
+          description: E-mail
+        organization:
+          type: string
+          example: "ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \"РОГА И КОПЫТА\""
+          description: Название организации
+        gender:
+          type: string
+          example: FEMALE
+          enum:
+            - NONE
+            - MALE
+            - FEMALE
+          description: >
+            Пол.
+            
+            * `NONE` - Неизвестно
+            * `MALE` - Мужской
+            * `FEMALE` - Женский
+        iin:
+          type: string
+          example: 061231231234
+          description: ИИН
+        bin:
+          type: string
+          example: 061231231234
+          description: БИН
+        country:
+          type: string
+          example: KZ
+          description: Страна
+        locality:
+          type: string
+          example: ALMATY
+          description: Регион
+        state:
+          type: string
+          example: ALMATY
+          description: Регион/Провинция
+        dn:
+          type: string
+          example: EMAILADDRESS=TEST@EXAMPLE.COM, O=\"ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ \\\"РОГА И КОПЫТА\\\"\", GIVENNAME=ТЕСТОВИЧ, OU=BIN123412341234, C=KZ, SERIALNUMBER=IIN123412341234, CN=ТЕСТОВ ТЕСТ, SURNAME=ТЕСТОВ
+
+    CertificateInfo:
+      type: object
+      description: Информация о сертификате
+      properties:
+        valid:
+          type: boolean
+          description: |
+            Если сертификат валидный, то будет true, иначе false. Стоить отметить, что на результат этого поля
+            влияет кем выдан сертификат, срок и статусы ocsp и сrl, если указан аргумент revocationCheck.
+        revocations:
+          type: array
+          description: |
+            Список проверок на отозванность. В каком сервисе проверялась отозванность сертификата можно узнать
+            по полу "by".
+          items:
+            $ref: '#/components/schemas/CertificateRevocation'
+        notBefore:
+          type: string
+          example: 2022-05-02T08:38:13.000+00:00
+          description: Поле "не ранее". Другими словами, дата начала действия сертификата.
+        notAfter:
+          type: string
+          example: 2023-05-02T08:38:13.000+00:00
+          description: Поле "не позднее". Другими словами, дата окончания действия сертификата.
+        keyUsage:
+          type: string
+          example: SIGN
+          enum:
+            - UNKNOWN
+            - AUTH
+            - SIGN
+          description: Поле "Использование ключа". По этому полю можно понять, это сертификат для подписи или для аутентификации.
+        serialNumber:
+          type: string
+          example: 60ba4568ae98fa522a13fa711c6cb60c69bee2c4
+          description: Серийиный номер сертификата.
+        signAlg:
+          type: string
+          example: ECGOST34310
+          description: Алгоритм подписи использованный в сертификате
+        keyUser:
+          $ref: '#/components/schemas/CertificateKeyUser'
+        publicKey:
+          type: string
+          example: AQEGCiqDDgMKAQMBAQADQwAEQNCA6hr4brWULD+tUvKCEqttjkgn
+          description: Публичный ключ, закодированный в формате Base64.
+        signature:
+          type: string
+          example: wRgLVl6m2wBifamg/e2ZHAVfI1X9h0109c6/r2m8gJrVO9Zs
+          description: Подпись ключа в формате Base64
+        subject:
+          allOf:
+            - $ref: '#/components/schemas/CertificateSubject'
+            - description: Информация о владельце сертификата
+        issuer:
+          allOf:
+            - $ref: '#/components/schemas/CertificateSubject'
+            - description: Информация о том кто выдал сертификат
+
+    ### REQUESTS ###
+    VerifyRequest:
+      type: object
+      properties:
+        revocationCheck:
+          type: array
+          description: Проверять ключ в OCSP/CRL на отозванность
+          items:
+            $ref: '#/components/schemas/CertificateRevocation'
+
+    ### RESPONSES ###
+    ResponseStatus:
+      type: object
+      description:  Статус ответа
+      properties:
+        status:
+          type: integer
+          example: 200
+          description: Http статус
+        message:
+          type: string
+          example: OK
+          description: Сообщение от сервера. Если произойдет ошибка, то причина ошибки будет указана здесь.
