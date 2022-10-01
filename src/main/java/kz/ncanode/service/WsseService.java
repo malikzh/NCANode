@@ -36,6 +36,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.UUID;
 
@@ -136,6 +137,13 @@ public class WsseService {
 
             Element root = (Element) doc.getFirstChild();
             NodeList signatures = root.getElementsByTagName("ds:Signature");
+
+            if (signatures.getLength() < 1) {
+                return VerificationResponse.builder()
+                    .valid(false)
+                    .signers(Collections.emptyList())
+                    .build();
+            }
 
             boolean valid = true;
 

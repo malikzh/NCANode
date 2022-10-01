@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kz.ncanode.common.IntegrationSpecification
 import kz.ncanode.controller.WsseController
 import kz.ncanode.dto.request.WsseSignRequest
+import kz.ncanode.dto.request.XmlVerifyRequest
+import kz.ncanode.dto.response.VerificationResponse
 import kz.ncanode.dto.response.XmlSignResponse
 import kz.ncanode.service.WsseService
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,5 +74,21 @@ class WsseIntegrationTest extends IntegrationSpecification {
         then:
         response != null
         response.xml != null
+    }
+
+    def "test wsse verify"() {
+        given:
+        def request = XmlVerifyRequest.builder()
+            .xml(XML_STRING)
+            .build()
+
+        def requestJson = new ObjectMapper().writeValueAsString(request)
+
+        when:
+        def response = doPostQuery(URI_VERIFY, requestJson, 200, VerificationResponse)
+
+        then:
+        response != null
+        !response.valid
     }
 }
