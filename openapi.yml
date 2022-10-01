@@ -24,6 +24,8 @@ tags:
     description: Методы для работы с SOAP Wsse (SmartBridge)
   - name: CMS
     description: Методы для работы с CMS (Cryptogrphic Message Syntax)
+  - name: Maintenance
+    description: Методы для получении информации о состоянии сервера
 
 paths:
 
@@ -214,6 +216,37 @@ paths:
                         type: string
                         example: bG9sIGtlaw==
                         description: Извлеченные данные из CMS в формате Base64
+  /actuator/health:
+    get:
+      tags:
+        - Maintenance
+      summary: Получает состояние сервера. Можно использовать в качестве метода для проверки состояния сервера Healthcheck.
+      responses:
+        '200':
+          description: Информация о состоянии сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: UP
+                    enum:
+                      - UP
+                      - DOWN
+                      - OUT_OF_SERVICE
+                      - UNKOWN
+                    description: >
+                      Текущее состояние сервера.
+                      
+                      * `UP` - Все ок, сервер работает
+                      
+                      * `DOWN` - Сервер не готов обслуживать
+                      
+                      * `OUT_OF_SERVICE` - Сервер временно неработоспособен
+                      
+                      * `UNKOWN` - Состояние неизвестно
 
 components:
   requestBodies:
