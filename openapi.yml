@@ -96,6 +96,8 @@ components:
         application/json:
           schema:
             allOf:
+              - required:
+                  - xml
               - $ref: '#/components/schemas/VerifyRequest'
               - properties:
                   xml:
