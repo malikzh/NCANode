@@ -20,6 +20,8 @@ tags:
     description: Методы для получения информации
   - name: XML
     description: Методы для работы с XML
+  - name: Wsse
+    description: Методы для работы с SOAP Wsse (SmartBridge)
 
 paths:
   /pkcs12/info:
@@ -73,6 +75,8 @@ paths:
                   type: boolean
                   description: Если true, то удалить прошлы подписи и добавить новые.
                   example: false
+                trimXml:
+                  $ref: '#/components/schemas/TrimXML'
       responses:
         200:
           $ref: '#/components/responses/XMLSignResponse'
@@ -87,6 +91,38 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VerificationResponse'
+
+  /wsse/sign:
+    post:
+      tags:
+        - Wsse
+      summary: Подписывает SOAP-конверт
+      requestBody:
+        description: Запрос на подпись Wsse
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - xml
+                - key
+                - password
+              properties:
+                xml:
+                  type: string
+                  description: SOAP-конверт для подписи. Его можно взять из примера SmartBridge.
+                  example: '<?xml version="1.0" encoding="UTF-8" standalone="no"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header><wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" SOAP-ENV:mustUnderstand="1"><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"> <ds:SignedInfo> <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/> <ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/> <ds:Reference URI="#id-0ace83d4-0477-4890-90b2-50b3bd434949"> <ds:Transforms> <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/> </ds:Transforms> <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/> <ds:DigestValue>eqb07lP5ddRlF3l0RYWk7ZwYDjoifevOji7IqgtnX/I=</ds:DigestValue> </ds:Reference> </ds:SignedInfo> <ds:SignatureValue> UtsuKUTvau85Pdl2LN9o5GAuqMsoB6bV+t/WzPHlhRL3iEu6+J82Ib1GMdLdV6wTNZVW7szRgWz3&#13; mjxyyo9PVyytjyCWHyfFl7NPcAxM220cvW3+lVhNdpVqhQQ8l5e+zJQWwMdRreevj5qxWw4KxZRP&#13; rZ7xxyG05tq3NuVFonfbQ48TzHOdBTixbyPyi8rvmf663N0v0h8+wMZblZPy/7IMLJygbw1va6MU&#13; O62+gqaNBwDXSxGysozb2Zoc9Kg/ST7tcTeowB5VUbd0WJd+aH+R3OCa1goQMhse4BsNxrU0SnnC&#13; ngGRfppW9X6JHGjv5s7WO7Y+YPB9gqeN71+Huw== </ds:SignatureValue> <ds:KeyInfo> <wsse:SecurityTokenReference><wsse:KeyIdentifier EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3">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</wsse:KeyIdentifier></wsse:SecurityTokenReference> </ds:KeyInfo> </ds:Signature></wsse:Security></SOAP-ENV:Header><SOAP-ENV:Body xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="id-0ace83d4-0477-4890-90b2-50b3bd434949"><ns3:SendMessage xmlns:ns3="http://bip.bee.kz/SyncChannel/v10/Types"><request><requestInfo><messageId>ccb1010b-8446-4937-913f-c87a717f6809</messageId><serviceId>GBDFL_UniversalServiceSync</serviceId><messageDate>2019-12-25T12:48:21.024Z</messageDate><sender><senderId>smartbridge</senderId><password>123</password></sender><properties><key>CONNECTOR_CLIENT</key><value>true</value></properties></requestInfo><requestData><ns4:data xmlns:cs="http://message.persistence.interactive.nat" xmlns:ns4="http://bip.bee.kz/SyncChannel/v10/Interfaces" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="cs:Request"><messageId>1</messageId><messageDate>2017-10-12T15:22:16.183+06:00</messageDate><senderCode>smartbridge</senderCode><iin>931002451325</iin></ns4:data></requestData></request></ns3:SendMessage></SOAP-ENV:Body></SOAP-ENV:Envelope>'
+                key:
+                  $ref: '#/components/schemas/SignerKey'
+                password:
+                  $ref: '#/components/schemas/SignerPassword'
+                keyAlias:
+                  $ref: '#/components/schemas/SignerAlias'
+                trimXml:
+                  $ref: '#/components/schemas/TrimXML'
+      responses:
+        '200':
+          $ref: '#/components/responses/XMLSignResponse'
 
 components:
   requestBodies:
@@ -140,10 +176,31 @@ components:
 
   schemas:
     ### COMMON ###
+    TrimXML:
+      type: boolean
+      example: false
+      default: false
+      description: Если true, то перед подписью NCANode удалит пробелы и переносы строк XML.
+
     SignedXML:
       type: string
       description: Подписанная XML строка
       example: '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?><a><b>test</b><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\r\n<ds:SignedInfo>\r\n<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>\r\n<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311\"/>\r\n<ds:Reference URI=\"\">\r\n<ds:Transforms>\r\n<ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>\r\n<ds:Transform Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments\"/>\r\n</ds:Transforms>...'
+
+    SignerKey:
+      type: string
+      description: Ключ закодированный в формате Base64
+      example: MIINKwIBAzCCDOUGCSqGSIb3DQEHAaCCDNYEggzSMIAwgAYJKoZIhvcNAQcBoIAEggWcMIIFmDCCBZQGCyqGSIb3DQEMCgECoIIE+jCCBPYwKAYKKoZIhvcNAQwBAzAaBBRxyJ7TugQ4zkcyvcTx/+LL6KBBNAICBAAEggTILKXc5o5ETFi/N84ecjmbGnLfIyy0aTc8ldJD63G7jkUS9jQXBwjmjLOTliPKX86UzX6H7EY26DEAn3bB2ysnSrdWCK1l1NTRNE8MlX/b8a/sVBISYk1Zf3iogOhCEQw26H8dzwjdVukhS/AATt8MgmRolujDfaYFF3qbkcukADLJVFqH3iuwXEakq+lhgHWX8mKySPZvmRWLCz5rIKzC7FMtZvrofzrTu8vTh6sNaUo5HNrrCzGNAkPW8+AFWA+RoJTIb9TqbeItctXPoKhBBDJFxlGib4d9eBENKsMI3z06kQ3PUDsaVKUsyx3ygZm1lBC4+/relFG/s1W+IZFIYufLRJgLsGU7TLHbr0/LfY4cR4CbRiMPS8WzrFzJ44Q/+iyTZuiRYuEuwCfWhA+m3wGhvFH0TJIqyuAJKQ/9qBx0MTP0jZWK1RF4W6wDU3jGQ6kBIF9Re7FgeOM4qn/ppLWmgjrAuaIw4jZlhJeyiyEM5LovA3knyADi9FWukx5FuHyNXKHaJAYVgqXs1y+eNGDyIih5Y5TtwGxsxC17PubTWJRFj8QgZq84ki4p2eAZrY3DQTZjR2FshYj5Hrk6YNGcmvYE4SmIr0V6+64Q+NFdU00UnFcdL+hUzqgIzWlEkw01tMGw8nGs47iMKhQZhba5H/hvTQDUty7CaV+ypAKCA7/u9wJthtGTz4DReLUP3oM7fwNPC+eI6+ILp0ijNERgz7XCpRdDCzz+xhG38FpcqlD0gRJ1bHK/lgy41eaZ1U8Xz5NZF0NF2Iy1RzNOTnr9a2LGPaRjhXxAWsi+wsihKn16xi0VUWsI8MXdx1xuHVB/WnDmZakKLkSUMUH444Yy2uFDK1WZcse3e5PV8FXGFZTHJttplk5Y2E/lsLgQIBgxqFPUXMNtXUpEX8ZTtqw2TY/si1NSRzD9sZgDTXUU/oCFbsb5401oZcUGBWIT6UfFdpAeeCWIXNt+qQFZGzgW5AH+XNnmqjNKpER/4DThJFJIMXwQVdnNQO19qeH+t1/1t5woQHHnVpQiGQacghQkmhLmqQEjaibO/9QIPzJRmkCSGX4vNHXc57fEjX1k/oWFGZ/hgy0GOGxZ1WhUm6izKnxEp23wCU4hqFj0cyAOx4d/csdMIWxEhuIycHi3c/O1nS8NC6oLXdKTsXtVTDY+Vb8smgdTwfPTXPUjAlTOgfo43OC7YxotTPYAMwvi8RelrjWbfbMtczZ1RhalMK1QjnS784FcSuWOoHzEoIChHUbsnE/fynsybuooX4UrVz1YnKtW4ma1zelUGCADcdaw8Uy1X600bRbDmyYVgy5/FEyNdlVRfpEbP4viPM2s1QZOY/yZx8QPIlazGBghzhejyJ5MGTSx4kEsUkWz7xbtIwwX1sM95BEW28Dsibk8TEHiIo33q5R/0656RgpwFjILxJ+a6RhoOUWnCN8UrdlUQfBtMzCS3sLfMHyoQ2ZGkzyiUuhuegFxfzy6kA/FjK4HszkEVg2Jw6rbRo3yErR7Gs2+LUXaHYvfzs2ZXnKuleb1CLXah217+B4itDOjhsO4yTMEWpOzUZzIgPz30E8FdawEfXTEf+3xacTWUHkloq9iSH/jnX/LYPef6o0VVoq71yJFhRQDMYGGMCMGCSqGSIb3DQEJFTEWBBTj/jWt2jtFy+o6Px7UjyY9xVxVbjBfBgkqhkiG9w0BCRQxUh5QAGUAMwBmAGUAMwA1AGEAZABkAGEAMwBiADQANQBjAGIAZQBhADMAYQAzAGYAMQBlAGQANAA4AGYAMgA2ADMAZABjADUANQBjADUANQA2AGUAAAAAMIAGCSqGSIb3DQEHBqCAMIACAQAwgAYJKoZIhvcNAQcBMCgGCiqGSIb3DQEMAQYwGgQUlL7cIDoUX2fAGdXygBvjpUio/ZoCAgQAoIAEggbAfPIq5cem4q1gNrAKv1UCUordtkNDNPhe3g6kXgrXm9dYOaiorqkbjEIlb2lA6BJU/RrxqpNMCiaI+m0/KwFLyWh8Hv/T/dQjr4OlE7Yij7bEaC9qqnbZ5NrRHGdYt9GZnzZJ+CqNUdHSad+6CpGmDx8SVfxDjsKqjUTWfRWkh0xKZrKdALAwUk7w5hLVYI7H/6NDgm8pUOO6CA5Jjox31nLtvLwxyW5Dl5xl55q9PjhwbQUg/tf/vK8+BhKdiLStIFzlQ4kB6Kaxijqigu5L4syj8Dn3wDG+EfzEm9DVXKQV6ovoufyYQePcT/SybQ9bapHQrbWmMOk4yK/LZYjCUOPNAcPDZYnN0RZg5f+sLcqJq1h7uc6WjMTyq/Fh6P6xCEgS+NeyiFeWFZ6OCGOsfcBp/tdhvC75MpgTW853FAM8eX+LT4AyjVAhkKaypmEUCoc1ekWuzKhtXav5xLiSCgUs3/7Z1mHlP98egiyMy+pH/c2934WOPsvt8y109nVi4TNQukFtrUGxzyCVPfWH4BYcQ9iF5xfLBJ/OfqAHg0B+ogBSkqG4hh3jBBxK/+9KMN2EK2teh6CmfTSByNTKRvlQDu4LaXabOE397R4XBkUajrhEV8ckEYZFHb3X8C8flcWQ9YP7fL2d0KiFQpQl3YAor5M0uXsJ+GP7YLZamjBRqgH2njHDgcv67CVjuuLk55DojfGg67vC7lauU09HhvDH2Tfwnf/q3SCASnP3rqNma29MPXPU4W+z1sHXL1nNcVwGn338gp1nHQYzEe5mAXEWRDLlxj/4gMqm8qS/6H6DKKQJbD/oQYrrWBI3gXqsagFOCMhA7IJJrqSUd2oubkIRvWbBl7lpYJw+KjQkFaHqRauOy7R35Q0stMAp9zXSB1tW4OpyvR8E0qKg4zWkZcNFyYPL6FnBucsYIqRXzwabwx1frhyAxjVebQhSun1KPvYUS4FmmAjzVpdWuknX6pJLYO1jAPDtlROxlD4+QnxrsAz98NjmOjGQNQCx9u0Oi9MZe3p80+4FTohzTOOvnxiG09Qr9DjW+fSdCSsxE8xXKOJNh0H132cArxOj6KRLdZ/bL1Xy8qLmSUzDl7oG66qNwKlPoPf0G0C3iRSTQ2ePXCWePIUyWXoxIKysdriFZx+I5iWh81ZMuTbsEnWTRr++WLYwhV0W3CBiA1ZW6W5xAnCRr+0/zwaqN+eyX6coFnDRKJMMRvlYV/sux56/e4BRUMnnJmnihpwQdw03dN8+mC0tNJCKHloBQcaMs1HFtvAiRsZn4xkAbTRSEo35yly2lXn8fzsNdOuznu2023aFytzvNOEnWlEb0nK1BdfEO/I5ReqS3mAX3d/zkLpfJm+tPB1bxMgh0RKzqiEqtiX8g5G1OLxOKrEKFKrPX9X9J/wAcwBIo4TGx+oWVwSN+L6zmPElHix5aYzE/zsLJG3HbtcNvIonWL3hQlft5CdC5Z5l6M6tvd77VD3+jrLRGQG7FGCo2bDN57zQUsnMqyCD+TwJGJ6ZwmobmdGmMIn/yfEFClOgL8wmgmQD93aYVHTQw8lPp2Pbo3L1BiNG0tMcaYygqOSzC4y0XiRJt2wY92j+d6L1zbyDCagEj15LLWsMKwh5z3RglNtTlMUJZgNpqDVcdegZEPNIX2KbQ00rRa2SSMYdBL3m1kuf9IrhST0zZkcY0osBgIx2CKBTeisYVIllQ7pXa1LIyu7SNEF3O59Mn88JtZVxAW0Zjm3iyZhCCpcC59EYNB06lLcQWQNKJ1CrlGqhnR8cWlqrGqHGJ8w/6FZwmOSvxCWqbKmDUCtyF1PgkrCif6gcY8ZYZQSKSdm1zk9H07YKw4ByTfdHrZBMAGgWJwFniP+wke0KYL6Vp6fVj0ucCq7yfyJw/oZ3EXQf+/s+I8IVTIB+K2xJuXAxofNTYxz9dh3gYK9MTNUOuaP7FE2MgezUaDidxcddDa9Y8R7dP+q09xHDra7iIOlc1lRZxX058bkDn7J7Q0n7EHLVPXHJ0VqN2Wd1vivm5RECj56YDQyOm1oavQrSZoEMEktWQXOK0SYY1FHNConGsE+0Pc3iOL/578G78neqr6/SOxSFXeOXhUbUBcabmkQMTeytUGAMhdPr36KUH42s1YoJ1k9uKReJWHBmowzqkGuZsFvDfbLC+aEKsp2b0DuonqWLqqbNp7Nnd4ID/G+KDTXNlDty9khDdIQb0JThIjmBl1jGZNyPlsoNcfz1xNFTdiX4/Dzcq4UkaGsoHQm6nBdDBIod2o34NjjyGg+vl/yEJxuDI7KKbb4npo/dAAAAAAAAAAAAAAAAMD0wITAJBgUrDgMCGgUABBSPNQumE0PL0YBGZCzdFANRufoZ+wQUJdczrZtPXqxivkC/ilzST4FzPpMCAgQA
+
+    SignerPassword:
+      type: string
+      description: Пароль от ключа
+      example: Qwerty12
+
+    SignerAlias:
+      type: string
+      description: Алиас ключа в хранилище PKCS12
+      example: e3fe35adda3b45cbea3a3f1ed48f263dc55c556e
 
     SignerRequest:
       type: object
@@ -153,17 +210,11 @@ components:
         - password
       properties:
         key:
-          type: string
-          description: Ключ закодированный в формате Base64
-          example: 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
+          $ref: '#/components/schemas/SignerKey'
         password:
-          type: string
-          description: Пароль от ключа
-          example: Qwerty12
+          $ref: '#/components/schemas/SignerPassword'
         keyAlias:
-          type: string
-          description: Алиас ключа в хранилище PKCS12
-          example: e3fe35adda3b45cbea3a3f1ed48f263dc55c556e
+          $ref: '#/components/schemas/SignerAlias'
 
     ## certificate info
 
