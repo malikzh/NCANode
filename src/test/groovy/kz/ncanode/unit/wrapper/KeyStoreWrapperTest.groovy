@@ -9,14 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.security.KeyStore
-import java.security.KeyStoreSpi
-import java.security.NoSuchAlgorithmException
-import java.security.UnrecoverableKeyException
+import java.security.*
 
 import static org.mockito.ArgumentMatchers.any
-import static org.mockito.Mockito.doThrow
-import static org.mockito.Mockito.mock
+import static org.mockito.Mockito.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class KeyStoreWrapperTest extends Specification implements WithTestData {
@@ -78,9 +74,21 @@ class KeyStoreWrapperTest extends Specification implements WithTestData {
         thrown(ServerException)
 
         where:
-        caseName                   | exception
-        'NoSuchAlgorithmException' | new NoSuchAlgorithmException()
+        caseName                    | exception
+        'NoSuchAlgorithmException'  | new NoSuchAlgorithmException()
         'UnrecoverableKeyException' | new UnrecoverableKeyException()
+    }
+
+    def "check exception thrown for getCertificate()"() {
+        given:
+        def keystore = mock(KeyStore)
+        def keystoreWrapper = new KeyStoreWrapper(keystore, "null", "")
+
+        when:
+        keystoreWrapper.getCertificate()
+
+        then:
+        thrown(ServerException)
     }
 
     private KeyStoreWrapper createKeyStore2015() {
