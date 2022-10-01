@@ -23,7 +23,7 @@ public class CmsController {
     public final CmsService cmsService;
 
     @PostMapping("/sign")
-    public ResponseEntity<CmsResponse> create(@Valid @RequestBody CmsCreateRequest cmsCreateRequest) {
+    public ResponseEntity<CmsResponse> sign(@Valid @RequestBody CmsCreateRequest cmsCreateRequest) {
         return ResponseEntity.ok(cmsService.create(cmsCreateRequest));
     }
 
