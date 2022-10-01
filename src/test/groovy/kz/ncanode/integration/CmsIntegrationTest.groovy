@@ -6,6 +6,7 @@ import kz.ncanode.controller.CmsController
 import kz.ncanode.dto.request.CmsCreateRequest
 import kz.ncanode.dto.request.CmsVerifyRequest
 import kz.ncanode.dto.request.SignerRequest
+import kz.ncanode.dto.response.CmsDataResponse
 import kz.ncanode.dto.response.CmsResponse
 import kz.ncanode.dto.response.CmsVerificationResponse
 import kz.ncanode.service.CmsService
@@ -88,5 +89,22 @@ class CmsIntegrationTest extends IntegrationSpecification {
         then:
         response != null
         response.signers.size() == 1
+        !response.valid
+    }
+
+    def "test extract"() {
+        given:
+        def request = CmsVerifyRequest.builder()
+            .cms(SIGNED_CMS)
+            .build()
+
+        def requestJson = new ObjectMapper().writeValueAsString(request)
+
+        when:
+        def response = doPostQuery(URI_EXTRACT, requestJson, 200, CmsDataResponse)
+
+        then:
+        response != null
+        response.data == Base64.encoder.encodeToString(TEST_DATA.getBytes(StandardCharsets.UTF_8))
     }
 }
