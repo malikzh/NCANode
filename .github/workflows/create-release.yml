@@ -34,7 +34,7 @@ jobs:
       - name: Release version
         run: echo $GITHUB_REF_NAME
       - name: Build and Run tests
-        run: ./gradlew -Pversion=$GITHUB_REF_NAME build test
+        run: ./gradlew -Pversion=$GITHUB_REF_NAME bootJar bootWar
       - uses: actions/upload-artifact@v3
         with:
           name: NCANode.jar
