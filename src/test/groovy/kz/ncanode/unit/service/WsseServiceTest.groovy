@@ -91,10 +91,11 @@ ngGRfppW9X6JHGjv5s7WO7Y+YPB9gqeN71+Huw==
     @Unroll('#caseName')
     def "test sign method"() {
         given:
-        def wsseSignRequest = new WsseSignRequest()
-        wsseSignRequest.setXml(xml)
-        wsseSignRequest.setKey(key)
-        wsseSignRequest.setPassword(password)
+        def wsseSignRequest = WsseSignRequest.builder()
+            .xml(xml)
+            .key(key)
+            .password(password)
+            .build()
 
         when:
         def response = wsseService.sign(wsseSignRequest)

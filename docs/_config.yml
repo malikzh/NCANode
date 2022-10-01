@@ -2,8 +2,8 @@ title: NCANode - Документация
 email: cmalikz.h@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Приложение-сервер для работы с Электронно Цифровой Подписью (ЭЦП) РК
-baseurl: "/NCANode"
-url: "https://malikzh.github.io"
+baseurl: ""
+url: "https://v3.ncanode.kz"
 twitter_username: malikzh
 github_username:  malikzh
 theme: minima

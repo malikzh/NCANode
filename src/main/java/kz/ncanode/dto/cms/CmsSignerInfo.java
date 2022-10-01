@@ -5,9 +5,11 @@ import kz.ncanode.dto.tsp.TspInfo;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
+@Jacksonized
 @Data
 @Builder
 public class CmsSignerInfo {
