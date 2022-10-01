@@ -40,22 +40,7 @@ paths:
                     $ref: '#/components/schemas/SignerRequest'
       responses:
         '200':
-          description: Информация о ключах.
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/ResponseStatus'
-                  - properties:
-                      valid:
-                        type: boolean
-                        example: true
-                        description: Если все сертификаты в списке валидны, то будет true, иначе false.
-                      signers:
-                        type: array
-                        description: Информация о сертификате
-                        items:
-                          $ref: '#/components/schemas/CertificateInfo'
+          $ref: '#/components/responses/VerificationResponse'
   /xml/sign:
     post:
       tags:
@@ -65,38 +50,56 @@ paths:
         Этот метод может также добавлять подписи уже в существующий XML. Для этого,
         просто передайте в этот метод подписанную XML строку.
       requestBody:
-        $ref: '#/components/requestBodies/XMLSignRequest'
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Запрос на подпись XML
+              required:
+                - xml
+                - signers
+              properties:
+                xml:
+                  type: string
+                  example: '<?xml version=\"1.0\" encoding=\"utf-8\"?><a><b>test</b></a>'
+                  description: XML Строка для подписи
+                signers:
+                  type: array
+                  description: Список ключей для подписи XML
+                  minItems: 1
+                  items:
+                    $ref: '#/components/schemas/SignerRequest'
+                clearSignatures:
+                  type: boolean
+                  description: Если true, то удалить прошлы подписи и добавить новые.
+                  example: false
       responses:
         200:
           $ref: '#/components/responses/XMLSignResponse'
 
+  /xml/verify:
+    post:
+      tags:
+        - XML
+      summary: Проверяет все подписи в XML
+      requestBody:
+        $ref: '#/components/requestBodies/XMLVerifyRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/VerificationResponse'
 
 components:
   requestBodies:
-    XMLSignRequest:
+    XMLVerifyRequest:
+      description: Запрос на проверку XML/WSSE
       content:
         application/json:
           schema:
-            type: object
-            description: Запрос на подпись XML
-            required:
-              - xml
-              - signers
-            properties:
-              xml:
-                type: string
-                example: '<?xml version=\"1.0\" encoding=\"utf-8\"?><a><b>test</b></a>'
-                description: XML Строка для подписи
-              signers:
-                type: array
-                description: Список ключей для подписи XML
-                minItems: 1
-                items:
-                  $ref: '#/components/schemas/SignerRequest'
-              clearSignatures:
-                type: boolean
-                description: Если true, то удалить прошлы подписи и добавить новые.
-                example: false
+            allOf:
+              - $ref: '#/components/schemas/VerifyRequest'
+              - properties:
+                  xml:
+                    $ref: '#/components/schemas/SignedXML'
 
   responses:
     XMLSignResponse:
@@ -108,12 +111,38 @@ components:
               - $ref: '#/components/schemas/ResponseStatus'
               - properties:
                   xml:
-                    type: string
-                    description: Подписанная XML строка
-                    example: '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?><a><b>test</b><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\r\n<ds:SignedInfo>\r\n<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>\r\n<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311\"/>\r\n<ds:Reference URI=\"\">\r\n<ds:Transforms>\r\n<ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>\r\n<ds:Transform Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments\"/>\r\n</ds:Transforms>...'
+                    $ref: '#/components/schemas/SignedXML'
+
+    VerificationResponse:
+      description: Результат проверки подписей в XML
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ResponseStatus'
+              - properties:
+                  valid:
+                    type: boolean
+                    example: true
+                    description: >
+                      Результат проверки всех подписей. Если всё ок, будет true, если хотя бы одна подпись невалидна, то false.
+                      На результат значения также влияет параметр `revocationCheck`. Если, например, указан `OCSP`, то
+                      результат проверки OCSP будет влиять на значение этого параметра.
+                  signers:
+                    type: array
+                    description: Информация о сертификатах
+                    items:
+                      $ref: '#/components/schemas/CertificateInfo'
+
+
 
   schemas:
     ### COMMON ###
+    SignedXML:
+      type: string
+      description: Подписанная XML строка
+      example: '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?><a><b>test</b><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\r\n<ds:SignedInfo>\r\n<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>\r\n<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311\"/>\r\n<ds:Reference URI=\"\">\r\n<ds:Transforms>\r\n<ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>\r\n<ds:Transform Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments\"/>\r\n</ds:Transforms>...'
+
     SignerRequest:
       type: object
       description: Формат запроса на получение информации о ключах
