@@ -22,7 +22,7 @@ import javax.validation.Valid;
 public class CmsController {
     public final CmsService cmsService;
 
-    @PostMapping("/create")
+    @PostMapping("/sign")
     public ResponseEntity<CmsResponse> create(@Valid @RequestBody CmsCreateRequest cmsCreateRequest) {
         return ResponseEntity.ok(cmsService.create(cmsCreateRequest));
     }
