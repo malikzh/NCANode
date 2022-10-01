@@ -42,7 +42,7 @@ public class CmsController {
     }
 
     @PostMapping("/extract")
-    public ResponseEntity<CmsDataResponse> signerAdd(@Valid @RequestBody CmsVerifyRequest cmsVerifyRequest) {
+    public ResponseEntity<CmsDataResponse> extract(@Valid @RequestBody CmsVerifyRequest cmsVerifyRequest) {
         return ResponseEntity.ok(cmsService.extract(cmsVerifyRequest.getCms()));
     }
 }
