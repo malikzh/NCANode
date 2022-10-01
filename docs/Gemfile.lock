@@ -116,8 +116,6 @@ GEM
       rouge (>= 2.0, < 4.0)
     jekyll-default-layout (0.1.4)
       jekyll (~> 3.0)
-    jekyll-feed (0.15.1)
-      jekyll (>= 3.7, < 5.0)
     jekyll-gist (1.5.0)
       octokit (~> 4.2)
     jekyll-github-metadata (2.13.0)

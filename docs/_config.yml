@@ -7,8 +7,6 @@ url: "https://v3.ncanode.kz"
 twitter_username: malikzh
 github_username:  malikzh
 theme: minima
-plugins:
-  - jekyll-feed
 exclude:
   - .sass-cache/
   - .jekyll-cache/
