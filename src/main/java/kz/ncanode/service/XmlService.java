@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -61,6 +62,10 @@ public class XmlService {
      */
     public XmlSignResponse sign(XmlSignRequest xmlSignRequest) {
         final DocumentWrapper document = read(xmlSignRequest.getXml(), xmlSignRequest.isClearSignatures());
+
+        if (xmlSignRequest.isTrimXml()) {
+            removeWhitespace(document.getDocument());
+        }
 
         int i = 0;
 
@@ -131,12 +136,10 @@ public class XmlService {
         return (trimXml ? removeWhitespace(xml) : xml).trim();
     }
 
-    public String removeWhitespace(String xml) {
-        val document = read(xml, false);
-
+    public void removeWhitespace(Document document) {
         Set<Node> toRemove = new HashSet<>();
-        DocumentTraversal t = (DocumentTraversal) document.getDocument();
-        NodeIterator it = t.createNodeIterator(document.getDocument(),
+        DocumentTraversal t = (DocumentTraversal) document;
+        NodeIterator it = t.createNodeIterator(document,
             NodeFilter.SHOW_TEXT, null, true);
 
         for (org.w3c.dom.Node n = it.nextNode(); n != null; n = it.nextNode()) {
@@ -148,7 +151,11 @@ public class XmlService {
         for (org.w3c.dom.Node n : toRemove) {
             n.getParentNode().removeChild(n);
         }
+    }
 
+    public String removeWhitespace(String xml) {
+        val document = read(xml, false);
+        removeWhitespace(document.getDocument());
         return document.toString();
     }
 }

@@ -16,4 +16,7 @@ public class XmlSignRequest {
     private List<SignerRequest> signers;
 
     private boolean clearSignatures;
+
+    @Builder.Default
+    private boolean trimXml = false;
 }
