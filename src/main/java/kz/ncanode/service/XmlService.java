@@ -126,6 +126,10 @@ public class XmlService {
             certs.add(cert);
         }
 
+        if (signaturesLength < 1) {
+            valid = false;
+        }
+
         return VerificationResponse.builder()
             .valid(valid)
             .signers(certs.stream().map(c -> c.toCertificateInfo(currentDate, checkOcsp, checkCrl)).toList())
