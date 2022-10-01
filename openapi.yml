@@ -18,6 +18,8 @@ servers:
 tags:
   - name: Info
     description: Методы для получения информации
+  - name: XML
+    description: Методы для работы с XML
 
 paths:
   /pkcs12/info:
@@ -54,8 +56,62 @@ paths:
                         description: Информация о сертификате
                         items:
                           $ref: '#/components/schemas/CertificateInfo'
+  /xml/sign:
+    post:
+      tags:
+        - XML
+      summary: Подписывает XML ключами переданными в signers используя XMLDSig
+      description: |
+        Этот метод может также добавлять подписи уже в существующий XML. Для этого,
+        просто передайте в этот метод подписанную XML строку.
+      requestBody:
+        $ref: '#/components/requestBodies/XMLSignRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/XMLSignResponse'
+
 
 components:
+  requestBodies:
+    XMLSignRequest:
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Запрос на подпись XML
+            required:
+              - xml
+              - signers
+            properties:
+              xml:
+                type: string
+                example: '<?xml version=\"1.0\" encoding=\"utf-8\"?><a><b>test</b></a>'
+                description: XML Строка для подписи
+              signers:
+                type: array
+                description: Список ключей для подписи XML
+                minItems: 1
+                items:
+                  $ref: '#/components/schemas/SignerRequest'
+              clearSignatures:
+                type: boolean
+                description: Если true, то удалить прошлы подписи и добавить новые.
+                example: false
+
+  responses:
+    XMLSignResponse:
+      description: Подписанный XML
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ResponseStatus'
+              - properties:
+                  xml:
+                    type: string
+                    description: Подписанная XML строка
+                    example: '<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?><a><b>test</b><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\r\n<ds:SignedInfo>\r\n<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"/>\r\n<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#gost34310-gost34311\"/>\r\n<ds:Reference URI=\"\">\r\n<ds:Transforms>\r\n<ds:Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"/>\r\n<ds:Transform Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments\"/>\r\n</ds:Transforms>...'
+
   schemas:
     ### COMMON ###
     SignerRequest:
