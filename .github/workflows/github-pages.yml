@@ -25,6 +25,8 @@ jobs:
         with:
           source: /docs
           destination: ./_site
+      - name: Change privileges
+        run: chmod 777 ./_site
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
