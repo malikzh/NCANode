@@ -399,7 +399,17 @@ components:
           description: Отозван ли сертификат
           example: false
         by:
-          $ref: '#/components/schemas/CertificateRevocation'
+          allOf:
+            - $ref: '#/components/schemas/CertificateRevocation'
+            - description: В каком сервисе был отозван сертификат (OCSP/CRL)
+        revocationTime:
+          type: string
+          description: Дата и время отзыва сертификата
+          example: 2022-09-28T16:03:41.000+00:00
+        reason:
+          type: string
+          example: null
+          description: Причина отзыва сертификата
 
     CertificateKeyUser:
       type: string
@@ -557,7 +567,11 @@ components:
           example: ECGOST34310
           description: Алгоритм подписи использованный в сертификате
         keyUser:
-          $ref: '#/components/schemas/CertificateKeyUser'
+          type: array
+          description: Пользователь ключа
+          items:
+            $ref: '#/components/schemas/CertificateKeyUser'
+          example: [ CEO, ORGANIZATION, IDENTIFICATION_REMOTE_DIGITAL_ID]
         publicKey:
           type: string
           example: AQEGCiqDDgMKAQMBAQADQwAEQNCA6hr4brWULD+tUvKCEqttjkgn
