@@ -1,20 +1,23 @@
 package kz.ncanode.unit.wrapper
 
 import kz.ncanode.common.WithTestData
-
 import kz.ncanode.constants.MessageConstants
 import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
+import kz.ncanode.util.KeyUtil
 import kz.ncanode.wrapper.KalkanWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
+import org.mockito.MockedStatic
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import static org.mockito.Mockito.doReturn
-import static org.mockito.Mockito.mock
+import java.security.KeyStore
+import java.security.KeyStoreException
+
+import static org.mockito.Mockito.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class KalkanWrapperTest extends Specification implements WithTestData {
@@ -92,5 +95,32 @@ class KalkanWrapperTest extends Specification implements WithTestData {
         keyStoreWrapper1 != keyStoreWrapper2
         signers[0] == keyStoreWrapper1
         signers[1] == keyStoreWrapper2
+    }
+
+    def "check KeystoreException thrown in read()"() {
+        when:
+        try(MockedStatic<KeyStore> ks = mockStatic(KeyStore)) {
+            ks.when(() -> KeyStore.getInstance("PKCS12", kalkanWrapper.getKalkanProvider())).thenThrow(new KeyStoreException())
+
+            kalkanWrapper.read("", "", "")
+        }
+
+        then:
+        def e = thrown(KeyException)
+        e.getMessage() == MessageConstants.KEY_ENGINE_ERROR
+    }
+
+    def "check if aliases empty"() {
+        when:
+        def keystoreWrapper = kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+
+        try(MockedStatic<KeyUtil> ks = mockStatic(KeyUtil)) {
+            ks.when(() -> KeyUtil.getAliases(keystoreWrapper.getKeyStore())).thenReturn(Collections.emptyList())
+            kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+        }
+
+        then:
+        def e = thrown(KeyException)
+        e.getMessage() == MessageConstants.KEY_ALIASES_NOT_FOUND
     }
 }
