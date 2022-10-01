@@ -185,6 +185,36 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationResponse'
 
+  /cms/extract:
+    post:
+      tags:
+        - CMS
+      summary: Извлекает данные из подписанной CMS.
+      requestBody:
+        description: Запрос на извлечение данных из подписи
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cms
+              properties:
+                cms:
+                  $ref: '#/components/schemas/Cms'
+      responses:
+        '200':
+          description: Извлеченные данные из CMS в формате Base64.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseStatus'
+                  - properties:
+                      data:
+                        type: string
+                        example: bG9sIGtlaw==
+                        description: Извлеченные данные из CMS в формате Base64
+
 components:
   requestBodies:
     XMLVerifyRequest:
