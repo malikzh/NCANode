@@ -104,7 +104,7 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 ```bash
 docker volume create ncanode_cache
-docker run -d malikzh/ncanode -p 14579:14579 -v ncanode_cache:/app/cache
+docker run -p 14579:14579 -v ncanode_cache:/app/cache -d malikzh/ncanode
 ```
 
 ### Запуск проекта без сборки
