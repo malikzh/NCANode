@@ -26,6 +26,8 @@ tags:
     description: Методы для работы с CMS (Cryptogrphic Message Syntax)
 
 paths:
+
+  ### INFO ###
   /pkcs12/info:
     post:
       tags:
@@ -46,6 +48,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/VerificationResponse'
+
+  ### XML ###
   /xml/sign:
     post:
       tags:
@@ -91,6 +95,7 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationResponse'
 
+  ### WSSE ###
   /wsse/sign:
     post:
       tags:
@@ -134,6 +139,7 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationResponse'
 
+  ### CMS ###
   /cms/sign:
     post:
       tags:
@@ -141,6 +147,16 @@ paths:
       summary: Создает подись данных в формате CMS.
       requestBody:
         $ref: '#/components/requestBodies/CmsCreateRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmsResponse'
+  /cms/sign/add:
+    post:
+      tags:
+        - Cms
+      summary: Добавляет подпись в существующий CMS.
+      requestBody:
+        $ref: '#/components/requestBodies/CmsSignAddRequest'
       responses:
         '200':
           $ref: '#/components/responses/CmsResponse'
@@ -165,37 +181,25 @@ components:
       content:
         application/json:
           schema:
-            type: object
-            required:
-              - data
-              - signers
-            properties:
-              data:
-                type: string
-                example: bG9sIGtlaw==
-                description: Данные для подписи. ДОЛЖНЫ быть в формате Base64.
-              signers:
-                $ref: '#/components/schemas/Signers'
-              withTsp:
-                type: boolean
-                default: false
-                example: true
-                description: Если true, то в CMS файл также будет добавлена TSP-метка
-              tsaPolicy:
-                $ref: '#/components/schemas/TsaPolicy'
-              detached:
-                type: boolean
-                default: false
-                example: false
-                description: Если true, то CMS будет содержать открепленную подпись (т.е. внутри CMS не будет самих подписываемых данных).
+            allOf:
+              - $ref: '#/components/schemas/CmsCreate'
+              - required:
+                  - data
+                  - signers
 
-    CmsSignerAddRequest:
+    CmsSignAddRequest:
       description: Запрос на добавление подписи в существующую CMS.
       content:
         application/json:
           schema:
-            oneOf:
-              - $ref: '#/components/requestBodies/CmsCreateRequest'
+            allOf:
+              - $ref: '#/components/schemas/CmsCreate'
+              - properties:
+                  cms:
+                    $ref: '#/components/schemas/Cms'
+              - required:
+                  - cms
+                  - signers
   responses:
     XMLSignResponse:
       description: Подписанный XML
@@ -519,3 +523,25 @@ components:
           type: string
           example: OK
           description: Сообщение от сервера. Если произойдет ошибка, то причина ошибки будет указана здесь.
+
+    CmsCreate:
+      type: object
+      properties:
+        data:
+          type: string
+          example: bG9sIGtlaw==
+          description: Данные для подписи. ДОЛЖНЫ быть в формате Base64.
+        signers:
+          $ref: '#/components/schemas/Signers'
+        withTsp:
+          type: boolean
+          default: false
+          example: true
+          description: Если true, то в CMS файл также будет добавлена TSP-метка
+        tsaPolicy:
+          $ref: '#/components/schemas/TsaPolicy'
+        detached:
+          type: boolean
+          default: false
+          example: false
+          description: Если true, то CMS будет содержать открепленную подпись (т.е. внутри CMS не будет самих подписываемых данных).
