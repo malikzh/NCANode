@@ -33,13 +33,14 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                keys:
-                  type: array
-                  minItems: 1
-                  items:
-                    $ref: '#/components/schemas/SignerRequest'
+              allOf:
+                - $ref: '#/components/schemas/VerifyRequest'
+                - properties:
+                    keys:
+                      type: array
+                      minItems: 1
+                      items:
+                        $ref: '#/components/schemas/SignerRequest'
       responses:
         '200':
           $ref: '#/components/responses/VerificationResponse'
