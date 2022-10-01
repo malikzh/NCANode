@@ -60,7 +60,7 @@ public class WsseService {
     public XmlSignResponse sign(final WsseSignRequest wsseSignRequest) {
         try {
             // read key
-            final KeyStoreWrapper keystore = kalkanWrapper.read(wsseSignRequest.getP12(), wsseSignRequest.getAlias(), wsseSignRequest.getPassword());
+            final KeyStoreWrapper keystore = kalkanWrapper.read(wsseSignRequest.getKey(), wsseSignRequest.getAlias(), wsseSignRequest.getPassword());
             final CertificateWrapper cert = keystore.getCertificate();
 
             // sign a soap request according to a reference implementation from smartbridge

@@ -93,7 +93,7 @@ ngGRfppW9X6JHGjv5s7WO7Y+YPB9gqeN71+Huw==
         given:
         def wsseSignRequest = new WsseSignRequest()
         wsseSignRequest.setXml(xml)
-        wsseSignRequest.setP12(key)
+        wsseSignRequest.setKey(key)
         wsseSignRequest.setPassword(password)
 
         when:

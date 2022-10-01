@@ -10,7 +10,7 @@ public class WsseSignRequest {
     private String xml;
 
     @NotEmpty
-    private String p12;
+    private String key;
 
     @NotEmpty
     private String password;
