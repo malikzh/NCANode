@@ -1,0 +1,22 @@
+title: NCANode - Документация
+email: cmalikz.h@gmail.com
+description: >- # this means to ignore newlines until "baseurl:"
+  Приложение-сервер для работы с Электронно Цифровой Подписью (ЭЦП) РК
+baseurl: ""
+url: "https://ncanode.kz"
+twitter_username: malikzh
+github_username:  malikzh
+theme: minima
+plugins:
+  - jekyll-feed
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
