@@ -531,7 +531,7 @@ components:
             Список проверок на отозванность. В каком сервисе проверялась отозванность сертификата можно узнать
             по полу "by".
           items:
-            $ref: '#/components/schemas/CertificateRevocation'
+            $ref: '#/components/schemas/CertificateRevocationStatus'
         notBefore:
           type: string
           example: 2022-05-02T08:38:13.000+00:00
