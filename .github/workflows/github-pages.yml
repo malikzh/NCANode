@@ -20,13 +20,13 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup Pages
         uses: actions/configure-pages@v2
+      - name: Create artifact directory
+        run: mkdir ./_site && chmod 777 ./_site
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
           source: /docs
           destination: ./_site
-      - name: Change privileges
-        run: chmod 777 ./_site
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
