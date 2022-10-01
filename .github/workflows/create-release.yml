@@ -35,11 +35,10 @@ jobs:
         run: echo $GITHUB_REF_NAME
       - name: Build and Run tests
         run: ./gradlew -Pversion=$GITHUB_REF_NAME bootJar bootWar
+      - name: Copy license
+        run: cp ./LICENSE build/libs
       - uses: actions/upload-artifact@v3
         with:
-          name: NCANode.jar
-          path: build/libs/NCANode.jar
-      - uses: actions/upload-artifact@v3
-        with:
-          name: NCANode.war
-          path: build/libs/NCANode.war
+          name: NCANode-${{env.GITHUB_REF_NAME}}
+          path: build/libs
+          if-no-files-found: error
