@@ -23,7 +23,7 @@ public class CertificateService {
     public final KalkanWrapper kalkanWrapper;
 
     public void attachValidationData(final CertificateWrapper cert, boolean checkOcsp, boolean checkCrl) {
-        cert.setIssuerCertificate(caService.getRootCertificateFor(cert).orElseThrow());
+        cert.setIssuerCertificate(caService.getRootCertificateFor(cert).orElse(null));
         cert.setOcspStatus(checkOcsp ? ocspService.verify(cert, cert.getIssuerCertificate()) : null);
         cert.setCrlStatus(checkCrl ? crlService.verify(cert) : null);
     }

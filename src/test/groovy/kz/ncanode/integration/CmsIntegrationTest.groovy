@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kz.ncanode.common.IntegrationSpecification
 import kz.ncanode.controller.CmsController
 import kz.ncanode.dto.request.CmsCreateRequest
+import kz.ncanode.dto.request.CmsVerifyRequest
 import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.dto.response.CmsResponse
+import kz.ncanode.dto.response.CmsVerificationResponse
 import kz.ncanode.service.CmsService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,6 +22,8 @@ class CmsIntegrationTest extends IntegrationSpecification {
     // URI
     private final static String URI_SIGN = "/cms/sign"
     private final static String URI_SIGN_ADD = "/cms/sign/add"
+    private final static String URI_VERIFY = "/cms/verify"
+    private final static String URI_EXTRACT = "/cms/extract"
 
     @Autowired
     CmsService cmsService
@@ -70,5 +74,19 @@ class CmsIntegrationTest extends IntegrationSpecification {
         response.cms != null
     }
 
+    def "test verify"() {
+        given:
+        def request = CmsVerifyRequest.builder()
+            .cms(SIGNED_CMS)
+            .build()
 
+        def requestJson = new ObjectMapper().writeValueAsString(request)
+
+        when:
+        def response = doPostQuery(URI_VERIFY, requestJson, 200, CmsVerificationResponse)
+
+        then:
+        response != null
+        response.signers.size() == 1
+    }
 }

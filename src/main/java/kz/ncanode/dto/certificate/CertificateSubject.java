@@ -3,7 +3,9 @@ package kz.ncanode.dto.certificate;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
+@Jacksonized
 @Data
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
