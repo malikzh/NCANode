@@ -22,6 +22,8 @@ tags:
     description: Методы для работы с XML
   - name: Wsse
     description: Методы для работы с SOAP Wsse (SmartBridge)
+  - name: CMS
+    description: Методы для работы с CMS (Cryptogrphic Message Syntax)
 
 paths:
   /pkcs12/info:
@@ -67,11 +69,7 @@ paths:
                   example: '<?xml version=\"1.0\" encoding=\"utf-8\"?><a><b>test</b></a>'
                   description: XML Строка для подписи
                 signers:
-                  type: array
-                  description: Список ключей для подписи XML
-                  minItems: 1
-                  items:
-                    $ref: '#/components/schemas/SignerRequest'
+                  $ref: '#/components/schemas/Signers'
                 clearSignatures:
                   type: boolean
                   description: Если true, то удалить прошлы подписи и добавить новые.
@@ -136,6 +134,17 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationResponse'
 
+  /cms/sign:
+    post:
+      tags:
+        - Cms
+      summary: Создает подись данных в формате CMS.
+      requestBody:
+        $ref: '#/components/requestBodies/CmsCreateRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/CmsResponse'
+
 components:
   requestBodies:
     XMLVerifyRequest:
@@ -151,6 +160,42 @@ components:
                   xml:
                     $ref: '#/components/schemas/SignedXML'
 
+    CmsCreateRequest:
+      description: Запрос на создание CMS
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - data
+              - signers
+            properties:
+              data:
+                type: string
+                example: bG9sIGtlaw==
+                description: Данные для подписи. ДОЛЖНЫ быть в формате Base64.
+              signers:
+                $ref: '#/components/schemas/Signers'
+              withTsp:
+                type: boolean
+                default: false
+                example: true
+                description: Если true, то в CMS файл также будет добавлена TSP-метка
+              tsaPolicy:
+                $ref: '#/components/schemas/TsaPolicy'
+              detached:
+                type: boolean
+                default: false
+                example: false
+                description: Если true, то CMS будет содержать открепленную подпись (т.е. внутри CMS не будет самих подписываемых данных).
+
+    CmsSignerAddRequest:
+      description: Запрос на добавление подписи в существующую CMS.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/requestBodies/CmsCreateRequest'
   responses:
     XMLSignResponse:
       description: Подписанный XML
@@ -183,8 +228,16 @@ components:
                     description: Информация о сертификатах
                     items:
                       $ref: '#/components/schemas/CertificateInfo'
-
-
+    CmsResponse:
+      description: Подписанный CMS файл
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ResponseStatus'
+              - properties:
+                  cms:
+                    $ref: '#/components/schemas/Cms'
 
   schemas:
     ### COMMON ###
@@ -227,6 +280,28 @@ components:
           $ref: '#/components/schemas/SignerPassword'
         keyAlias:
           $ref: '#/components/schemas/SignerAlias'
+
+    Signers:
+      type: array
+      description: Список ключей для подписи XML
+      minItems: 1
+      items:
+        $ref: '#/components/schemas/SignerRequest'
+
+    TsaPolicy:
+      type: string
+      description: TSA Policy for TSP Token
+      example: TSA_GOST_POLICY
+      default: TSA_GOST_POLICY
+      enum:
+        - TSA_GOST_POLICY
+        - TSA_GOSTGT_POLICY
+        - TSA_GOST2015_POLICY
+
+    Cms:
+      type: string
+      example: MIIMQQYJKoZIhvcNAQcCoIIMMjCCDC4CAQExDjAMBggqgw4DCgEDAQUAMBYGCSqGSIb3DQEHAaAJBAdsb2wga2VroIIEljCCBJIwggQ8oAMCAQICFGC6RWiumPpSKhP6cRxstgxpvuLEMA0GCSqDDgMKAQEBAgUAMFMxCzAJBgNVBAYTAktaMUQwQgYDVQQDDDvSsNCb0KLQotCr0pog...
+      description: CMS-данные закодированные с помощью алгоритма Base64.
 
     ## certificate info
 
@@ -432,7 +507,6 @@ components:
           items:
             $ref: '#/components/schemas/CertificateRevocation'
 
-    ### RESPONSES ###
     ResponseStatus:
       type: object
       description:  Статус ответа
