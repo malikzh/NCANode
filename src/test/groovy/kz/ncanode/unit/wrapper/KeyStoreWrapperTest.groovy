@@ -1,6 +1,7 @@
 package kz.ncanode.unit.wrapper
 
 import kz.ncanode.common.WithTestData
+import kz.ncanode.constants.MessageConstants
 import kz.ncanode.exception.ServerException
 import kz.ncanode.wrapper.KalkanWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
@@ -9,7 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import java.security.*
+import java.security.KeyStore
+import java.security.KeyStoreException
+import java.security.KeyStoreSpi
+import java.security.NoSuchAlgorithmException
+import java.security.UnrecoverableKeyException
 
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
@@ -82,13 +87,16 @@ class KeyStoreWrapperTest extends Specification implements WithTestData {
     def "check exception thrown for getCertificate()"() {
         given:
         def keystore = mock(KeyStore)
+        when(keystore.getCertificate(any())).thenThrow(new KeyStoreException())
+
         def keystoreWrapper = new KeyStoreWrapper(keystore, "null", "")
 
         when:
         keystoreWrapper.getCertificate()
 
         then:
-        thrown(ServerException)
+        def e = thrown(ServerException)
+        e.getMessage() == MessageConstants.KEY_CANT_EXTRACT_CERTIFICATE
     }
 
     private KeyStoreWrapper createKeyStore2015() {
