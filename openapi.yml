@@ -160,6 +160,30 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/CmsResponse'
+  /cms/verify:
+    post:
+      tags:
+        - CMS
+      summary: Проверяет подписанный CMS.
+      requestBody:
+        description: Запрос на проверку подписи
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/VerifyRequest'
+                - properties:
+                    cms:
+                      $ref: '#/components/schemas/Cms'
+                    data:
+                      allOf:
+                        - $ref: '#/components/schemas/CmsData'
+                        - description: Если необходимо проверить открепленную подпись CMS, то также необходимо передать сами подписанные данные в формате Base64.
+                - required:
+                    - cms
+      responses:
+        '200':
+          $ref: '#/components/responses/VerificationResponse'
 
 components:
   requestBodies:
@@ -524,13 +548,16 @@ components:
           example: OK
           description: Сообщение от сервера. Если произойдет ошибка, то причина ошибки будет указана здесь.
 
+    CmsData:
+      type: string
+      example: bG9sIGtlaw==
+      description: Данные для подписи. ДОЛЖНЫ быть в формате Base64.
+
     CmsCreate:
       type: object
       properties:
         data:
-          type: string
-          example: bG9sIGtlaw==
-          description: Данные для подписи. ДОЛЖНЫ быть в формате Base64.
+          $ref: '#/components/schemas/CmsData'
         signers:
           $ref: '#/components/schemas/Signers'
         withTsp:
