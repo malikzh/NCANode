@@ -4,6 +4,7 @@ import kz.ncanode.common.WithTestData
 import kz.ncanode.constants.MessageConstants
 import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
+import kz.ncanode.exception.ServerException
 import kz.ncanode.util.KeyUtil
 import kz.ncanode.wrapper.KalkanWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
@@ -122,5 +123,19 @@ class KalkanWrapperTest extends Specification implements WithTestData {
         then:
         def e = thrown(KeyException)
         e.getMessage() == MessageConstants.KEY_ALIASES_NOT_FOUND
+    }
+
+    def "check KeyException for tryReadKey()"() {
+        given:
+        def kalkanWrapperSpy = spy(kalkanWrapper)
+        doThrow(KeyException).when(kalkanWrapperSpy).read(anyString(), any(), anyString())
+        List<SignerRequest> signers = [new SignerRequest(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_PASSWORD, null, null)]
+
+        when:
+        kalkanWrapperSpy.read(signers)
+
+        then:
+        def e = thrown(ServerException)
+        e.getMessage() == 'signers[0]: null'
     }
 }
