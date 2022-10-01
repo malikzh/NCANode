@@ -305,6 +305,12 @@ components:
             allOf:
               - $ref: '#/components/schemas/ResponseStatus'
               - properties:
+                  valid:
+                    type: boolean
+                    example: true
+                    description: > 
+                      Если CMS подпись корректная, то результат будет `true`.
+                      Имейте ввиду, что на этот параметр также влияет результат проверки в OCSP и CRL, если таковые выбраны.
                   signers:
                     type: array
                     description: Информация о сертификатах
