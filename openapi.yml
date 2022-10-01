@@ -183,7 +183,7 @@ paths:
                     - cms
       responses:
         '200':
-          $ref: '#/components/responses/VerificationResponse'
+          $ref: '#/components/responses/CmsVerificationResponse'
 
   /cms/extract:
     post:
@@ -296,6 +296,20 @@ components:
               - properties:
                   cms:
                     $ref: '#/components/schemas/Cms'
+
+    CmsVerificationResponse:
+      description: Результат проверки CMS подписи
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ResponseStatus'
+              - properties:
+                  signers:
+                    type: array
+                    description: Информация о сертификатах
+                    items:
+                      $ref: '#/components/schemas/CmsSignerInfo'
 
   schemas:
     ### COMMON ###
@@ -555,7 +569,6 @@ components:
             - $ref: '#/components/schemas/CertificateSubject'
             - description: Информация о том кто выдал сертификат
 
-    ### REQUESTS ###
     VerifyRequest:
       type: object
       properties:
@@ -602,3 +615,42 @@ components:
           default: false
           example: false
           description: Если true, то CMS будет содержать открепленную подпись (т.е. внутри CMS не будет самих подписываемых данных).
+
+    TspInfo:
+      type: object
+      properties:
+        serialNumber:
+          type: string
+          example: ec0699173c3b3bfa785dde45248290a43c4bc288
+          description: Серийный номер
+        genTime:
+          type: string
+          example: 2022-09-28T16:03:41.000+00:00
+          description: Время генерации TSP метки. Можно трактовать как дату создания TSP.
+        policy:
+          type: string
+          example: 1.2.398.3.3.2.6.1
+          description: Политика TSP
+        tsa:
+          type: string
+          example: null
+          description: TSA
+        tspHashAlgorithm:
+          type: string
+          example: GOST3411
+          description: Алгоритм хэширования
+        hash:
+          type: string
+          example: 7319460cb8650ed07c4555dc5a49c2651f738f5739cfe8200c80ecd20a3bd123
+          description: Хэш
+
+    CmsSignerInfo:
+      type: object
+      properties:
+        signers:
+          type: array
+          description: Информация о сертификатах
+          items:
+            $ref: '#/components/schemas/CertificateInfo'
+        tsp:
+          $ref: '#/components/schemas/TspInfo'
