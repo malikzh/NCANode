@@ -2,7 +2,7 @@ FROM amazoncorretto:17-alpine
 EXPOSE 14579
 WORKDIR /app
 ARG artifact=build/libs/NCANode.jar
-COPY $artifact /app
+COPY $artifact /app/NCANode.jar
 RUN mkdir /app/cache
 VOLUME /app/cache
 ENTRYPOINT ["java", "-jar", "NCANode.jar"]

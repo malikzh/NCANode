@@ -29,6 +29,7 @@
 - Возможность добавления подписей уже в существующие файлы CMS и XML
 - Поддержка новых ЭЦП (ГОСТ 2015) и новых CRL
 - Добавлены тесты на весь функционал
+- Docker
 
 ## Кому надо?
 
@@ -99,6 +100,13 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 Собранный проект будет лежать: `build/libs/NCANode.jar` или `build/libs/NCANode.war`
 
+### Запуск в Docker
+
+```bash
+docker volume create ncanode_cache
+docker run -d malikzh/ncanode -p 14579:14579 -v ncanode_cache:/app/cache
+```
+
 ### Запуск проекта без сборки
 
 Проект запустить можно командой:
@@ -106,5 +114,9 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 ```bash
 $ ./gradlew bootRun
 ```
+
+### После запуска
+
+Проверить можно, перейдя на страницу: http://localhost:14579/actuator/health
 
 Сделано с ❤️
