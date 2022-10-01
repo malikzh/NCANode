@@ -32,9 +32,9 @@ jobs:
           wget -P ./lib "$KALKAN_CRYPT_URL"
           wget -P ./lib "$KALKAN_CRYPT_XMLDSIG_URL"
       - name: Release version
-        run: echo $GITHUB_REF
+        run: echo $GITHUB_REF_NAME
       - name: Build and Run tests
-        run: ./gradlew -Pversion=$GITHUB_REF build test
+        run: ./gradlew -Pversion=$GITHUB_REF_NAME build test
       - uses: actions/upload-artifact@v3
         with:
           name: NCANode.jar
