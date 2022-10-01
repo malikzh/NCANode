@@ -51,3 +51,5 @@ jobs:
           push: true
           tags: malikzh/ncanode:latest,malikzh/ncanode:${{ github.ref_name }}
           build-args: artifact=build/libs/NCANode-${{ github.ref_name }}.jar
+          context: ./
+          file: ./Dockerfile
