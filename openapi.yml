@@ -125,6 +125,17 @@ paths:
         '200':
           $ref: '#/components/responses/XMLSignResponse'
 
+  /wsse/verify:
+    post:
+      tags:
+        - Wsse
+      summary: Проверяет подписанный SOAP-конверт
+      requestBody:
+        $ref: '#/components/requestBodies/XMLVerifyRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/VerificationResponse'
+
 components:
   requestBodies:
     XMLVerifyRequest:
