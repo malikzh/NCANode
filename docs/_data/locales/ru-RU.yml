@@ -9,14 +9,13 @@ layout:
 
 # The tabs of sidebar
 tabs:
-  # format: <filename_without_extension>: <value>
-  home: О ПРОЕКТЕ
+  home: Главная
 
 # the text displayed in the search bar & search results
 search:
   hint: поиск
   cancel: Отменить
-  no_results: Ох! Ничего не найдено.
+  no_results: Ничего не найдено.
 
 panel:
   lastmod: Недавно обновлено
