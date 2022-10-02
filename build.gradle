@@ -65,6 +65,10 @@ test {
     useJUnitPlatform()
 }
 
+springBoot {
+    buildInfo()
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true
