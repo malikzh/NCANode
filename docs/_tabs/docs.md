@@ -10,7 +10,30 @@ icon: fas fa-info-circle
 
 </div>
 
-## Настройка и запуск NCANode
+## Установка
+
+Последнюю версию NCANode можно получить здесь:
+
+[https://github.com/malikzh/NCANode/releases](https://github.com/malikzh/NCANode/releases)
+
+## Запуск NCANode
+
+Для запуска необходимо выполнить команду:
+
+```bash
+java -jar NCANode-3.0.0.jar
+```
+
+### Запуск в Docker
+
+У NCANode есть образ в Docker Hub, и запустить его можно следующим образом:
+
+```bash
+docker volume create ncanode_cache
+docker run -p 14579:14579 -v ncanode_cache:/app/cache -d malikzh/ncanode
+```
+
+## Настройки
 
 В отличие, от версий 2.x, 1.x, теперь NCANode настраивается при помощи переменных окружения (os env).
 
@@ -65,3 +88,21 @@ NCANODE_PORT=8080 NCANODE_DEBUG=true java -jar ./NCANode.jar
 ```bash
 docker run -p 8080:8080 -v ncanode_cache:/app/cache -e NCANODE_PORT=8080 -e NCANODE_DEBUG=true -d malikzh/ncanode
 ```
+
+## Запросы к NCANode
+
+После запуска NCANode можете перейти по адресу:
+
+[http://localhost:14579/actuator/health](http://localhost:14579/actuator/health)
+
+В ответ придет что-то вроде:
+
+```
+{"status":"UP"}
+```
+
+### Важно знать
+  
+Обратите внимание, что ключи, CMS, и данные в CMS передаются в формате **Base64**. Это описано в API Reference.
+
+И в каждом запросе не забывайте передавать заголовок `Content-Type: application/json`.

@@ -11,6 +11,8 @@ layout:
 tabs:
   home: Главная
   docs: Документация
+  source: Исходный код
+  api: API Reference
 
 # the text displayed in the search bar & search results
 search:
