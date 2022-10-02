@@ -10,6 +10,7 @@ layout:
 # The tabs of sidebar
 tabs:
   home: Главная
+  docs: Документация
 
 # the text displayed in the search bar & search results
 search:
