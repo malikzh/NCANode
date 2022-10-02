@@ -22,11 +22,15 @@ jobs:
         uses: actions/configure-pages@v2
       - name: Create artifact directory
         run: mkdir ./_site && chmod 777 ./_site
-      - name: Build with Jekyll
-        uses: actions/jekyll-build-pages@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          source: /docs
-          destination: ./_site
+          ruby-version: 3
+          bundler-cache: true
+      - name: Build site
+        run: cd docs && bundle exec jekyll b -d "_site${{ steps.pages.outputs.base_path }}"
+        env:
+          JEKYLL_ENV: "production"
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
