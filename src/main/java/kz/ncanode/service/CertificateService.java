@@ -1,10 +1,12 @@
 package kz.ncanode.service;
 
 import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
+import kz.ncanode.constants.MessageConstants;
 import kz.ncanode.dto.certificate.CertificateInfo;
 import kz.ncanode.dto.certificate.CertificateRevocation;
 import kz.ncanode.dto.request.Pkcs12InfoRequest;
 import kz.ncanode.dto.response.VerificationResponse;
+import kz.ncanode.exception.ClientException;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.wrapper.CertificateWrapper;
 import kz.ncanode.wrapper.KalkanWrapper;
@@ -66,7 +68,13 @@ public class CertificateService {
 
     public VerificationResponse info(String certBase64, boolean checkOcsp, boolean checkCrl) {
         try {
-            val cert = new CertificateWrapper(load(Base64.getDecoder().decode(certBase64.replaceAll("\\s", ""))));
+            var x509 = load(Base64.getDecoder().decode(certBase64.replaceAll("\\s", "")));
+
+            if (x509 == null) {
+                throw new ClientException(MessageConstants.CERT_INVALID);
+            }
+
+            val cert = new CertificateWrapper(x509);
 
             val currentDate = getCurrentDate();
 
@@ -76,7 +84,7 @@ public class CertificateService {
                 .valid(cert.isValid(currentDate, checkOcsp, checkCrl))
                 .signers(List.of(cert.toCertificateInfo(currentDate, checkOcsp, checkCrl)))
                 .build();
-        } catch (Exception e) {
+        } catch (CertificateException|NoSuchProviderException|IOException e) {
             throw new ServerException(e.getMessage(), e);
         }
     }
