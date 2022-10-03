@@ -1,8 +1,6 @@
 package kz.ncanode.unit.service
 
 import kz.ncanode.common.WithTestData
-import kz.ncanode.constants.MessageConstants
-import kz.ncanode.exception.ClientException
 import kz.ncanode.service.CertificateService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -15,8 +13,13 @@ class CertificateServiceTest extends Specification implements WithTestData {
     CertificateService certificateService
 
     def "check certificate info method"() {
+        given:
+        def certs = [
+            CERT_INDIVIDUAL
+        ]
+
         when:
-        def result = certificateService.info(CERT_INDIVIDUAL, false, false)
+        def result = certificateService.info(certs, false, false)
 
         then:
         result != null
@@ -24,11 +27,16 @@ class CertificateServiceTest extends Specification implements WithTestData {
     }
 
     def "invalid cetificate info method"() {
+        given:
+        def certs = [
+            "YXNkYXNk"
+        ]
+
         when:
-        certificateService.info("YXNkYXNk", false, false)
+        def result = certificateService.info(certs, false, false)
 
         then:
-        def e = thrown(ClientException)
-        e.getMessage() == MessageConstants.CERT_INVALID
+        !result.valid
+        result.message == '[0]: Invalid certificate given.'
     }
 }

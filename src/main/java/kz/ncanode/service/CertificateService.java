@@ -6,7 +6,6 @@ import kz.ncanode.dto.certificate.CertificateInfo;
 import kz.ncanode.dto.certificate.CertificateRevocation;
 import kz.ncanode.dto.request.Pkcs12InfoRequest;
 import kz.ncanode.dto.response.VerificationResponse;
-import kz.ncanode.exception.ClientException;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.wrapper.CertificateWrapper;
 import kz.ncanode.wrapper.KalkanWrapper;
@@ -72,11 +71,18 @@ public class CertificateService {
             val currentDate = getCurrentDate();
             val certs = new ArrayList<CertificateInfo>();
 
+            var message = "OK";
+            var i = 0;
+
             for (String certBase64 : certsBase64) {
                 var x509 = load(Base64.getDecoder().decode(certBase64.replaceAll("\\s", "")));
 
                 if (x509 == null) {
-                    throw new ClientException(MessageConstants.CERT_INVALID);
+                    message = String.format(MessageConstants.CERT_INVALID, i);
+                    certs.add(null);
+                    ++i;
+                    valid = false;
+                    continue;
                 }
 
                 val cert = new CertificateWrapper(x509);
@@ -88,6 +94,7 @@ public class CertificateService {
                 }
 
                 certs.add(cert.toCertificateInfo(currentDate, checkOcsp, checkCrl));
+                ++i;
             }
 
             if (certsBase64.isEmpty()) {
@@ -97,6 +104,7 @@ public class CertificateService {
             return VerificationResponse.builder()
                 .valid(valid)
                 .signers(certs)
+                .message(message)
                 .build();
         } catch (CertificateException|NoSuchProviderException|IOException e) {
             throw new ServerException(e.getMessage(), e);

@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class X509ControllerTest extends IntegrationSpecification {
+class X509ControllerIntegrationTest extends IntegrationSpecification {
 
     // URI
     private final static String URI_INFO = "/x509/info"
@@ -25,7 +25,7 @@ class X509ControllerTest extends IntegrationSpecification {
     def "test x509 info"() {
         given:
         def request = X509InfoRequest.builder()
-            .cert(CERT_INDIVIDUAL)
+            .certs([CERT_INDIVIDUAL])
             .build()
 
         def requestJson = new ObjectMapper().writeValueAsString(request)
