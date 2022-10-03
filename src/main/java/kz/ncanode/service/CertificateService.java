@@ -1,18 +1,23 @@
 package kz.ncanode.service;
 
+import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.ncanode.dto.certificate.CertificateInfo;
 import kz.ncanode.dto.certificate.CertificateRevocation;
 import kz.ncanode.dto.request.Pkcs12InfoRequest;
 import kz.ncanode.dto.response.VerificationResponse;
+import kz.ncanode.exception.ServerException;
 import kz.ncanode.wrapper.CertificateWrapper;
 import kz.ncanode.wrapper.KalkanWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.NoSuchProviderException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -57,5 +62,28 @@ public class CertificateService {
             .valid(valid)
             .signers(certs)
             .build();
+    }
+
+    public VerificationResponse info(String certBase64, boolean checkOcsp, boolean checkCrl) {
+        try {
+            val cert = new CertificateWrapper(load(Base64.getDecoder().decode(certBase64.replaceAll("\\s", ""))));
+
+            val currentDate = getCurrentDate();
+
+            attachValidationData(cert, checkOcsp, checkCrl);
+
+            return VerificationResponse.builder()
+                .valid(cert.isValid(currentDate, checkOcsp, checkCrl))
+                .signers(List.of(cert.toCertificateInfo(currentDate, checkOcsp, checkCrl)))
+                .build();
+        } catch (Exception e) {
+            throw new ServerException(e.getMessage(), e);
+        }
+    }
+
+    public static X509Certificate load(byte[] cert) throws CertificateException, NoSuchProviderException, IOException {
+        try (ByteArrayInputStream stream = new ByteArrayInputStream(cert)) {
+            return (X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509", KalkanProvider.PROVIDER_NAME).generateCertificate(stream);
+        }
     }
 }
