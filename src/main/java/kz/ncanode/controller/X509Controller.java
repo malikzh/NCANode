@@ -21,7 +21,7 @@ public class X509Controller {
 
     @PostMapping("/info")
     public ResponseEntity<VerificationResponse> verify(@Valid @RequestBody X509InfoRequest x509InfoRequest) {
-        return ResponseEntity.ok(certificateService.info(x509InfoRequest.getCert(),
+        return ResponseEntity.ok(certificateService.info(x509InfoRequest.getCerts(),
             x509InfoRequest.getRevocationCheck().contains(CertificateRevocation.OCSP),
             x509InfoRequest.getRevocationCheck().contains(CertificateRevocation.CRL)
         ));

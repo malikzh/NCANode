@@ -66,23 +66,37 @@ public class CertificateService {
             .build();
     }
 
-    public VerificationResponse info(String certBase64, boolean checkOcsp, boolean checkCrl) {
+    public VerificationResponse info(List<String> certsBase64, boolean checkOcsp, boolean checkCrl) {
         try {
-            var x509 = load(Base64.getDecoder().decode(certBase64.replaceAll("\\s", "")));
+            var valid = true;
+            val currentDate = getCurrentDate();
+            val certs = new ArrayList<CertificateInfo>();
 
-            if (x509 == null) {
-                throw new ClientException(MessageConstants.CERT_INVALID);
+            for (String certBase64 : certsBase64) {
+                var x509 = load(Base64.getDecoder().decode(certBase64.replaceAll("\\s", "")));
+
+                if (x509 == null) {
+                    throw new ClientException(MessageConstants.CERT_INVALID);
+                }
+
+                val cert = new CertificateWrapper(x509);
+
+                attachValidationData(cert, checkOcsp, checkCrl);
+
+                if (!cert.isValid(currentDate, checkOcsp, checkCrl)) {
+                    valid = false;
+                }
+
+                certs.add(cert.toCertificateInfo(currentDate, checkOcsp, checkCrl));
             }
 
-            val cert = new CertificateWrapper(x509);
-
-            val currentDate = getCurrentDate();
-
-            attachValidationData(cert, checkOcsp, checkCrl);
+            if (certsBase64.isEmpty()) {
+                valid = false;
+            }
 
             return VerificationResponse.builder()
-                .valid(cert.isValid(currentDate, checkOcsp, checkCrl))
-                .signers(List.of(cert.toCertificateInfo(currentDate, checkOcsp, checkCrl)))
+                .valid(valid)
+                .signers(certs)
                 .build();
         } catch (CertificateException|NoSuchProviderException|IOException e) {
             throw new ServerException(e.getMessage(), e);
