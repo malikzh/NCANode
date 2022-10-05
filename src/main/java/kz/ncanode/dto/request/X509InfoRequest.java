@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Jacksonized
@@ -12,5 +13,6 @@ import java.util.List;
 @Data
 @SuperBuilder
 public class X509InfoRequest extends VerifyRequest {
+    @NotNull
     private List<String> certs;
 }
