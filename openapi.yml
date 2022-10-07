@@ -51,6 +51,26 @@ paths:
         '200':
           $ref: '#/components/responses/VerificationResponse'
 
+  /pkcs12/aliases:
+    post:
+      tags:
+        - Info
+      summary: Возвращает список алиасов для ключей.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keys:
+                  type: array
+                  minItems: 1
+                  items:
+                    $ref: '#/components/schemas/SignerRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/AliasesResponse'
+
   /x509/info:
     post:
       tags:
@@ -322,6 +342,25 @@ components:
                   xml:
                     $ref: '#/components/schemas/SignedXML'
 
+    AliasesResponse:
+      description: Список алиасов для каждого сертификата.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ResponseStatus'
+              - properties:
+                  aliases:
+                    type: array
+                    description: Список алиасов для каждого ключа.
+                    items:
+                      type: array
+                      description: Список алиасов.
+                      items:
+                        type: string
+                        description: Алиас.
+                        example: e3fe35adda3b45cbea3a3f1ed48f263dc55c556e
+
     VerificationResponse:
       description: Результат проверки подписей в XML
       content:
@@ -399,7 +438,8 @@ components:
     SignerAlias:
       type: string
       description: Алиас ключа в хранилище PKCS12
-      example: e3fe35adda3b45cbea3a3f1ed48f263dc55c556e
+      nullable: true
+      example: null
 
     SignerRequest:
       type: object
