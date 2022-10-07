@@ -214,6 +214,16 @@ public class CrlService {
         }
     }
 
+    /**
+     * Возвращает файл кэша для URL
+     * @param cacheDirName
+     * @param url
+     * @return
+     */
+    public File getCrlCacheFilePathFor(String cacheDirName, URL url) {
+        return getCrlCacheFilePathFor(cacheDirName, Util.sha1(url.toString()) + CRL_FILE_EXTENSION);
+    }
+
     private File download(String url, Path path) throws CrlException {
         try(CloseableHttpResponse response = client.execute(new HttpGet(url))) {
             int status = response.getStatusLine().getStatusCode();
@@ -242,10 +252,6 @@ public class CrlService {
 
     private File getCrlCacheFilePathFor(String cacheDirName, String fileName) {
         return new File(directoryService.getCachePathFor(cacheDirName).orElseThrow(), fileName);
-    }
-
-    private File getCrlCacheFilePathFor(String cacheDirName, URL url) {
-        return getCrlCacheFilePathFor(cacheDirName, Util.sha1(url.toString()) + CRL_FILE_EXTENSION);
     }
 
     private List<File> getCrlFiles(String cacheDirName) {

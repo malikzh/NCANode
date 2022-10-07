@@ -45,8 +45,13 @@ class CrlServiceTest extends Specification implements WithTestData {
     @Unroll("#caseName")
     def "check certificate 2004 verification in CRL"() {
         given: 'load cert and crls'
+        def crlFileMock = mock(File)
+
+        when(crlFileMock.exists()).thenReturn(false)
+
         doReturn(CRLS).when(crlService).getLoadedCrlEntries(anyString())
         doNothing().when(crlService).downloadCrl(anyString(), isNotNull())
+        doReturn(crlFileMock).when(crlService).getCrlCacheFilePathFor(anyString(), any(URL))
 
         def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
 
