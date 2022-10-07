@@ -81,7 +81,7 @@ public class KalkanWrapper {
             keyAlias = aliases.get(0);
         }
 
-        return new KeyStoreWrapper(store, keyAlias, password);
+        return new KeyStoreWrapper(store, keyAlias, password, aliases);
     }
 
     /**

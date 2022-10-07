@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.security.*;
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 @Slf4j
 @Getter
@@ -18,6 +19,7 @@ public class KeyStoreWrapper {
     private final KeyStore keyStore;
     private final String alias;
     private final String password;
+    private final List<String> aliases;
 
     /**
      * Извлекает приватный ключ.

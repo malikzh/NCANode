@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Jacksonized
@@ -12,5 +13,6 @@ import java.util.List;
 @Data
 @SuperBuilder
 public class Pkcs12InfoRequest extends VerifyRequest {
+    @NotEmpty
     private List<SignerRequest> keys;
 }
