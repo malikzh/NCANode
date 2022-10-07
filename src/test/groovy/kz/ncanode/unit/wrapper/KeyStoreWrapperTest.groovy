@@ -70,7 +70,7 @@ class KeyStoreWrapperTest extends Specification implements WithTestData {
 
         doThrow(exception).when(keyStoreSpiMock).engineGetKey(any(), any())
 
-        def keystoreWrapper = new KeyStoreWrapper(keystore, "null", "")
+        def keystoreWrapper = new KeyStoreWrapper(keystore, "null", "", [])
 
         when:
         keystoreWrapper.getPrivateKey()
@@ -89,7 +89,7 @@ class KeyStoreWrapperTest extends Specification implements WithTestData {
         def keystore = mock(KeyStore)
         when(keystore.getCertificate(any())).thenThrow(new KeyStoreException())
 
-        def keystoreWrapper = new KeyStoreWrapper(keystore, "null", "")
+        def keystoreWrapper = new KeyStoreWrapper(keystore, "null", "", [])
 
         when:
         keystoreWrapper.getCertificate()
