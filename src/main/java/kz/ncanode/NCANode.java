@@ -2,6 +2,8 @@ package kz.ncanode;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -10,7 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @EnableCaching
 @EnableRetry
-public class NCANode {
+public class NCANode extends SpringBootServletInitializer {
     public static void main(String[] args) {
         System.out.println(banner());
         SpringApplication.run(NCANode.class, args);
@@ -25,4 +27,9 @@ public class NCANode {
             |_____|\\____|`.____ .'|____| |____||_____|\\____|'.__.'  '.__.;__]'.__.'  \\______.'\s
             """;
     }
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(NCANode.class);
+    }
+
 }
