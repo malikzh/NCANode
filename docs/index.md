@@ -1,17 +1,36 @@
+---
+layout: page
+---
 
-![NCANode](NCANode.png)
-
-
-⭐ Приложение-сервер для работы с Электронно Цифровой Подписью (ЭЦП) РК
+<h1 class="text-center">
+    NCANode
+</h1>
 
 ---
 
-![License:MIT](https://img.shields.io/badge/license-MIT-green.svg)
-![Downloads](https://img.shields.io/github/downloads/malikzh/NCANode/total.svg)
-![Docker Pulls](https://img.shields.io/docker/pulls/malikzh/ncanode)
-[![Build CI and Test](https://github.com/malikzh/NCANode/actions/workflows/build-ci.yml/badge.svg)](https://github.com/malikzh/NCANode/actions/workflows/build-ci.yml)
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/malikzh/NCANode)
-[![codecov](https://codecov.io/gh/malikzh/NCANode/branch/master/graph/badge.svg?token=yk6ln3mlTB)](https://codecov.io/gh/malikzh/NCANode)
+<div style="display: flex; height: 100px;align-items: center;justify-content: center;">
+    <div>
+        <a class="github-button" href="https://github.com/malikzh/NCANode" data-size="large" data-show-count="true" aria-label="Star malikzh/NCANode on GitHub">Star</a>    
+    </div>
+    <div style="margin-left: 10px;">
+<a class="github-button" href="https://github.com/malikzh/NCANode/fork" data-size="large" data-show-count="true" aria-label="Fork malikzh/NCANode on GitHub">Fork</a>    
+</div>
+
+ <div style="margin-left: 10px;">
+<!-- Place this tag where you want the button to render. -->
+<a class="github-button" href="https://github.com/malikzh/NCANode/releases" download data-icon="octicon-download" data-size="large" aria-label="Download malikzh/NCANode on GitHub">Download</a>
+</div>
+</div>
+
+---
+
+<div style="display: flex; justify-content: center;">
+    <div style="margin: 0 5px;"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License:MIT"></div>
+    <div style="margin: 0 5px;"><img src="https://img.shields.io/github/downloads/malikzh/NCANode/total.svg" alt="Docker Pulls"></div>
+    <div style="margin: 0 5px;"><a href="https://github.com/malikzh/NCANode/actions/workflows/build-ci.yml" target="_blank"><img src="https://github.com/malikzh/NCANode/actions/workflows/build-ci.yml/badge.svg" alt="Build CI and Test"></a></div>
+    <div style="margin: 0 5px;"><img src="https://img.shields.io/github/v/release/malikzh/NCANode" alt="GitHub release (latest SemVer)"></div>
+    <div style="margin: 0 5px;"><a href="https://codecov.io/gh/malikzh/NCANode" target="_blank"><img src="https://codecov.io/gh/malikzh/NCANode/branch/master/graph/badge.svg?token=yk6ln3mlTB" alt="Build CI and Test"></a></div>
+</div>
 
 ---
 
@@ -119,4 +138,6 @@ $ ./gradlew bootRun
 
 Проверить можно, перейдя на страницу: http://localhost:14579/actuator/health
 
-Сделано с ❤️
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>

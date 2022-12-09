@@ -1,0 +1,17 @@
+#  The contact options.
+
+-
+  type: github
+  icon: 'fab fa-github'
+-
+  type: twitter
+  icon: 'fab fa-twitter'
+-
+  type: email
+  icon: 'fas fa-envelope'
+  noblank: true
+-
+   type: linkedin
+   icon: 'fab fa-linkedin'
+   url:  'https://www.linkedin.com/in/malikzh/'
+

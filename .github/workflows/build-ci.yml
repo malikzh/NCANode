@@ -1,0 +1,40 @@
+name: Build CI and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Cache Kalkancrypt libraries
+        id: kalkancrypt-cache
+        uses: actions/cache@v3
+        with:
+          path: ./lib
+          key: ${{ runner.os }}-kalkancrypt-libs-2
+      - name: Install kalkan libraries
+        if: steps.kalkancrypt-cache.outputs.cache-hit != 'true'
+        env:
+          KALKAN_CRYPT_URL: ${{ secrets.KALKAN_CRYPT_URL }}
+          KALKAN_CRYPT_XMLDSIG_URL: ${{ secrets.KALKAN_CRYPT_XMLDSIG_URL }}
+        run: |
+          wget -P ./lib "$KALKAN_CRYPT_URL"
+          wget -P ./lib "$KALKAN_CRYPT_XMLDSIG_URL"
+      - name: Build and Run tests
+        run: ./gradlew build test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
