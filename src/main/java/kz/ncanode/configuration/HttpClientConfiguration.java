@@ -9,10 +9,13 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +35,7 @@ public class HttpClientConfiguration {
     private HttpProxyConfig proxy;
     private Integer connectionTtl;
     private String userAgent = "NCANode/" + HttpClientConfiguration.class.getPackage().getImplementationVersion();
+    private boolean disableSslCheck;
 
     @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     @Bean
@@ -61,6 +65,16 @@ public class HttpClientConfiguration {
         customClient.setUserAgent(userAgent);
         customClient.setRedirectStrategy(new LaxRedirectStrategy());
         customClient.disableCookieManagement();
+
+        if(disableSslCheck){
+            try {
+                return customClient.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .setSSLContext(new SSLContextBuilder().loadTrustMaterial(null, (TrustStrategy) (arg0, arg1) -> true).build()).build();
+            } catch (Exception $ex) {
+                log.warn("Не удалось применить конфигурацию без проверки ssl {}", $ex.getMessage());
+                return customClient.build();
+            }
+        }
 
         return customClient.build();
     }

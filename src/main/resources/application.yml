@@ -17,6 +17,7 @@ ncanode:
   http-client:
     connectionTtl: ${NCANODE_HTTP_CLIENT_CONNECTION_TTL:10}
     userAgent: ${NCANODE_HTTP_CLIENT_USER_AGENT:}
+    disableSslCheck: ${NCANODE_HTTP_CLIENT_DISABLE_SSL_CHECK:false}
     proxy:
       url: ${NCANODE_PROXY_URL:}
       username: ${NCANODE_PROXY_USERNAME:}
@@ -26,6 +27,7 @@ ncanode:
   ca:
     url: ${NCANODE_CA_URL:https://pki.gov.kz/cert/nca_rsa.crt https://pki.gov.kz/cert/nca_gost.crt https://pki.gov.kz/cert/root_gost_2022.cer https://pki.gov.kz/cert/nca_gost_2022.cer}
     ttl: ${NCANODE_CA_TTL:1440}
+    enabled: ${NCANODE_CA_ENABLED:true}
     crl:
       enabled: ${NCANODE_CA_CRL_ENABLED:true}
       ttl: ${NCANODE_CA_CRL_TTL:1440}
