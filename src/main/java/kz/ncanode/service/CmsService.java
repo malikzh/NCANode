@@ -230,8 +230,14 @@ public class CmsService {
                     var attrs = signer.getUnsignedAttributes().toHashtable();
 
                     if (attrs.containsKey(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken)) {
-                        Attribute attr = (Attribute) attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
-
+                        Attribute attr = null;
+                        Object obj = attrs.get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken);
+                        if(obj instanceof Vector) {
+                            attr = (Attribute)( ((Vector)obj).get(0) );
+                        }
+                        else {
+                            attr = (Attribute)obj;
+                        }
 
                         if (attr.getAttrValues().size() != 1) {
                             throw new Exception("Too many TSP tokens");
