@@ -160,10 +160,19 @@ public class CmsService {
                 List<SignerInformation> signers = new ArrayList<>();
 
                 int i = 0;
-
                 for (Object signer : signerStore.getSigners()) {
                     X509Certificate cert = certificates.get(i++);
-                    signers.add(tspService.addTspToSigner((SignerInformation) signer, cert, useTsaPolicy));
+
+                    //Нельзя перезатирать TSP у предыдущих подписантов
+                    boolean isCurrentSignerSameAsPrevious = isSignerSameAsPrevious((SignerInformation) signer, cms);
+                    if(isCurrentSignerSameAsPrevious) {
+                        //Старых подписантов оставляем без изменений
+                        signers.add((SignerInformation)signer);
+                    }
+                    else {
+                        //Новым подписантам устанавливаем TSP
+                        signers.add(tspService.addTspToSigner((SignerInformation) signer, cert, useTsaPolicy));
+                    }
                 }
 
                 signed = CMSSignedData.replaceSigners(signed, new SignerInformationStore(signers));
@@ -175,6 +184,17 @@ public class CmsService {
         } catch (Exception e) {
             throw new ServerException(e.getMessage(), e);
         }
+    }
+
+    private static boolean isSignerSameAsPrevious(SignerInformation signer, CMSSignedData cms) {
+        boolean isCurrentSignerSameAsPrevious = false;
+        for(Object obj : cms.getSignerInfos().getSigners()) {
+            SignerInformation prevSignerInfo = (SignerInformation)obj;
+            if (prevSignerInfo.getSID().equals(signer.getSID())) {
+                isCurrentSignerSameAsPrevious = true;
+            }
+        }
+        return isCurrentSignerSameAsPrevious;
     }
 
     /**
