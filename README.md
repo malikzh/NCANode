@@ -95,7 +95,7 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 Для сборки проекта необходимо:
 
 1. Подставить бибилиотеки kalkancrypt (Их можно запросить [тут](https://pki.gov.kz/developers/))
-2. `./gradlew bootJar` (для jar файла) или `./gradlew bootWar` (для jar файла)
+2. `./gradlew bootJar` (для jar файла) или `./gradlew bootWar` (для war файла)
 
 
 Собранный проект будет лежать: `build/libs/NCANode.jar` или `build/libs/NCANode.war`
