@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://magnum-ashen.vercel.app", "http://localhost:3000")
+                        .allowedOrigins("https://magnum-ashen.vercel.app", "http://localhost:3000", "https://cors-test.codehappy.dev/")
                         .allowedMethods("*")
                         .allowedHeaders("*")
                         .allowCredentials(true);
