@@ -12,7 +12,7 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                System.out.println("CORS CONFIGURED============================");
+                System.out.println("CORS CONFIGURED");
                 registry.addMapping("/**")
                         .allowedOrigins("https://magnum-ashen.vercel.app", "http://localhost:3000", "https://cors-test.codehappy.dev", "http://89.46.34.50")
                         .allowedOriginPatterns("*")
