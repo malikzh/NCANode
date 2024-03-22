@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.stereotype.*;
 
-@SpringBootApplication
 @EnableScheduling
 @EnableCaching
 @EnableRetry
