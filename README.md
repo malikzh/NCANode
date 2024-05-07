@@ -74,6 +74,8 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 Документацию можно найти на http://ncanode.kz
 
+Swagger: https://v3.ncanode.kz/swagger-ui/
+
 ## Contributors
 
 <a href="https://github.com/malikzh/NCANode/graphs/contributors">
@@ -86,11 +88,14 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 ## Важно!!!
 
-По требованию  АО «НИТ» | НУЦ РК. Библиотеки `kalkancrypt-0.6.jar` и `kalkancrypt_xmldsig-0.3.jar`
+По требованию  АО «НИТ» | НУЦ РК. Библиотеки `kalkancrypt-*.jar`/`knca_provider_jce_kalkan-*.jar` и `kalkancrypt-xmldsig-*.jar`
 Были удалены из репозитория, поэтому для компиляции Вам необходимо подставить библиотеки
 из комплекта разработчика (SDK) в директорию `/lib`.
 
 ### Сборка проекта
+
+Версия gradle: 7.2
+Версия java: 17
 
 Для сборки проекта необходимо:
 
@@ -100,19 +105,30 @@ https://profit.kz/news/56732/Otkritij-kod-Beeline-Hacktoberfest-v-Kazahstane/
 
 Собранный проект будет лежать: `build/libs/NCANode.jar` или `build/libs/NCANode.war`
 
-### Запуск в Docker
-
-```bash
-docker volume create ncanode_cache
-docker run -p 14579:14579 -v ncanode_cache:/app/cache -d malikzh/ncanode
-```
-
 ### Запуск проекта без сборки
 
 Проект запустить можно командой:
 
 ```bash
 $ ./gradlew bootRun
+```
+
+### Запуск в Docker из готового образа
+
+```bash
+docker volume create ncanode_cache
+docker run -p 14579:14579 -v ncanode_cache:/app/cache -d malikzh/ncanode
+```
+
+### Запуск через Docker Compose
+
+Предварительно нужно собрать проект через gradle и сгенерировать jar файлы
+
+```bash
+docker compose build  // сборка образа
+docker compose up -d  // запуск контейнера
+docker compose ps  // проверка статуса контейнера
+docker compose stop  // остановка контейнера
 ```
 
 ### После запуска

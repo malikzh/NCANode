@@ -1,5 +1,5 @@
 # README
 
-По требованию  АО «НИТ» | НУЦ РК. Библиотеки `kalkancrypt-0.7.jar` и `kalkancrypt_xmldsig-0.4.jar`
+По требованию  АО «НИТ» | НУЦ РК. Библиотеки `kalkancrypt-*.jar`/`knca_provider_jce_kalkan-*.jar` и `kalkancrypt-xmldsig-*.jar`
 Были удалены из репозитория, поэтому для компиляции Вам необходимо сюда подставить библиотеки
 из комплекта разработчика (SDK).

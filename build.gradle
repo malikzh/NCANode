@@ -51,8 +51,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
     // KalkanCrypt
-    implementation name: 'kalkancrypt-0.7.2'
-    implementation name: 'kalkancrypt_xmldsig-0.4'
+    implementation name: 'knca_provider_jce_kalkan-0.7.5'
+    implementation name: 'kalkancrypt-xmldsig-0.5'
     implementation 'org.apache.santuario:xmlsec:2.1.7'
 
     // SOAP/WSSE
