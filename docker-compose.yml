@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  ncanode:
+    image: ncanode
+    restart: unless-stopped
+    build:
+      context: .
+    volumes:
+      - ncanode_cache:/app/cache
+    ports:
+      - "14579:14579"
+
+volumes:
+  ncanode_cache:
