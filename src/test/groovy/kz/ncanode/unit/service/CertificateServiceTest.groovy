@@ -26,7 +26,7 @@ class CertificateServiceTest extends Specification implements WithTestData {
         result.signers.size() == 1
     }
 
-    def "invalid cetificate info method"() {
+    def "invalid certificate info method"() {
         given:
         def certs = [
             "YXNkYXNk"

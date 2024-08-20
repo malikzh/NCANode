@@ -259,7 +259,7 @@ public class CertificateWrapper {
                     subjectBuilder.locality((String)rdn.getValue());
                 } else if (rdn.getType().equalsIgnoreCase("S")) {
                     subjectBuilder.state((String)rdn.getValue());
-                } else if (rdn.getType().equalsIgnoreCase("E")) {
+                } else if ((rdn.getType().equalsIgnoreCase("E")) || (rdn.getType().equalsIgnoreCase("EMAILADDRESS"))) {
                     subjectBuilder.email((String)rdn.getValue());
                 } else if (rdn.getType().equalsIgnoreCase("O")) {
                     subjectBuilder.organization((String)rdn.getValue());
@@ -276,7 +276,7 @@ public class CertificateWrapper {
 
             return Optional.of(subjectBuilder.build());
         } catch (InvalidNameException e) {
-            log.warn("Distinguished name parseing error", e);
+            log.warn("Distinguished name parsing error", e);
             return Optional.empty();
         }
     }
