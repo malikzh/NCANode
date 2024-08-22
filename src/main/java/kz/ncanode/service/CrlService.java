@@ -84,6 +84,12 @@ public class CrlService {
      * @return Статус проверки
      */
     public CrlStatus verify(CertificateWrapper cert) {
+        if (!crlConfiguration.isEnabled()) {
+            return CrlStatus.builder()
+                .result(CrlResult.ACTIVE)
+                .build();
+        }
+
         for (final String cacheDirectory : List.of(CRL_CACHE_DELTA_DIR_NAME, CRL_CACHE_FULL_DIR_NAME)) {
             // Догружаем CRL из сертификата
             for (URL crlUrl : cert.getCrlList()) {
