@@ -99,7 +99,7 @@ Swagger: https://v3.ncanode.kz/swagger-ui/
 
 Для сборки проекта необходимо:
 
-1. Подставить бибилиотеки kalkancrypt (Их можно запросить [тут](https://pki.gov.kz/developers/))
+1. Подставить библиотеки kalkancrypt (`knca_provider_jce_kalkan-*.jar` и `kalkancrypt-xmldsig-*.jar`) в директорию lib (Их можно запросить [тут](https://pki.gov.kz/developers/))
 2. `./gradlew bootJar` (для jar файла) или `./gradlew bootWar` (для war файла)
 
 
