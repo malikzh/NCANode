@@ -17,7 +17,7 @@ public class NCANode extends SpringBootServletInitializer {
         System.out.println(banner());
         SpringApplication.run(NCANode.class, args);
     }
-    private static String banner() {
+    public static String banner() {
         return """
              ____  _____   ______       _       ____  _____               __          ______  \s
             |_   \\|_   _|.' ___  |     / \\     |_   \\|_   _|             |  ]        / ____ `.\s

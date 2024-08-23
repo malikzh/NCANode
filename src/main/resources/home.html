@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html dir="ltr">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="UTF-8">
+
+        <style type="text/css">
+            body {
+                background-color: #d1dce0;
+                font-family: sans-serif;
+                font-size: 14px;
+            }
+
+            .content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .version, .links {
+                margin-top: 10px;
+            }
+        </style>
+
+        <title>NCANode v#{VERSION}</title>
+    </head>
+    <body>
+        <div class="content">
+            <pre>#{BANNER}</pre>
+
+            <div class="version">
+                v#{VERSION}
+            </div>
+
+            <div class="links">
+                <a href="https://v3.ncanode.kz/docs/" target="_blank">
+                    docs
+                </a>
+                <span>|</span>
+                <a href="https://v3.ncanode.kz/swagger-ui/" target="_blank">
+                    swagger
+                </a>
+                <span>|</span>
+                <a href="https://github.com/malikzh/NCANode" target="_blank">
+                    github
+                </a>
+            </div>
+        </div>
+    </body>
+</html>
