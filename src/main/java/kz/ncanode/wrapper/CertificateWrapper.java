@@ -193,17 +193,21 @@ public class CertificateWrapper {
         return x509Certificate.getPublicKey();
     }
 
-    private Set<CertificateKeyUser> getKeyUser() {
+    public List<String> getExtendedKeyUsage() {
         try {
-            return getX509Certificate().getExtendedKeyUsage().stream()
-                .map(CertificateKeyUser::fromOID)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
+            return getX509Certificate().getExtendedKeyUsage();
         } catch (CertificateParsingException e) {
             log.error("Certificate key user extracting error", e);
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
+    }
+
+    private Set<CertificateKeyUser> getKeyUser() {
+        return getExtendedKeyUsage().stream()
+            .map(CertificateKeyUser::fromOID)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet());
     }
 
     public static Optional<CertificateWrapper> fromBase64(final String encodedCert) {
