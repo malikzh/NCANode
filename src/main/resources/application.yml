@@ -10,9 +10,9 @@ ncanode:
   crl:
     enabled: ${NCANODE_CRL_ENABLED:true}
     ttl: ${NCANODE_CRL_TTL:1440}
-    url: ${NCANODE_CRL_URL:https://crl.pki.gov.kz/nca_gost.crl https://crl.pki.gov.kz/nca_rsa.crl}
+    url: ${NCANODE_CRL_URL:https://crl.pki.gov.kz/nca_gost.crl https://crl.pki.gov.kz/nca_rsa.crl https://crl.pki.gov.kz/nca_rsa_2022.crl https://crl.pki.gov.kz/nca_gost_2022.crl}
     delta:
-      url: ${NCANODE_CRL_DELTA_URL:https://crl.pki.gov.kz/nca_d_gost.crl https://crl.pki.gov.kz/nca_d_rsa.crl}
+      url: ${NCANODE_CRL_DELTA_URL:https://crl.pki.gov.kz/nca_d_gost.crl https://crl.pki.gov.kz/nca_d_rsa.crl https://crl.pki.gov.kz/nca_d_rsa_2022.crl https://crl.pki.gov.kz/nca_d_gost_2022.crl}
       ttl: ${NCANODE_CRL_DELTA_TTL:60}
   http-client:
     connectionTtl: ${NCANODE_HTTP_CLIENT_CONNECTION_TTL:10}
