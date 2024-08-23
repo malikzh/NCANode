@@ -49,6 +49,16 @@ public class OcspService {
     public List<OcspStatus> verify(CertificateWrapper cert, CertificateWrapper issuer) {
         List<OcspStatus> statuses = new ArrayList<>();
 
+        if (issuer == null) {
+            statuses.add(OcspStatus.builder()
+                .result(OcspResult.UNKOWN)
+                .message("Cannot find root certificate in NCANode. Try add it using NCANODE_CA_URL variable.")
+                .build()
+            );
+
+            return statuses;
+        }
+
         for (Map.Entry<String, URL> entry : ocspConfiguration.getUrlList().entrySet()) {
             try {
                 byte[] nonce = generateOcspNonce();
