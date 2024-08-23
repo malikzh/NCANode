@@ -116,10 +116,6 @@ public class CrlService {
             .build();
     }
 
-    public Map<String, X509CRL> getLoadedCrlEntries(String cacheDirName) {
-        return getCrlFiles(cacheDirName).stream().collect(Collectors.toMap(File::getName, this::loadCrl));
-    }
-
     /**
      * Обновляет кэш CRL
      *
@@ -204,13 +200,15 @@ public class CrlService {
     }
 
     /**
-     * Возвращает файл кэша для URL
+     * Возвращает список CRL файлов в указанной директории
+     *
      * @param cacheDirName
-     * @param url
      * @return
      */
-    public File getCrlCacheFilePathFor(String cacheDirName, URL url) {
-        return getCrlCacheFilePathFor(cacheDirName, Util.sha1(url.toString()) + CRL_FILE_EXTENSION);
+    public List<File> getCrlFiles(String cacheDirName) {
+        return Arrays.stream(Objects.requireNonNull(directoryService.getCachePathFor(cacheDirName).orElseThrow().listFiles()))
+            .filter(file -> file.isFile() && file.canRead() && file.getName().endsWith(CRL_FILE_EXTENSION))
+            .toList();
     }
 
     private File download(String url, Path path) throws CrlException {
@@ -241,11 +239,5 @@ public class CrlService {
 
     private File getCrlCacheFilePathFor(String cacheDirName, String fileName) {
         return new File(directoryService.getCachePathFor(cacheDirName).orElseThrow(), fileName);
-    }
-
-    private List<File> getCrlFiles(String cacheDirName) {
-        return Arrays.stream(Objects.requireNonNull(directoryService.getCachePathFor(cacheDirName).orElseThrow().listFiles()))
-            .filter(file -> file.isFile() && file.canRead() && file.getName().endsWith(CRL_FILE_EXTENSION))
-            .collect(Collectors.toList());
     }
 }

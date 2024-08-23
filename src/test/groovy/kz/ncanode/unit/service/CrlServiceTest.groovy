@@ -1,6 +1,7 @@
 package kz.ncanode.unit.service
 
 import kz.ncanode.common.WithTestData
+import kz.ncanode.configuration.crl.CrlConfiguration
 import kz.ncanode.dto.crl.CrlResult
 import kz.ncanode.service.CrlService
 import kz.ncanode.util.Util
@@ -32,6 +33,9 @@ class CrlServiceTest extends Specification implements WithTestData {
     @SpyBean
     CrlService crlService
 
+    @SpyBean
+    CrlConfiguration crlConfiguration
+
     def CRL_GOST = (X509CRL)CertificateFactory.getInstance("X.509").generateCRL(new FileInputStream(ResourceUtils.getFile("classpath:crl/nca_gost_test.crl")))
     def CRL_GOST_2015 = (X509CRL)CertificateFactory.getInstance("X.509").generateCRL(new FileInputStream(ResourceUtils.getFile("classpath:crl/nca_gost2022_test.crl")))
     def CRL_RSA = (X509CRL)CertificateFactory.getInstance("X.509").generateCRL(new FileInputStream(ResourceUtils.getFile("classpath:crl/nca_rsa_test.crl")))
@@ -45,13 +49,26 @@ class CrlServiceTest extends Specification implements WithTestData {
     @Unroll("#caseName")
     def "check certificate 2004 verification in CRL"() {
         given: 'load cert and crls'
-        def crlFileMock = mock(File)
 
-        when(crlFileMock.exists()).thenReturn(false)
-
-        doReturn(CRLS).when(crlService).getLoadedCrlEntries(anyString())
+        doReturn(true).when(crlConfiguration).isEnabled()
         doNothing().when(crlService).downloadCrl(anyString(), isNotNull())
-        doReturn(crlFileMock).when(crlService).getCrlCacheFilePathFor(anyString(), any(URL))
+
+        def crlFilesList = new ArrayList<File>()
+
+        CRLS.each {k, _ ->
+            def crlFileMock = mock(File)
+
+            when(crlFileMock.exists()).thenReturn(false)
+            when(crlFileMock.getName()).thenReturn(k)
+            crlFilesList.add(crlFileMock)
+        }
+
+        doReturn(crlFilesList).when(crlService).getCrlFiles(anyString())
+
+        doAnswer {
+            def file = it.getArgument(0, File)
+            return CRLS[file.getName()]
+        }.when(crlService).loadCrl(any(File))
 
         def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
 
@@ -65,9 +82,6 @@ class CrlServiceTest extends Specification implements WithTestData {
         and: 'check crl result'
         status.getResult() == expectedStatus
 
-        and: 'check crl downloading'
-        verify(crlService, atLeast(1)).downloadCrl(anyString(), isNotNull())
-
         where:
         caseName                          | keyStr                           || expectedStatus
         'check revoked auth 2004 key'     | KEY_INDIVIDUAL_AUTH_REVOKED_2004 || CrlResult.REVOKED
@@ -78,13 +92,25 @@ class CrlServiceTest extends Specification implements WithTestData {
 
     def "check certificate 2015 verification in CRL"() {
         given:
-        Map<String, X509CRL> downloadedCrls = new HashMap<>()
-        doReturn(downloadedCrls).when(crlService).getLoadedCrlEntries(anyString())
+        doReturn(true).when(crlConfiguration).isEnabled()
+        doNothing().when(crlService).downloadCrl(anyString(), isNotNull())
 
-        doAnswer(inv -> {
-            URL url = inv.getArgument(1, URL.class)
-            downloadedCrls.put(Util.sha1(url.toString()), CRLS.get(url.toString()))
-        }).when(crlService).downloadCrl(anyString(), isNotNull())
+        def crlFilesList = new ArrayList<File>()
+
+        CRLS.each {k, _ ->
+            def crlFileMock = mock(File)
+
+            when(crlFileMock.exists()).thenReturn(false)
+            when(crlFileMock.getName()).thenReturn(k)
+            crlFilesList.add(crlFileMock)
+        }
+
+        doReturn(crlFilesList).when(crlService).getCrlFiles(anyString())
+
+        doAnswer {
+            def file = it.getArgument(0, File)
+            return CRLS[file.getName()]
+        }.when(crlService).loadCrl(any(File))
 
         def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
 
