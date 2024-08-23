@@ -91,30 +91,15 @@ public class CrlService {
         }
 
         for (final String cacheDirectory : List.of(CRL_CACHE_DELTA_DIR_NAME, CRL_CACHE_FULL_DIR_NAME)) {
-            // Догружаем CRL из сертификата
-            for (URL crlUrl : cert.getCrlList()) {
-                Util.findAllUrls(crlUrl.toString()).forEach(url -> {
-                    try {
-                        URL u = new URL(url);
-                        File crlFile = getCrlCacheFilePathFor(cacheDirectory, u);
-
-                        if (!crlFile.exists()) {
-                            downloadCrl(cacheDirectory, u);
-                        }
-                    } catch (MalformedURLException e) {
-                        log.warn("Invalid CRL url: {}. Certificate: {}", crlUrl, cert.getSubjectX500Principal().toString());
-                    }
-                });
-            }
-
             // Проверяем в CRL
-            for (var crlEntry : getLoadedCrlEntries(cacheDirectory).entrySet()) {
-                if (crlEntry.getValue().isRevoked(cert.getX509Certificate())) {
+            for (File crlFile : getCrlFiles(cacheDirectory)) {
+                X509CRL crl = loadCrl(crlFile);
 
-                    return Optional.ofNullable(crlEntry.getValue().getRevokedCertificate(cert.getX509Certificate()))
+                if (crl.isRevoked(cert.getX509Certificate())) {
+                    return Optional.ofNullable(crl.getRevokedCertificate(cert.getX509Certificate()))
                         .map( entry -> CrlStatus.builder()
                             .result(CrlResult.REVOKED)
-                            .file(crlEntry.getKey())
+                            .file(crlFile.getName())
                             .revocationDate(entry.getRevocationDate())
                             .reason(Optional.ofNullable(entry.getRevocationReason()).map(CRLReason::toString).orElse(""))
                             .build()
@@ -140,7 +125,6 @@ public class CrlService {
      *
      * @param force Если true, то кэш будет обновлен в любом случае
      */
-    @CacheEvict("crls")
     public synchronized void updateCache(boolean force, CrlConfiguration crlConfiguration, String cacheDirectory) {
         synchronized (directoryService) {
             if (!crlConfiguration.isEnabled() || crlConfiguration.getTtl() <= 0) {
@@ -191,7 +175,6 @@ public class CrlService {
      * @param file
      * @return
      */
-    @Cacheable(value = "crls", key = "#file.absolutePath")
     public X509CRL loadCrl(File file) {
         try (FileInputStream in = new FileInputStream(file)) {
             return (X509CRL) CertificateFactory.getInstance("X.509").generateCRL(in);
