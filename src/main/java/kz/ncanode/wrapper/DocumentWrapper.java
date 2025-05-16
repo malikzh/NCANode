@@ -51,7 +51,7 @@ public class DocumentWrapper {
                 try {
                     documentBuilderFactory.setFeature(feature, false);
                 } catch (ParserConfigurationException e) {
-                    log.error("ParserConfigurationException was thrown. The feature '{}' is probably not supported by your XML processor.", feature);
+                    log.error(String.format("ParserConfigurationException was thrown. The feature %s is probably not supported by your XML processor.", feature));
                 }
             }
 
