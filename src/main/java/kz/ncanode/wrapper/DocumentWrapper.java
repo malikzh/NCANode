@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,6 +37,23 @@ public class DocumentWrapper {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
+            documentBuilderFactory.setXIncludeAware(false);
+            documentBuilderFactory.setExpandEntityReferences(false);
+            documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+            String[] featuresToDisable = {
+                "http://xml.org/sax/features/external-general-entities",
+                "http://xml.org/sax/features/external-parameter-entities",
+                "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+            };
+
+            for (String feature : featuresToDisable) {
+                try {
+                    documentBuilderFactory.setFeature(feature, false);
+                } catch (ParserConfigurationException e) {
+                    log.error(String.format("ParserConfigurationException was thrown. The feature %s is probably not supported by your XML processor.", feature));
+                }
+            }
 
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
