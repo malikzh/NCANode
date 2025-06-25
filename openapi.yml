@@ -465,8 +465,8 @@ components:
     TsaPolicy:
       type: string
       description: TSA Policy for TSP Token
-      example: TSA_GOST_POLICY
-      default: TSA_GOST_POLICY
+      example: TSA_GOST2015_POLICY
+      default: TSA_GOST2015_POLICY
       enum:
         - TSA_GOST_POLICY
         - TSA_GOSTGT_POLICY
