@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "WSSE", description = "Методы для работы с WSSE")
 @RestController
 @RequestMapping("wsse")
 @RequiredArgsConstructor

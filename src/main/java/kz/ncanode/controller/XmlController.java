@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "XML", description = "Методы для работы с XML")
 @RestController
 @RequestMapping("xml")
 @RequiredArgsConstructor

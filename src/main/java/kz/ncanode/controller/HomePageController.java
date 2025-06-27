@@ -17,8 +17,11 @@ import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 @Controller
 @RequiredArgsConstructor
+@Hidden
 public class HomePageController {
     private final MaintenanceService maintenanceService;
 

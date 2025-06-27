@@ -7,6 +7,12 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+
 
 @SpringBootApplication
 @EnableScheduling
@@ -30,6 +36,19 @@ public class NCANode extends SpringBootServletInitializer {
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(NCANode.class);
+    }
+    @Configuration
+    public static class OpenApiConfig {
+
+        @Value("${SWAGGER_RELATIVE_PATH:}")
+        private String swaggerRelativePath;
+
+        @Bean
+        public OpenAPI customOpenAPI() {
+            String fullUrl = swaggerRelativePath;
+            return new OpenAPI()
+                .addServersItem(new Server().url(fullUrl).description("current server"));
+        }
     }
 
 }
