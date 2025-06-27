@@ -60,6 +60,7 @@ dependencies {
     implementation 'org.apache.wss4j:wss4j-ws-security-dom:2.4.1'
     implementation 'jakarta.xml.ws:jakarta.xml.ws-api:3.0.1'
     implementation 'com.sun.xml.ws:jaxws-rt:3.0.2'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
 }
 
 test {

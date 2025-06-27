@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "X509", description = "Методы для работы с x509")
 @RestController
 @RequestMapping("x509")
 @RequiredArgsConstructor
