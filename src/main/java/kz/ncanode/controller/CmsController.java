@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "CMS", description = "Методы для работы с CMS")
 @RestController
 @RequestMapping("cms")
 @RequiredArgsConstructor
