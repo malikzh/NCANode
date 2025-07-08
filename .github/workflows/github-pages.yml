@@ -37,7 +37,7 @@ jobs:
           output: ./docs/_site/swagger-ui
           spec-file: openapi.yml
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs/_site
 
