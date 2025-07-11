@@ -47,11 +47,11 @@ docker run -p 14579:14579 -v ncanode_cache:/app/cache -d malikzh/ncanode
 * `NCANODE_CRL_ENABLED` - поддержка CRL (по умолчанию включена)
 * `NCANODE_CRL_TTL` - Время жизни CRL в кэше (по умолчанию 1440 минут)
 * `NCANODE_CRL_URL` - URL'ы откуда скачивать списки CRL. По умолчанию они берутся из:
-  * https://crl.pki.gov.kz/nca_gost.crl
-  * https://crl.pki.gov.kz/nca_rsa.crl
+  * https://crl.pki.gov.kz/nca_gost_2022.crl
+  * https://crl.pki.gov.kz/nca_rsa_2022.crl
 * `NCANODE_CRL_DELTA_URL` - URL'ы дельта версий CRL. *Они обычно обновляются чаще чем основные*. По умолчанию:
-  * https://crl.pki.gov.kz/nca_d_gost.crl
-  * https://crl.pki.gov.kz/nca_d_rsa.crl
+  * https://crl.pki.gov.kz/nca_d_gost_2022.crl
+  * https://crl.pki.gov.kz/nca_d_rsa_2022.crl
 * `NCANODE_CRL_DELTA_TTL` - Время жизни Delta-CRL в кэше (по умолчанию 1440 минут)
 * `NCANODE_HTTP_CLIENT_CONNECTION_TTL` - Время удержания соединения HTTP-клиента (когда скачиваются CRL\OCSP\Корневые сертификаты)
 * `NCANODE_HTTP_CLIENT_USER_AGENT` - HTTP заголовок User-Agent у клиента
@@ -62,8 +62,8 @@ docker run -p 14579:14579 -v ncanode_cache:/app/cache -d malikzh/ncanode
 * `NCANODE_CA_URL` - URL-ы корневых сертификатов. Они скачиваются автоматически при запуске NCANode. По умолчанию:
   * https://pki.gov.kz/cert/nca_rsa.crt
   * https://pki.gov.kz/cert/nca_gost.crt
-  * https://pki.gov.kz/cert/root_gost2015_2022.cer
-  * https://pki.gov.kz/cert/nca_gost2015.cer
+  * https://pki.gov.kz/cert/root_gost_2022.cer
+  * https://pki.gov.kz/cert/nca_gost_2022.cer
 * `NCANODE_CA_TTL` - Время жизни корневых сертификатов CA (по умолчанию 1440 минут)
 * `NCANODE_CA_CRL_ENABLED` - Проверка корневых сертификатов на отозванность. Если сертификат отозван, NCANode попробует его заново скачать. (По умолчанию: true)
 * `NCANODE_CA_CRL_TTL` - Время жизни для CRL корневых сертификатов (по умолчанию 1440 минут)
