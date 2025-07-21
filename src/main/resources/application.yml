@@ -24,7 +24,7 @@ ncanode:
   ocsp:
     url: ${NCANODE_OCSP_URL:http://ocsp.pki.gov.kz/}
   ca:
-    url: ${NCANODE_CA_URL:https://pki.gov.kz/cert/nca_rsa.crt https://pki.gov.kz/cert/nca_gost.crt https://pki.gov.kz/cert/root_gost_2022.cer https://pki.gov.kz/cert/nca_gost_2022.cer}
+    url: ${NCANODE_CA_URL:https://pki.gov.kz/cert/nca_rsa.crt https://pki.gov.kz/cert/nca_gost.crt https://pki.gov.kz/cert/root_gost_2022.cer https://root.gov.kz/cert/root_gost_2020.cer https://root.gov.kz/cert/root_rsa_2020.cer https://pki.gov.kz/cert/nca_gost_2022.cer}
     ttl: ${NCANODE_CA_TTL:1440}
     crl:
       enabled: ${NCANODE_CA_CRL_ENABLED:true}
